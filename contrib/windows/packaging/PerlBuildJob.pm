@@ -87,13 +87,6 @@ sub build_job {
         ### NEXT STEP 3 Upgrade CPAN modules ###################################
         {
             plugin => 'Perl::Dist::Strawberry::Step::UpgradeCpanModules',
-            exceptions => [
-                # possible 'do' options: ignore_testfailure | skiptest | skip - e.g.
-                #{ do=>'ignore_testfailure', distribution=>'ExtUtils-MakeMaker-6.72' },
-                #{ do=>'ignore_testfailure', distribution=>qr/^IPC-Cmd-/ },
-                { do=>'ignore_testfailure', distribution=>qr/^Net-Ping-/ }, # 2.72 fails
-                { do=>'skip', distribution => qr/^Filter-/ }, # 1.61 fails
-            ]
         },
         ### NEXT STEP 4 Install needed modules with agent dependencies #########
         {
@@ -114,7 +107,8 @@ sub build_job {
 
                 # network
                 # https://github.com/StrawberryPerl/Perl-Dist-Strawberry/issues/72
-                { module => 'https://github.com/StrawberryPerl/Perl-Dist-Strawberry/releases/download/dev_20230318/Socket6-0.29_01.tar.gz' },
+                # https://github.com/StrawberryPerl/Perl-Dist-Strawberry/issues/156#issuecomment-1835573792
+                { module => 'https://github.com/StrawberryPerl/Perl-Dist-Strawberry/releases/download/patched_cpan_modules/Socket6-0.29_02.tar.gz' },
                 qw/ IO::Socket::IP IO::Socket::INET6 HTTP::Daemon /,
                 qw/ HTTP-Server-Simple LWP::Protocol::https LWP::UserAgent /,
 
@@ -158,7 +152,6 @@ sub build_job {
                 { do=>'removefile', args=>[ '<image_dir>/etc/gdbinit' ] },
                 { do=>'removefile_recursive', args=>[ '<image_dir>/perl', qr/^\.packlist$/i ] },
                 { do=>'removefile_recursive', args=>[ '<image_dir>/perl', qr/\.pod$/i ] },
-                { do=>'removefile_recursive', args=>[ '<image_dir>/perl', qr/\.a$/i ] },
             ],
         },
         ### NEXT STEP 7 Install modules for test ###############################
@@ -199,6 +192,7 @@ sub build_job {
                 { do=>'removedir', args=>[ '<image_dir>/perl/bin' ] },
                 { do=>'movedir', args=>[ '<image_dir>/perl/newbin', '<image_dir>/perl/bin' ] },
                 { do=>'movefile', args=>[ '<image_dir>/c/bin/gmake.exe', '<image_dir>/perl/bin/gmake.exe' ] }, # Needed for tests
+                { do=>'removefile_recursive', args=>[ '<image_dir>/perl', qr/\.a$/i ] },
                 { do=>'removedir', args=>[ '<image_dir>/bin' ] },
                 { do=>'removedir', args=>[ '<image_dir>/c' ] },
                 { do=>'removedir', args=>[ '<image_dir>/'.($arch eq 'x64' ? 'x86_64' : 'i686').'-w64-mingw32' ] },
