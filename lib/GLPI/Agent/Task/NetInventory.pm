@@ -492,6 +492,9 @@ sub _queryDevice {
         die "SNMP communication error: $EVAL_ERROR" if $EVAL_ERROR;
     }
 
+    my $glpi_version = $self->{target}->isType('server') ? $self->{target}->getTaskVersion('inventory') : '';
+    $glpi_version = $self->{config}->{'glpi_version'} if empty($glpi_version);
+
     my $result = getDeviceFullInfo(
         id      => $device->{ID},
         type    => $device->{TYPE},
@@ -499,7 +502,7 @@ sub _queryDevice {
         config  => $self->{config},
         logger  => $self->{logger},
         # Include glpi version if known so modules can verify it for supported feature
-        glpi    => $self->{target}->isType('server') ? $self->{target}->getTaskVersion('inventory') : '',
+        glpi    => $glpi_version,
         datadir => $self->{datadir}
     );
 
