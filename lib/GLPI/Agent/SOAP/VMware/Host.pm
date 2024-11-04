@@ -3,6 +3,8 @@ package GLPI::Agent::SOAP::VMware::Host;
 use strict;
 use warnings;
 
+use version;
+
 use GLPI::Agent::Tools;
 use GLPI::Agent::Tools::Virtualization;
 use GLPI::Agent::Tools::UUID;
@@ -27,6 +29,20 @@ sub _asArray {
         ref $h eq 'ARRAY' ? @$h  :
             $h            ? ($h) :
                             ()   ;
+}
+
+sub enableFeaturesForGlpiVersion {
+    my ($self, $version) = @_;
+
+    return if empty($version);
+
+    $self->{glpi} = version->parse($version);
+}
+
+sub supportGlpiVersion {
+    my ($self, $version) = @_;
+
+    return exists($self->{glpi}) && $self->{glpi} >= version->parse($version);
 }
 
 sub getBootTime {
@@ -407,6 +423,24 @@ sub getVirtualMachines {
         if (is_uuid_string($uuid)) {
             my @uuid_parts = unpack("A2A2A2A2xA2A2xA2A2xA2A2xA2A2A2A2A2A2", $uuid);
             $vmInventory->{SERIAL} = "VMware-".join(' ', @uuid_parts[0..7]).'-'.join(' ', @uuid_parts[8..15]);
+        }
+
+        # Glpi version MUST at least be 10.0.18 to set IPADDRESS and OPERATINGSYSTEM
+        if ($self->supportGlpiVersion('10.0.18')) {
+            $vmInventory->{IPADDRESS} = $machine->{summary}{guest}{ipAddress}
+                unless empty($machine->{summary}{guest}{ipAddress});
+            unless (empty($machine->{summary}{guest}{guestFullName})) {
+                $vmInventory->{OPERATINGSYSTEM}->{FULL_NAME} = $machine->{summary}{guest}{guestFullName};
+            }
+            unless (empty($machine->{guest}{hostName})) {
+                $vmInventory->{OPERATINGSYSTEM}->{FQDN} = $machine->{guest}{hostName};
+            }
+            unless (empty($machine->{guest}{net}{dnsConfig}{domainName})) {
+                $vmInventory->{OPERATINGSYSTEM}->{DNS_DOMAIN} = $machine->{guest}{net}{dnsConfig}{domainName};
+            }
+            unless (empty($machine->{summary}{runtime}{bootTime})) {
+                $vmInventory->{OPERATINGSYSTEM}->{BOOT_TIME} = $machine->{summary}{runtime}{bootTime};
+            }
         }
 
         push @virtualMachines, $vmInventory;

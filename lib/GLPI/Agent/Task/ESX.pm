@@ -12,6 +12,7 @@ use GLPI::Agent::HTTP::Client::Fusion;
 use GLPI::Agent::Logger;
 use GLPI::Agent::Inventory;
 use GLPI::Agent::SOAP::VMware;
+use GLPI::Agent::Tools;
 use GLPI::Agent::Tools::UUID;
 
 use GLPI::Agent::Task::ESX::Version;
@@ -55,6 +56,11 @@ sub createInventory {
     my $vpbs = $self->{vpbs};
 
     my $host = $vpbs->getHostFullInfo($id);
+
+    # Set known glpi version to enable or disable supported features
+    my $glpi_version = $self->{target}->isType('server') ? $self->{target}->getTaskVersion('inventory') : '';
+    $glpi_version = $self->{config}->{glpi_version} if empty($glpi_version);
+    $host->enableFeaturesForGlpiVersion($glpi_version);
 
     my $inventory = GLPI::Agent::Inventory->new(
         datadir  => $self->{datadir},

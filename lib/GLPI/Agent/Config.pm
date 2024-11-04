@@ -22,6 +22,7 @@ my $default = {
     'conf-reload-interval'    => 0,
     'debug'                   => undef,
     'delaytime'               => 3600,
+    'glpi_version'            => undef,
     'remote-scheduling'       => 0,
     'remote-workers'          => 1,
     'force'                   => undef,
