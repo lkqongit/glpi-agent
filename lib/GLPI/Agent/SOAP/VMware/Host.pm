@@ -425,8 +425,8 @@ sub getVirtualMachines {
             $vmInventory->{SERIAL} = "VMware-".join(' ', @uuid_parts[0..7]).'-'.join(' ', @uuid_parts[8..15]);
         }
 
-        # Glpi version MUST at least be 10.0.18 to set IPADDRESS and OPERATINGSYSTEM
-        if ($self->supportGlpiVersion('10.0.18')) {
+        # At least Glpi version 10.0.17 will include required schema to validate following fields
+        if ($self->supportGlpiVersion('10.0.17')) {
             $vmInventory->{IPADDRESS} = $machine->{summary}{guest}{ipAddress}
                 unless empty($machine->{summary}{guest}{ipAddress});
             unless (empty($machine->{summary}{guest}{guestFullName})) {

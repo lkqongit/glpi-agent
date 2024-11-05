@@ -8,6 +8,7 @@ core:
 * fix #789: Avoid warning on commandline about possible confusion when reading quoted
   configuration value including a dash from configuration file
 * fix #790: Fix server URL parsing when it doesn't include scheme
+* Add glpi_version configuration support to handle inventory_format dependent features
 
 inventory:
 * Fix rare windows perl error during drives, ipv6 network or videos inventory
@@ -22,6 +23,11 @@ deploy:
 * Fix checks on command run and clarify reason of success or failure. This fixes
   "return code is not" and "command output doesn't contain" checks which was always
   failing.
+
+esx:
+* Support reporting of ESX virtualmachines ip and operating system. It requires
+  inventory_format schema v1.1.36 on server-side included in GLPI v10.0.17.
+* Add --glpi_version option support to glpi-esx script
 
 packaging:
 * Update Windows MSI packing building process to use:
