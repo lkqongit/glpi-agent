@@ -23,6 +23,7 @@ deploy:
 * Fix checks on command run and clarify reason of success or failure. This fixes
   "return code is not" and "command output doesn't contain" checks which was always
   failing.
+* fix #804: Don't scan network and broadcast addresses when using P2P
 
 esx:
 * Support reporting of ESX virtualmachines ip and operating system. It requires

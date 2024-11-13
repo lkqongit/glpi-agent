@@ -187,9 +187,15 @@ sub _getPotentialPeers {
         push @end,   $ip_bytes[$idx] | (255 - $mask_bytes[$idx]);
     }
 
+    # ipEnd must not be the broadcast ip
+    $end[3]--;
+
     my $ipStart = join('.', @start);
     my $ipEnd   = join('.', @end);
     return if $ipStart eq $ipEnd;
+
+    # ipStart is here the network address to avoid
+    my $ipNetwork = $ipStart;
 
     # Get ip interval before this interface ip
     my $ipIntervalBefore = Net::IP->new($ipStart.' - '.$address->{ip})
@@ -229,6 +235,14 @@ sub _getPotentialPeers {
     }
     $ipStart = $ipIntervalBefore->ip();
     $beforeCount = $ipIntervalBefore->size() - 1;
+
+    # Still skip first address if it's the network address
+    if ($ipStart eq $ipNetwork) {
+        ++$ipIntervalBefore;
+        $beforeCount--;
+        $afterCount++;
+        $ipStart = $ipIntervalBefore->ip() if defined($ipIntervalBefore);
+    }
 
     # Now add ips before
     my @peers;
