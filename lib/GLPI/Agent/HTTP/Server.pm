@@ -489,7 +489,10 @@ sub _handle_now {
                     if ($event->name && $event->partial && $target->addEvent($event)) {
                         $logger->debug($log_prefix.$event->name." triggering event on $id");
                     } else {
-                        $logger->debug($log_prefix."unsupported event for $id target: ".($event->name ? $event->dump_as_string() : substr($query, 0, 255)));
+                        ($code, $message, $trace) = (
+                            400, "Bad request",
+                            "unsupported event for $id target: ".($event->name ? $event->dump_as_string() : substr($query, 0, 255))
+                        );
                     }
                 }
             } else {
