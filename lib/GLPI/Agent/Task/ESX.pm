@@ -59,12 +59,13 @@ sub createInventory {
 
     # Set known glpi version to enable or disable supported features
     my $glpi_version = $self->{target}->isType('server') ? $self->{target}->getTaskVersion('inventory') : '';
-    $glpi_version = $self->{config}->{glpi_version} if empty($glpi_version);
+    $glpi_version = $self->{config}->{'glpi-version'} if empty($glpi_version);
     $host->enableFeaturesForGlpiVersion($glpi_version);
 
     my $inventory = GLPI::Agent::Inventory->new(
         datadir  => $self->{datadir},
         logger   => $self->{logger},
+        glpi     => $glpi_version,
         tag      => $tag,
         # deviceid can be set and so reused from previous netscan
         deviceid => $deviceid

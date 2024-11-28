@@ -29,6 +29,7 @@ sub new {
         maxDelay     => $params{maxDelay} || 3600,
         errMaxDelay  => $errMaxDelay,
         initialDelay => $params{delaytime},
+        _glpi        => $params{glpi} // '',
         _events      => [],
         _next_event  => {},
     };
@@ -452,6 +453,12 @@ sub _needToReloadState {
     $self->{_next_reload_check} = time+30;
 
     return $self->{storage}->modified(name => 'target');
+}
+
+sub getTaskVersion {
+    my ($self) = @_;
+
+    return $self->{_glpi};
 }
 
 1;

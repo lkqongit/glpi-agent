@@ -142,8 +142,8 @@ sub getTaskVersion {
 
     $task = lc($task);
 
-    return '' unless $task && $self->{_server_task_support} && $self->{_server_task_support}->{$task};
-    return $self->{_server_task_support}->{$task}->{version} // '';
+    return $self->{_glpi} unless $task && $self->{_server_task_support} && $self->{_server_task_support}->{$task};
+    return $self->{_server_task_support}->{$task}->{version} // $self->{_glpi} // '';
 }
 
 1;

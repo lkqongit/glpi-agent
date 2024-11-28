@@ -123,6 +123,7 @@ sub run {
         deviceid => $self->{deviceid},
         datadir  => $self->{datadir},
         logger   => $self->{logger},
+        glpi     => $self->{target}->getTaskVersion('inventory'),
         tag      => $tag
     );
 

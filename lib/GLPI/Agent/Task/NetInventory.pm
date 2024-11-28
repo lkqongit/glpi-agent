@@ -496,7 +496,7 @@ sub _queryDevice {
     }
 
     my $glpi_version = $self->{target}->isType('server') ? $self->{target}->getTaskVersion('inventory') : '';
-    $glpi_version = $self->{config}->{'glpi_version'} if empty($glpi_version);
+    $glpi_version = $self->{config}->{'glpi-version'} if empty($glpi_version);
 
     my $result = getDeviceFullInfo(
         id      => $device->{ID},

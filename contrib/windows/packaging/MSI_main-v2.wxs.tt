@@ -359,6 +359,12 @@
     <SetProperty Id="CMDLINE_FULL_INVENTORY_POSTPONE" Before="AppSearch" Value="[FULL_INVENTORY_POSTPONE]" />
     <SetProperty Id="FULL_INVENTORY_POSTPONE"         After="AppSearch"  Value="[CMDLINE_FULL_INVENTORY_POSTPONE]"><![CDATA[CMDLINE_FULL_INVENTORY_POSTPONE<>"" OR CMDLINE_CONFIG="reset"]]></SetProperty>
 
+    <Property Id="GLPI_VERSION" Secure="yes">
+      <RegistrySearch Id="GlpiVersion" Root="HKLM" Key="[%agent_regpath%]" Name="glpi-version" Type="raw"/>
+    </Property>
+    <SetProperty Id="CMDLINE_GLPI_VERSION" Before="AppSearch" Value="[GLPI_VERSION]" />
+    <SetProperty Id="GLPI_VERSION"         After="AppSearch"  Value="[CMDLINE_GLPI_VERSION]"><![CDATA[CMDLINE_GLPI_VERSION<>"" OR CMDLINE_CONFIG="reset"]]></SetProperty>
+
     <!-- Configuration defaults after handling command line and registry checks -->
     <SetProperty Id="DEBUG"                   Action="DEBUG_Default"                    After="LaunchConditions"  Value="0"><![CDATA[NOT DEBUG OR (DEBUG<>"1" AND DEBUG<>"2")]]></SetProperty>
     <SetProperty Id="LOGGER"                  Action="LOGGER_Default"                   After="LaunchConditions"  Value="file"><![CDATA[NOT LOGGER]]></SetProperty>

@@ -3,6 +3,8 @@ package GLPI::Agent::Inventory;
 use strict;
 use warnings;
 
+use version;
+
 use Config;
 use Digest::SHA;
 use English qw(-no_match_vars);
@@ -111,8 +113,11 @@ my %checks = (
     },
     STORAGES => {
         STATUS    => qr/^(up|down)$/,
-        # TODO Remove this check if GLPI >= 10.0.4
-        INTERFACE => qr/^(SCSI|HDC|IDE|USB|1394|SATA|SAS|ATAPI)$/
+        INTERFACE => {
+            # Check can be ignored since GLPI 10.0.4
+            not_since   => version->parse('10.0.4'),
+            regexp      => qr/^(SCSI|HDC|IDE|USB|1394|SATA|SAS|ATAPI)$/
+        }
     },
     VIRTUALMACHINES => {
         STATUS => qr/^(running|blocked|idle|paused|shutdown|crashed|dying|off)$/
@@ -142,6 +147,7 @@ sub new {
         logger         => $params{logger} || GLPI::Agent::Logger->new(),
         fields         => \%fields,
         _format        => '',
+        _glpi_version  => version->parse('0'),
         content        => {
             HARDWARE => {
                 VMSYSTEM => "Physical" # Default value
@@ -151,6 +157,9 @@ sub new {
         }
     };
     bless $self, $class;
+
+    $self->{_glpi_version} = version->parse($params{glpi})
+        if $params{glpi};
 
     $self->setTag($params{tag});
     $self->{last_state_file} = $params{statedir} . '/last_state.json'
@@ -354,7 +363,13 @@ sub addEntry {
         # sanitize value
         my $value = getSanitizedString($entry->{$field});
         # check value if appliable
-        if ($checks->{$field}) {
+        if (ref($checks->{$field}) eq 'HASH') {
+            if ($checks->{$field}->{regexp} && $checks->{$field}->{not_since} > $self->{_glpi_version}) {
+                $self->{logger}->debug(
+                    "invalid value $value for field $field for section $section"
+                ) unless $value =~ $checks->{$field}->{regexp};
+            }
+        } elsif ($checks->{$field}) {
             $self->{logger}->debug(
                 "invalid value $value for field $field for section $section"
             ) unless $value =~ $checks->{$field};

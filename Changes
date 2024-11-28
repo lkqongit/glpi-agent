@@ -8,7 +8,7 @@ core:
 * fix #789: Avoid warning on commandline about possible confusion when reading quoted
   configuration value including a dash from configuration file
 * fix #790: Fix server URL parsing when it doesn't include scheme
-* Add glpi_version configuration support to handle inventory_format dependent features
+* Add glpi-version configuration support to handle inventory_format dependent features
 * Handle /now request as an event. If inventory task run is triggered, it will now
   always by default generate a full inventory. /now supports a query string with the
   following possible values:
@@ -26,6 +26,8 @@ inventory:
 * Fix rare windows perl error during drives, ipv6 network or videos inventory
 * Always keep disabled network interface on windows if it includes "vpn" string
   in description
+* Add glpi-version configuration support to handle inventory_format dependent features
+  - Remove check alerting on invalid storage interface for GLPI >= 10.0.4
 
 netdiscovery/netinventory:
 * fix #768: Added Aerohive devices support
@@ -40,7 +42,7 @@ deploy:
 esx:
 * Support reporting of ESX virtualmachines ip and operating system. It requires
   inventory_format schema v1.1.36 on server-side included in GLPI v10.0.17.
-* Add --glpi_version option support to glpi-esx script
+* Add --glpi-version option support to glpi-esx script
 
 packaging:
 * Update Windows MSI packing building process to use:

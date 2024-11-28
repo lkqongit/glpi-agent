@@ -22,7 +22,7 @@ my $default = {
     'conf-reload-interval'    => 0,
     'debug'                   => undef,
     'delaytime'               => 3600,
-    'glpi_version'            => undef,
+    'glpi-version'            => undef,
     'remote-scheduling'       => 0,
     'remote-workers'          => 1,
     'force'                   => undef,
@@ -419,6 +419,7 @@ sub getTargets {
                     path       => $path,
                     html       => $self->{html},
                     json       => $self->{json},
+                    glpi       => $self->{"glpi-version"},
                 );
         }
     }
@@ -433,6 +434,7 @@ sub getTargets {
                 basevardir => $params{vardir},
                 url        => $url,
                 tag        => $self->{tag},
+                glpi       => $self->{"glpi-version"},
             );
         }
     }
@@ -449,6 +451,7 @@ sub getTargets {
                 logger     => $params{logger},
                 delaytime  => $self->{delaytime},
                 basevardir => $params{vardir},
+                glpi       => $self->{"glpi-version"},
             );
     }
 
