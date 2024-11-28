@@ -42,6 +42,9 @@ sub isEnabled {
 sub run {
     my ($self, %params) = @_;
 
+    # Just reset event if run as an event to not trigger another one
+    $self->resetEvent();
+
     my $remotes = GLPI::Agent::Task::RemoteInventory::Remotes->new(
         config  => $self->{config},
         storage => $self->{target}->getStorage(),

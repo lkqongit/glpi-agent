@@ -172,17 +172,61 @@ sub triggerTaskInitEvents {
     }
 }
 
-sub addEvent {
+sub triggerRunTasksNow {
     my ($self, $event) = @_;
 
+    # $tasks must be set to "all" to trigger all tasks
+    return unless $event && $event->runnow && $self->{tasks} && @{$self->{tasks}};
+
+    my %plannedTasks = map { lc($_) => 1 } @{$self->{tasks}};
+    my $task = $event->task;
+    my @tasks = $task && $task eq "all" ? @{$self->{tasks}} : split(/,+/, $task);
+    foreach my $runtask (map { lc($_) } @tasks) {
+        next unless $plannedTasks{$runtask};
+
+        my %event = (
+            taskrun => 1,
+            task    => $runtask,
+            # runnow event can still have been delayed itself
+            delay   => 0,
+        );
+
+        # Add any supported params
+        if ($runtask eq "inventory") {
+            my $full    = $event->get("full");
+            my $partial = $event->get("partial");
+            if (defined($full)) {
+                $event{"full"} = $full;
+            } elsif (defined($partial)) {
+                $event{"partial"} = $partial;
+            } else {
+                $event{"full"} = 1;
+            }
+        }
+
+        $self->addEvent(GLPI::Agent::Event->new(%event), 1);
+    }
+}
+
+sub addEvent {
+    my ($self, $event, $safe) = @_;
+
     # event name is mandatory
-    return unless $event->name;
+    return unless $event && $event->name;
 
     my $logger = $self->{logger};
     my $logprefix = $self->{_logprefix};
 
     # Check for supported events
-    if ($event->partial) {
+    if ($event->runnow || $event->taskrun) {
+        unless ($event->task) {
+            $logger->debug("$logprefix Not supported ".$event->name." event without task");
+            return 0;
+        }
+        $logger->debug("$logprefix Adding ".$event->name." event for ".$event->task." task".
+            ($event->task ne "all" && $event->task !~ /,/ ? "" : "s")
+        );
+    } elsif ($event->partial) {
         unless ($event->category) {
             $logger->debug("$logprefix Not supported partial inventory request without selected category");
             return 0;
@@ -223,7 +267,7 @@ sub addEvent {
     if (@{$self->{_events}} >= 1024) {
         $logger->debug("$logprefix Event requests overflow, skipping new event");
         return 0;
-    } elsif ($self->{_next_event}) {
+    } elsif ($self->{_next_event} && !$safe) {
         my $nexttime = $self->{_next_event}->{$event->name};
         if ($nexttime && time < $nexttime) {
             $logger->debug("$logprefix Skipping too early new ".$event->name()." event");
@@ -271,7 +315,13 @@ sub getEvent {
         return $event;
     }
     return unless @{$self->{_events}} && time >= $self->{_events}->[0]->rundate;
-    return shift @{$self->{_events}};
+    my $event = shift @{$self->{_events}};
+
+    # Always accept new event for this name
+    delete $self->{_next_event}->{$event->name}
+        if $self->{_next_event};
+
+    return $event;
 }
 
 sub paused {

@@ -107,6 +107,9 @@ sub isEnabled {
 sub run {
     my ($self, %params) = @_;
 
+    # Just reset event if run as an event to not trigger another one
+    $self->resetEvent();
+
     my $abort = 0;
     $SIG{TERM} = sub { $abort = 1; };
 

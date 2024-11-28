@@ -111,6 +111,7 @@ my %checks = (
     },
     STORAGES => {
         STATUS    => qr/^(up|down)$/,
+        # TODO Remove this check if GLPI >= 10.0.4
         INTERFACE => qr/^(SCSI|HDC|IDE|USB|1394|SATA|SAS|ATAPI)$/
     },
     VIRTUALMACHINES => {
@@ -182,6 +183,14 @@ sub setFormat {
     my ($self, $format) = @_;
 
     $self->{_format} = $format // 'json';
+}
+
+sub isFull {
+    my ($self, $full) = @_;
+
+    return $self->{_full} unless defined($full);
+
+    $self->{_full} = $full;
 }
 
 sub isPartial {
@@ -509,13 +518,19 @@ sub computeChecksum {
     # Prepare to postpone full inventory when required
     my $postpone = 0;
     my $current_count = $last_state->get('_postpone_count') // '0';
+
+    # Reset current_count if partial is not forced
+    $current_count = $postpone_config if $current_count > $postpone_config && !$self->isPartial();
+
     $postpone = ($current_count =~ /^\d+$/ ? int($current_count)+1 : 1) % ($postpone_config+1)
         if $postpone_config;
+
+    # Reset to current_count+1 if partial is forced even after a full should has been sent
+    $postpone = $current_count+1 if $self->isPartial() && $current_count >= $postpone_config;
 
     # Always disable postpone if format is not json
     $postpone = 0 unless $self->getFormat() eq 'json';
 
-    my $save_state = 0;
     my @delete_sections;
     my $keep_os = 0;
     foreach my $section (@checked_sections) {
@@ -525,7 +540,6 @@ sub computeChecksum {
             if (defined($state)) {
                 $logger->debug("Section $section has disappeared since last inventory");
                 $last_state->delete($section);
-                $save_state++;
                 # On missing section, a full inventory must be submitted
                 $postpone = 0;
             }
@@ -558,7 +572,11 @@ sub computeChecksum {
                 len    => $len,
             }
         );
-        $save_state++;
+    }
+
+    # Reset postpone if a full inventory is forced
+    if ($postpone && $self->isFull()) {
+        $postpone = 0;
     }
 
     # If we can postpone full inventory, remove section and set inventory as partial
@@ -585,7 +603,7 @@ sub computeChecksum {
 
     $self->{last_state_content} = $last_state;
 
-    $self->_saveLastState() if $save_state;
+    $self->_saveLastState();
 }
 
 sub _saveLastState {

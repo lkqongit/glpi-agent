@@ -152,6 +152,9 @@ sub _validateAnswer {
 sub run {
     my ($self) = @_;
 
+    # Just reset event if run as an event to not trigger another one
+    $self->resetEvent();
+
     $self->{client} = GLPI::Agent::HTTP::Client::Fusion->new(
         logger  => $self->{logger},
         config  => $self->{config},

@@ -117,6 +117,7 @@ sub run {
 
     # background mode: work on a targets list copy, but loop while
     # the list really exists so we can stop quickly when asked for
+    my $responses;
     while ($self->getTargets()) {
         my $time = time();
 
@@ -126,14 +127,28 @@ sub run {
         $self->_reloadConfIfNeeded();
 
         if ($target->paused()) {
+
+            undef $responses;
+
             # Leave immediately if we passed in terminate method
             last if $self->{_terminate};
 
         } elsif (my $event = $target->getEvent()) {
 
+            # Contact server if required and cache responses
+            if ($event->taskrun) {
+                if (!defined($responses)) {
+                    eval {
+                        $responses = $self->runTarget($target, "contact-only");
+                    };
+                }
+            } else {
+                undef $responses;
+            }
+
             my $net_error = 0;
             eval {
-                $net_error = $self->runTargetEvent($target, $event);
+                $net_error = $self->runTargetEvent($target, $event, $responses);
             };
             $logger->error($EVAL_ERROR) if ($EVAL_ERROR && $logger);
             if ($net_error) {
@@ -149,6 +164,8 @@ sub run {
             $self->{_run_optimization} = scalar($self->getTargets());
 
         } elsif ($time >= $target->getNextRunDate()) {
+
+            undef $responses;
 
             my $net_error = 0;
             eval {
@@ -210,26 +227,56 @@ sub _reloadConfIfNeeded {
 }
 
 sub runTargetEvent {
-    my ($self, $target, $event) = @_;
+    my ($self, $target, $event, $responses) = @_;
 
-    return unless $event->name && $event->task;
+    # Just ignore event if invalid
+    return 0 unless $event && $event->name && $event->task;
 
-    $self->{logger}->debug("target ".$target->id().": ".$event->name()." event for ".$event->task()." task");
+    my $task = $event->task;
+    my %modulesmap = qw(
+        netdiscovery    NetDiscovery
+        netinventory    NetInventory
+        remoteinventory RemoteInventory
+        esx             ESX
+        wakeonlan       WakeOnLan
+    );
+    my $realtask = $modulesmap{$task} || ucfirst($task);
+
+    $self->{logger}->debug("target ".$target->id().": ".$event->name()." event for $realtask task")
+        unless $event->runnow;
 
     $self->{event} = $event;
 
-    if ($event && $event->init) {
+    if ($event->init) {
         eval {
             # We don't need to fork for init event
-            $self->runTaskReal($target, ucfirst($event->task));
+            $self->runTaskReal($target, $realtask);
         };
+
+    } elsif ($event->runnow) {
+        $target->triggerRunTasksNow($event);
+
+    } elsif ($responses) {
+        my $server_response = $responses->{response};
+        if ($responses->{contact}) {
+            # Be sure to use expected response for task
+            my $task_server = $target->getTaskServer($task) // 'glpi';
+            $server_response = $responses->{contact}
+                if $task_server eq 'glpi';
+        }
+        eval {
+            $self->runTask($target, $realtask, $server_response);
+        };
+        $self->{logger}->error($EVAL_ERROR) if $EVAL_ERROR;
+        $self->setStatus($target->paused() ? 'paused' : 'waiting');
+
     } else {
         # Simulate CONTACT server response
         my $contact = GLPI::Agent::Protocol::Contact->new(
-            tasks => { $event->task => { params => [ $event->params ] }}
+            tasks => { $task => { params => [ $event->params ] }}
         );
         eval {
-            $self->runTask($target, ucfirst($event->task), $contact);
+            $self->runTask($target, $realtask, $contact);
         };
         $self->{logger}->error($EVAL_ERROR) if $EVAL_ERROR;
         $self->setStatus($target->paused() ? 'paused' : 'waiting');

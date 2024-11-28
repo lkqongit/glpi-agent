@@ -204,7 +204,7 @@ sub terminate {
 }
 
 sub runTarget {
-    my ($self, $target) = @_;
+    my ($self, $target, $responses_only) = @_;
 
     if ($target->isType('local') || $target->isType('server')) {
         $self->{logger}->info("target $target->{id}: " . $target->getType() . " " . $target->getName());
@@ -405,6 +405,14 @@ sub runTarget {
         }
     }
 
+    # Used when running tasks after a taskrun event
+    if ($responses_only) {
+        return {
+            contact  => $contact_response,
+            response => $response
+        };
+    }
+
     foreach my $name (@plannedTasks) {
         my $server_response = $response;
         if ($contact_response) {
@@ -465,7 +473,7 @@ sub runTaskReal {
     # init event first initiates maintenance event on deploy task
     if ($self->{event} && $self->{event}->init) {
         my $event = $task->newEvent();
-        $target->addEvent($event) if $event && $event->name;
+        $target->addEvent($event, 1) if $event && $event->name;
         return;
     }
 

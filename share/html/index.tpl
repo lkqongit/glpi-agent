@@ -9,12 +9,13 @@
   <div id='background'>
     <p id='version' class='block'>This is GLPI Agent {$version}</p>
     <div id='status'>
-      <p>The current status is {$status}</p>
-      <div id='force' class='block'>{
+      <p>The current status is {$status}</p>{
     $OUT .= $trust && (@server_targets || @local_targets) ? "
-        <a href='/now'>Force an Inventory</a>" : "";
+      <div id='force' class='block'>
+        <p><a href='/now'>Force running all targets planned tasks</a></p>
+        <p><a href='/now?task=inventory'>Force an inventory</a></p>
+      </div>": "";
   }
-      </div>
     </div>{
 
   if (@server_targets || @local_targets || @httpd_plugins || @sessions) {
@@ -27,7 +28,14 @@
         <ul>";
       foreach my $target (@server_targets) {
         $OUT .= "
-          <li>".($target->{target} ? "<a href='$target->{target}' target='_blank'>$target->{id}</a>" : $target->{id}).": $target->{date}</li>";
+          <li>
+            ".($target->{target} ? "<a href='$target->{target}' target='_blank'>$target->{id}</a>" : $target->{id}).": $target->{date}";
+        $OUT .= "
+            <div id='tasks'>
+              Planned tasks: ".$planned_tasks{$target->{id}}."
+            </div>" if $trust;
+        $OUT .= "
+          </li>";
       }
       $OUT .= "
         </ul>

@@ -9,6 +9,18 @@ core:
   configuration value including a dash from configuration file
 * fix #790: Fix server URL parsing when it doesn't include scheme
 * Add glpi_version configuration support to handle inventory_format dependent features
+* Handle /now request as an event. If inventory task run is triggered, it will now
+  always by default generate a full inventory. /now supports a query string with the
+  following possible values:
+  - partial=yes or partial=1 to force a partial inventory
+  - full=yes or full=1 to force a full inventory (the default)
+  - task=all (the default) or "all" replaced by a comma-separated list of tasks
+  - delay=0 (the default) can be set with the number of seconds to delay the tasks run
+* Changes to index page from httpd interface:
+  - "Force an inventory" link text is replaced by "Force running all targets planned tasks"
+    to reflect the real behavior of the related action
+  - Added a "Force an inventory" to only trigger inventory task for all targets
+  - Targets list also show target planned tasks for trusted clients
 
 inventory:
 * Fix rare windows perl error during drives, ipv6 network or videos inventory

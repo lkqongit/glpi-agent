@@ -416,7 +416,7 @@ sub run {
 
     my $logger = $self->{logger};
 
-    my $event = $self->event;
+    my $event = $self->resetEvent();
     if ($event) {
         my $name = $event->name;
         if ($name && $event->maintenance && GLPI::Agent::Task::Deploy::Maintenance->require()) {
