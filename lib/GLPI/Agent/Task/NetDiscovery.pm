@@ -408,7 +408,9 @@ sub run {
                     }
                 }
 
-                $self->_sendResultMessage($result, $jobid);
+                # Don't send xml discovery inventory to server on computer remote inventory
+                $self->_sendResultMessage($result, $jobid)
+                    unless $authremote && $self->{target}->isType('server');
 
                 # Eventually chain with netinventory when requested
                 if ($job->netscan) {
