@@ -25,7 +25,7 @@ sub isEnabled {
             logger      => $params{logger}
         );
 
-        return 1 if defined($key);
+        return 1 if defined($key) && keys(%{$key});
 
     } elsif (OSNAME eq 'linux') {
         return 1 if has_file('/etc/tacticalagent');
