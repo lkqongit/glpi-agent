@@ -77,14 +77,18 @@ sub _getVideos {
                         or next;
                     next unless $thispnpdeviceid eq $pnpdeviceid;
                     if (defined($videokey->{$subkey}->{"/HardwareInformation.qwMemorySize"})) {
-                        my $memorysize = unpack("Q", $videokey->{$subkey}->{"/HardwareInformation.qwMemorySize"});
-                        $video->{MEMORY} = $memorysize if $memorysize > 0;
+                        my $memorysize = $videokey->{$subkey}->{"/HardwareInformation.qwMemorySize"} =~ /^\d+$/ ?
+                            int($videokey->{$subkey}->{"/HardwareInformation.qwMemorySize"})
+                            : unpack("Q", $videokey->{$subkey}->{"/HardwareInformation.qwMemorySize"});
+                        $video->{MEMORY} = $memorysize if $memorysize && $memorysize > 0;
                         last;
                     } elsif (defined($videokey->{$subkey}->{"/HardwareInformation.MemorySize"})) {
                         my $memorysize = $videokey->{$subkey}->{"/HardwareInformation.MemorySize"} =~ /^0x/ ?
                             hex2dec($videokey->{$subkey}->{"/HardwareInformation.MemorySize"})
+                            : $videokey->{$subkey}->{"/HardwareInformation.MemorySize"} =~ /^\d+$/ ?
+                            int($videokey->{$subkey}->{"/HardwareInformation.MemorySize"})
                             : unpack("L", $videokey->{$subkey}->{"/HardwareInformation.MemorySize"});
-                        $video->{MEMORY} = $memorysize if $memorysize > 0;
+                        $video->{MEMORY} = $memorysize if $memorysize && $memorysize > 0;
                         last;
                     }
                 }
