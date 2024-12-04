@@ -9,6 +9,8 @@ use Config;
 use Digest::SHA;
 use English qw(-no_match_vars);
 use UNIVERSAL::require;
+use File::Glob;
+use File::stat;
 
 use GLPI::Agent::Logger;
 use GLPI::Agent::Tools;
@@ -144,6 +146,7 @@ sub new {
     my $self = {
         deviceid       => $params{deviceid},
         datadir        => $params{datadir},
+        statedir       => $params{statedir} // '',
         logger         => $params{logger} || GLPI::Agent::Logger->new(),
         fields         => \%fields,
         _format        => '',
@@ -509,6 +512,14 @@ sub computeChecksum {
 
     my $logger = $self->{logger};
 
+    # Use alternate state file for remote inventory
+    # Old state files have to be cleaned by remoteinventory task maintenance event
+    if ($self->getRemote() && $self->{statedir}) {
+        my $remoteid = $self->getHardware("UUID") || $self->getBios("SSN")
+            || $self->getBios("MSN") || $self->getDeviceId();
+        $self->{last_state_file} = $self->{statedir}."/last_remote_state-$remoteid.json";
+    }
+
     my $last_state;
     if ($self->{last_state_file} && !$self->{last_state_content}) {
         if (-f $self->{last_state_file}) {
@@ -639,6 +650,39 @@ sub _saveLastState {
     } else {
         $logger->debug("last state file is not defined, last state not saved");
     }
+
+    # Clean up old state files to still cleanup on single run or out of remoteinventory task context
+    $self->canCleanupOldRemoteStateFile() if $self->getRemote();
+}
+
+my ($remoteStateFileTimeout, $remoteStateFileCount);
+sub canCleanupOldRemoteStateFile {
+    my ($self) = @_;
+
+    # Don't try to cleanup if still done during the last hour in the same process
+    return $remoteStateFileCount if $remoteStateFileTimeout && time < $remoteStateFileTimeout;
+    $remoteStateFileTimeout = time + 3600;
+
+    my $logger = $self->{logger};
+
+    # Expire remote state files older than 30 days
+    my $maxage = time - 30 * 86400;
+    $remoteStateFileCount = 0;
+    foreach my $file (File::Glob::bsd_glob($self->{statedir}."/last_remote_state-*.json")) {
+        my $st = stat($file)
+            or next;
+
+        if ($st->mtime > $maxage) {
+            $remoteStateFileCount++;
+            next;
+        }
+
+        unlink $file;
+        $logger->debug("deleted old remote state file: ".$file);
+    }
+
+    # Return number of seen files still to be eventually cleanup
+    return $remoteStateFileCount;
 }
 
 sub credentials {

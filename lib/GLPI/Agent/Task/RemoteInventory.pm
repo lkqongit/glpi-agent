@@ -20,6 +20,9 @@ sub isEnabled {
         return 0;
     }
 
+    # Always enable task maintenance event
+    return 1 if $self->event && $self->event->maintenance;
+
     # Always enable remoteinventory task if remote option is set
     return 1 if $self->{config}->{remote};
 
@@ -42,8 +45,27 @@ sub isEnabled {
 sub run {
     my ($self, %params) = @_;
 
-    # Just reset event if run as an event to not trigger another one
-    $self->resetEvent();
+    # Reset event checking if this is a maintenance event
+    my $event = $self->resetEvent();
+    if ($event && $event->maintenance && $event->name) {
+        my $name = $event->name;
+        my $targetid = $self->{target}->id;
+        $self->{logger}->debug("Inventory task $name  event for $targetid target");
+        my $remoteinv = GLPI::Agent::Inventory->new(
+            statedir => $self->{target}->getStorage()->getDirectory(),
+            logger   => $self->{logger},
+        );
+        my $continue = $remoteinv->canCleanupOldRemoteStateFile();
+        if ($continue) {
+            my $nextEvent = $self->newEvent();
+            $self->{logger}->debug("Planning another $name event for $targetid target in ".$nextEvent->delay()."s");
+            $self->resetEvent($nextEvent);
+        } else {
+            # Don't restart event if datastore has been fully cleaned up
+            $self->{logger}->debug("No need to plan another $name event for $targetid target");
+        }
+        return;
+    }
 
     my $remotes = GLPI::Agent::Task::RemoteInventory::Remotes->new(
         config  => $self->{config},
@@ -133,6 +155,18 @@ sub run {
 
     my $timing = time - $start;
     $self->{logger}->debug("Remote inventory task run in $timing seconds");
+}
+
+sub newEvent {
+    my ($self) = @_;
+
+    return GLPI::Agent::Event->new(
+        name        => "remoteinventory maintenance",
+        task        => "remoteinventory",
+        maintenance => "yes",
+        target      => $self->{target}->id(),
+        delay       => 3600,
+    );
 }
 
 1;

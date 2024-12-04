@@ -29,6 +29,10 @@ inventory:
 * Add glpi-version configuration support to handle inventory_format dependent features
   - Remove check alerting on invalid storage interface for GLPI >= 10.0.4
 
+remoteinventory:
+* Store remote inventory part checksums in dedicated state files and support maintenance
+  event to cleanup state files older than 30 days
+
 netdiscovery/netinventory:
 * fix #768: Added Aerohive devices support
 * fix #769: Added Intelbras devices support
