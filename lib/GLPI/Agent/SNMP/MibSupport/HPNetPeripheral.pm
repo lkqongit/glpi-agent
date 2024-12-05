@@ -90,7 +90,14 @@ sub getFirmware {
 sub getFirmwareDate {
     my ($self) = @_;
 
-    return $self->_getClean(fw_rom_datecode);
+    my $datecode = $self->_getClean(fw_rom_datecode)
+        or return;
+
+    # Extract date from datecode with required format
+    my ($date) = $datecode =~ /$^([0-9]{4}-[0-9]{2}-[0-9]{2})/
+        or return;
+
+    return $date;
 }
 
 sub getSerial {
