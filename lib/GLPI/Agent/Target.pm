@@ -83,7 +83,7 @@ sub _init {
         ($self->isType("server") ? "server contact" : "tasks run") .
         " planned " .
         ($self->{nextRunDate} < time ? "now" : "for ".localtime($self->{nextRunDate}))
-    );
+    ) if $self->{initialDelay};
 
     # Disable initialDelay if next run date has still been set in a previous run to a later time
     delete $self->{initialDelay} if $self->{initialDelay} && $self->{nextRunDate} && $self->{nextRunDate} > time;
