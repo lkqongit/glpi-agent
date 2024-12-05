@@ -66,7 +66,7 @@ foreach my $test (keys %tests) {
         inventory   => $inventory
     );
     my $bios = $inventory->getSection('BIOS');
-   cmp_deeply(
+    cmp_deeply(
         $bios,
         $tests{$test},
         "$test: BIOS parsing"
