@@ -435,8 +435,12 @@ sub getVirtualMachines {
             unless (empty($machine->{guest}{hostName})) {
                 $vmInventory->{OPERATINGSYSTEM}->{FQDN} = $machine->{guest}{hostName};
             }
-            unless (empty($machine->{guest}{net}{dnsConfig}{domainName})) {
-                $vmInventory->{OPERATINGSYSTEM}->{DNS_DOMAIN} = $machine->{guest}{net}{dnsConfig}{domainName};
+            if (ref($machine->{guest}{net}{dnsConfig})) {
+                my $dnsConfig = ref($machine->{guest}{net}{dnsConfig}) eq 'HASH' ?
+                    $machine->{guest}{net}{dnsConfig} : $machine->{guest}{net}{dnsConfig}->[0];
+                if (ref($dnsConfig) eq 'HASH' && !empty($dnsConfig->{domainName})) {
+                    $vmInventory->{OPERATINGSYSTEM}->{DNS_DOMAIN} = $dnsConfig->{domainName};
+                }
             }
             unless (empty($machine->{summary}{runtime}{bootTime})) {
                 $vmInventory->{OPERATINGSYSTEM}->{BOOT_TIME} = $machine->{summary}{runtime}{bootTime};
