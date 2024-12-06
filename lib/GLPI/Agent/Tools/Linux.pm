@@ -653,7 +653,7 @@ sub getInterfacesFromIp {
     my @lines = getAllLines(%params)
         or return;
 
-    my (@interfaces, @addresses, $interface);
+    my (@interfaces, @addresses, $interface, $iname);
 
     foreach my $line (@lines) {
         if ($line =~ /^\d+:\s+(\S+): <([^>]+)>/) {
@@ -663,8 +663,10 @@ sub getInterfacesFromIp {
                     if !any { $_->{DESCRIPTION} eq $interface->{DESCRIPTION} } @addresses;
                 push @interfaces, @addresses;
                 undef @addresses;
+                undef $iname;
             } elsif ($interface) {
                 push @interfaces, $interface;
+                undef $iname;
             }
 
             my ($name, $flags) = ($1, $2);
@@ -687,7 +689,7 @@ sub getInterfacesFromIp {
                 IPMASK6     => $mask,
                 IPSUBNET6   => $subnet,
                 STATUS      => $interface->{STATUS},
-                DESCRIPTION => $interface->{DESCRIPTION},
+                DESCRIPTION => $iname // $interface->{DESCRIPTION},
                 MACADDR     => $interface->{MACADDR}
             };
         } elsif ($line =~ /
@@ -699,7 +701,18 @@ sub getInterfacesFromIp {
             my $address = $1;
             my $mask    = getNetworkMask($2);
             my $subnet  = getSubnetAddress($address, $mask);
-            my $name    = $3;
+
+            # Update interface name on first found inet entry, next ones could be
+            # a wifi alias
+            $iname = $3 if empty($iname);
+
+            # But keep still defined description if new name is indeed an alias
+            $iname = $interface->{DESCRIPTION}
+                if $iname =~ /^$interface->{DESCRIPTION}\W/;
+
+            # Replace current interface description if an alias to found iname
+            $interface->{DESCRIPTION} = $iname
+                if $interface->{DESCRIPTION} =~ /^$iname\W/;
 
             # the name associated with the address differs from the current
             # interface if the address is actually attached to an alias
@@ -708,7 +721,7 @@ sub getInterfacesFromIp {
                 IPMASK      => $mask,
                 IPSUBNET    => $subnet,
                 STATUS      => $interface->{STATUS},
-                DESCRIPTION => $name,
+                DESCRIPTION => $iname,
                 MACADDR     => $interface->{MACADDR}
             };
         }
