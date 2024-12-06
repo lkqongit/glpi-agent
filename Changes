@@ -41,6 +41,8 @@ netdiscovery/netinventory:
 * don't send discovery xml to server target for remoteinventory task event initiated
   from toolbox
 * fix #781: Filter invalid firmware date on HP peripherals
+* Added Raritan PDU devices support
+* Updated sysobject.ids
 
 deploy:
 * Fix checks on command run and clarify reason of success or failure. This fixes
