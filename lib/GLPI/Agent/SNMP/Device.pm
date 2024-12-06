@@ -144,7 +144,7 @@ sub getFirmwareDateByMibSupport {
 
     return unless $self->{MIBSUPPORT};
 
-    return $self->{MIBSUPPORT}->getMethod('getFirmwareDate');
+    return getCanonicalDate($self->{MIBSUPPORT}->getMethod('getFirmwareDate'));
 }
 
 sub getMacAddressByMibSupport {
@@ -333,7 +333,7 @@ sub setFirmware {
         NAME            => $self->{MODEL} || 'device',
         DESCRIPTION     => 'device firmware',
         TYPE            => 'device',
-        DATE            => $self->getFirmwareDateByMibSupport(),
+        DATE            => $self->getFirmwareDateByMibSupport() // undef,
         VERSION         => $self->{FIRMWARE},
         MANUFACTURER    => $self->{MANUFACTURER}
     });
