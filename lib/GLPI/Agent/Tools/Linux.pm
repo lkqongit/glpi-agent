@@ -710,7 +710,7 @@ sub getInterfacesFromIp {
             $iname = $interface->{DESCRIPTION}
                 if $iname =~ /^$interface->{DESCRIPTION}\W/;
 
-            # Replace current interface description if an alias to found iname
+            # Replace current interface description if an alias of found iname
             $interface->{DESCRIPTION} = $iname
                 if $interface->{DESCRIPTION} =~ /^$iname\W/;
 
