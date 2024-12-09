@@ -142,20 +142,19 @@ sub run {
                         $responses = $self->runTarget($target, "contact-only");
                     };
                 }
+                # Fail event on no expected response from server
+                unless (ref($responses)) {
+                    $logger->error("Failed to handle run event for ".$event->task) if $logger && $event->task;
+                    next;
+                }
             } else {
                 undef $responses;
             }
 
-            my $net_error = 0;
             eval {
-                $net_error = $self->runTargetEvent($target, $event, $responses);
+                $self->runTargetEvent($target, $event, $responses);
             };
             $logger->error($EVAL_ERROR) if ($EVAL_ERROR && $logger);
-            if ($net_error) {
-                # Prefer to retry event later on net error
-                $event->rundate(time + 60);
-                $target->addEvent($event);
-            }
 
             # Leave immediately if we passed in terminate method
             last if $self->{_terminate};
@@ -230,7 +229,7 @@ sub runTargetEvent {
     my ($self, $target, $event, $responses) = @_;
 
     # Just ignore event if invalid
-    return 0 unless $event && $event->name && $event->task;
+    return unless $event && $event->name && $event->task;
 
     my $task = $event->task;
     my %modulesmap = qw(
@@ -256,7 +255,7 @@ sub runTargetEvent {
     } elsif ($event->runnow) {
         $target->triggerRunTasksNow($event);
 
-    } elsif ($responses) {
+    } elsif (ref($responses)) {
         my $server_response = $responses->{response};
         if ($responses->{contact}) {
             # Be sure to use expected response for task
@@ -283,8 +282,6 @@ sub runTargetEvent {
     }
 
     delete $self->{event};
-
-    return 0;
 }
 
 sub runTask {
