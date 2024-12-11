@@ -448,7 +448,10 @@ sub getVirtualMachines {
                 }
             }
             unless (empty($machine->{summary}{runtime}{bootTime})) {
-                $vmInventory->{OPERATINGSYSTEM}->{BOOT_TIME} = $machine->{summary}{runtime}{bootTime};
+                my ($bootdate, $boottime) =
+                    $machine->{summary}{runtime}{bootTime} =~ /^([0-9-]+).(\d+:\d+:\d+)/;
+                $boottime = "$bootdate $boottime" if $bootdate && $boottime;
+                $vmInventory->{OPERATINGSYSTEM}->{BOOT_TIME} = $boottime if $boottime;
             }
         }
 
