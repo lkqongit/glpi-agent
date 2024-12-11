@@ -49,6 +49,13 @@ deploy:
   "return code is not" and "command output doesn't contain" checks which was always
   failing.
 * fix #804: Don't scan network and broadcast addresses when using P2P
+* Fix sha512 file checks to also accep provided digest in upper case
+
+collect:
+* Fix sha512 file check to also accep provided digest in upper case
+* Change 'checkSumSHA2' file check meaning to compute sha256
+* Add 'checkSumSHA256' params support for file checking to replace 'checkSumSHA2' one
+  and it is mandatory over its alias 'checkSumSHA2'
 
 esx:
 * Support reporting of ESX virtualmachines ip and operating system. It requires
