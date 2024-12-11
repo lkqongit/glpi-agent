@@ -11,6 +11,7 @@ use Getopt::Long;
 use Pod::Usage;
 
 use GLPI::Agent;
+use GLPI::Agent::Event;
 
 Getopt::Long::Configure( "no_ignorecase" );
 
@@ -194,12 +195,12 @@ if ($options->{'set-forcerun'}) {
 if ($options->{partial}) {
     die "--partial option not compatible with --daemon\n"
         if $options->{daemon};
-    $agent->{event} = {
+    $agent->{event} = GLPI::Agent::Event->new(
         name        => "partial inventory",
         task        => "inventory",
         partial     => 1,
         category    => $options->{partial},
-    };
+    );
 }
 
 if ($options->{credentials}) {

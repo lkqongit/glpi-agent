@@ -30,6 +30,7 @@ inventory:
   - Remove check alerting on invalid storage interface for GLPI >= 10.0.4
 * fix #811: Fix network interface inventory on lxc linux container, but also fix
   few other cases where more interfaces are found due to interface name aliasing
+* Fix --partial option when used with glpi-agent script
 
 remoteinventory:
 * Store remote inventory part checksums in dedicated state files and support maintenance
