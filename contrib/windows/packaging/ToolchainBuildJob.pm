@@ -118,8 +118,8 @@ sub toolchain_build_steps {
                 configure_help  => 1,
                 patch_libtool   => 1,
                 pre_configure   => [
-                    # Fix lib/relocate.c as libtool wrongly format INSTALLDIR
-                    ['sed', '-ri', '-e', 's/^\s*const char \*orig_installdir = INSTALLDIR;/const char *orig_installdir = INSTALLPREFIX "\/lib";/', '<src>/lib/relocatable.c'],
+                    # Fix srclib/relocate.c as libtool wrongly format INSTALLDIR
+                    ['sed', '-ri', '-e', 's/^\s*const char \*orig_installdir = INSTALLDIR;/const char *orig_installdir = INSTALLPREFIX "\/lib";/', '<src>/srclib/relocatable.c'],
                 ],
                 configure_opts  => [
                     '--host=x86_64-w64-mingw32', '--build=x86_64-w64-mingw32', '--srcdir=<src>', '--prefix=<prefix>',
