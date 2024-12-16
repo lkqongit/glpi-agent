@@ -68,6 +68,7 @@ packaging:
   - OpenSSL 3.4.0
   - libssh2 1.11.1
   - libxml2 2.13.5
+  - libiconv 1.18
 * Update MacOSX packages to use OpenSSL 3.4.0
 
 1.11 Tue, 24 Sep 2024
