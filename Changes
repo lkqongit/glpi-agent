@@ -64,6 +64,9 @@ esx:
   inventory_format schema v1.1.36 on server-side included in GLPI v10.0.17.
 * Add --glpi-version option support to glpi-esx script
 
+toolbox:
+* Fix task log reset for enabled tasks
+
 packaging:
 * Update Windows MSI packing building process to use:
   - OpenSSL 3.4.0
