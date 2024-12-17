@@ -21,6 +21,7 @@ core:
     to reflect the real behavior of the related action
   - Added a "Force an inventory" to only trigger inventory task for all targets
   - Targets list also show target planned tasks for trusted clients
+* Refacto: Add Logger api to register a callback permitting to collect journaling events
 
 inventory:
 * Fix rare windows perl error during drives, ipv6 network or videos inventory
