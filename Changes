@@ -22,6 +22,7 @@ core:
   - Added a "Force an inventory" to only trigger inventory task for all targets
   - Targets list also show target planned tasks for trusted clients
 * Refacto: Add Logger api to register a callback permitting to collect journaling events
+* Fix ToolBox job events support
 
 inventory:
 * Fix rare windows perl error during drives, ipv6 network or videos inventory
@@ -67,6 +68,8 @@ esx:
 
 toolbox:
 * Fix task log reset for enabled tasks
+* Fix enabled jobs start up
+* Fix event logger support to update counters even when debug is not enabled
 
 packaging:
 * Update Windows MSI packing building process to use:

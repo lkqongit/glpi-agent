@@ -531,9 +531,10 @@ sub _submit_update {
         my $rundate = $self->_get_next_run_date($edit, $job, $job->{last_run_date});
         $event->rundate($rundate);
         $job->{next_run_date} = $rundate;
-        # Re-schedule event
+        # Re-schedule event if enabled
         $self->{toolbox}->{target}->delEvent($event);
-        $self->{toolbox}->{target}->addEvent($event);
+        $self->{toolbox}->{target}->addEvent($event)
+            if $self->isyes($job->{enabled});
 
         # Reset edited entry
         $edit = $newname;
@@ -670,7 +671,12 @@ sub _submit_runnow {
 
         # We need to reschedule event if enabled
         if ($self->isyes($job->{enabled})) {
-            my $event = $self->{toolbox}->{target}->getEvent($name);
+            my %event = (
+                job     => 1,
+                name    => $name,
+                task    => $job->{type} eq 'local' ? "inventory" : "netscan",
+            );
+            my $event = GLPI::Agent::Event->new(%event);
             # To find next run date, we need to reset not_before time by setting it to now/last_run_date
             my $rundate = $self->_get_next_run_date($name, $job, $job->{last_run_date});
             $event->rundate($rundate);
@@ -685,32 +691,26 @@ sub _submit_runnow {
 sub event_logger {
     my ($self) = @_;
 
-    # We always set verbosity higher to debug2 so we can analyse any debug level
-    # messages.
-    my $logger = GLPI::Agent::Logger->new( verbosity => 2 );
+    my $logger = GLPI::Agent::Logger->new();
 
-    # Hack logger to add ourself as backend so our addMessage callback is always
-    # called on logging message in any thread
-    push @{$logger->{backends}}, $self;
+    # Setup logger with callback to collect logger messages at all level
+    my $agent = $self->{toolbox}->{server}->{agent};
+    my $taskid = $self->{taskid};
+    my $messages = $self->{tasks}->{$taskid}->{messages};
+
+    $logger->register_event_cb(sub {
+        my (%params) = @_;
+
+        return unless $params{level} && $params{message};
+
+        if ($agent->forked()) {
+            $agent->forked_process_event("LOGGER,$taskid,[$params{level}] $params{message}");
+        } else {
+            push @{$messages}, "[$params{level}] $params{message}";
+        }
+    });
 
     return $logger;
-}
-
-# To use ourself as a logger backend in a multi-threaded process
-sub addMessage {
-    my ($self, %params) = @_;
-
-    return unless $params{level} && $params{message};
-
-    my $agent = $self->{toolbox}->{server}->{agent};
-
-    my $taskid = $self->{taskid};
-    if ($agent->forked()) {
-        $agent->forked_process_event("LOGGER,$taskid,[$params{level}] $params{message}");
-    } else {
-        my $messages = $self->{tasks}->{$taskid}->{messages};
-        push @{$messages}, "[$params{level}] $params{message}";
-    }
 }
 
 sub netscan {
@@ -1051,8 +1051,9 @@ sub events_cb {
             $jobs = $self->yaml(jobs);
         }
         # Time to check if we need to run a job
-        my $event = $self->{toolbox}->{target}->getEvent();
+        my $event = $self->{toolbox}->{target}->nextEvent();
         return 0 unless $event && $event->job;
+        $self->{toolbox}->{target}->delEvent($event);
         my $name = $event->name;
         my $job  = $jobs->{$name};
         if ($job && $job->{type} && $self->isyes($job->{enabled})) {

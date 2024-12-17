@@ -126,6 +126,9 @@ sub run {
 
         $self->_reloadConfIfNeeded();
 
+        # Still get next event, as we don't want to handle job events here but in events_cb called from sleep
+        my $event = $target->nextEvent();
+
         if ($target->paused()) {
 
             undef $responses;
@@ -133,7 +136,9 @@ sub run {
             # Leave immediately if we passed in terminate method
             last if $self->{_terminate};
 
-        } elsif (my $event = $target->getEvent()) {
+        } elsif ($event && !$event->job) {
+            # Always remove event from list
+            $target->delEvent($event);
 
             # Contact server if required and cache responses
             if ($event->taskrun) {

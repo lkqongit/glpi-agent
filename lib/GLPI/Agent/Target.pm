@@ -219,7 +219,7 @@ sub addEvent {
     my $logprefix = $self->{_logprefix};
 
     # Check for supported events
-    if ($event->runnow || $event->taskrun) {
+    if (!$event->job && ($event->runnow || $event->taskrun)) {
         unless ($event->task) {
             $logger->debug("$logprefix Not supported ".$event->name." event without task");
             return 0;
@@ -306,23 +306,15 @@ sub delEvent {
         if $self->{_next_event};
 
     # Cleanup event list
-    $self->{_events} = [ grep { $_->name ne $event->name } @{$self->{_events}} ]
+    $self->{_events} = [ grep { $_->name ne $event->name || (($event->init || $event->maintenance) && $_->task ne $event->task) } @{$self->{_events}} ]
 }
 
-sub getEvent {
-    my ($self, $name) = @_;
-    if ($name) {
-        my ($event) = grep { $_->name eq $name } @{$self->{_events}};
-        return $event;
-    }
+sub nextEvent {
+    my ($self) = @_;
+
     return unless @{$self->{_events}} && time >= $self->{_events}->[0]->rundate;
-    my $event = shift @{$self->{_events}};
 
-    # Always accept new event for this name
-    delete $self->{_next_event}->{$event->name}
-        if $self->{_next_event};
-
-    return $event;
+    return $self->{_events}->[0];
 }
 
 sub paused {
