@@ -494,15 +494,15 @@ sub read_yaml {
 sub reload_yaml_on_change {
     my ($self) = @_;
 
-    return unless $self->{_yaml_loaded_time};
-
-    my $reload_needed = 0;
-    foreach my $file (keys(%{$self->{_yaml_loaded_time}})) {
-        my $mtime = stat($file)->mtime;
-        if ($mtime > $self->{_yaml_loaded_time}->{$file}) {
-            $reload_needed++;
-            $self->debug("Reloading YAML files on $file update");
-            last;
+    my $reload_needed = $self->{_yaml_loaded_time} ? 0 : 1;
+    unless ($reload_needed) {
+        foreach my $file (keys(%{$self->{_yaml_loaded_time}})) {
+            my $mtime = stat($file)->mtime;
+            if ($mtime > $self->{_yaml_loaded_time}->{$file}) {
+                $reload_needed++;
+                $self->debug("Reloading YAML files on $file update");
+                last;
+            }
         }
     }
 
