@@ -379,8 +379,11 @@ sub _runSql {
             my $env = "";
             if ($ENV{ORACLE_SID}) {
                 # Get instance asm_pmon process
-                my ($asm_pmon) = grep { $_->{CMD} =~ /^asm_pmon_$ENV{ORACLE_SID}/ }
-                    getProcesses(logger => $params{logger});
+                my ($asm_pmon) = getProcesses(
+                    namespace   => "same",
+                    filter      => qr/^asm_pmon_$ENV{ORACLE_SID}/,
+                    logger      => $params{logger}
+                );
                 $user = $asm_pmon->{USER} if $asm_pmon;
                 $env = "ORACLE_SID=$ENV{ORACLE_SID}";
             }

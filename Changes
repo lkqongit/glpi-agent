@@ -33,6 +33,8 @@ inventory:
 * fix #811: Fix network interface inventory on lxc linux container, but also fix
   few other cases where more interfaces are found due to interface name aliasing
 * Fix --partial option when used with glpi-agent script
+* Update getProcesses() API to permit filtering and report processes only in the same
+  namespace to not list containers processes. Refacto inventory module using this API.
 
 remoteinventory:
 * Store remote inventory part checksums in dedicated state files and support maintenance
