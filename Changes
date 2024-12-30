@@ -35,6 +35,7 @@ inventory:
 * Fix --partial option when used with glpi-agent script
 * Update getProcesses() API to permit filtering and report processes only in the same
   namespace to not list containers processes. Refacto inventory module using this API.
+* Add support for Trellix/McAfee agent as Antivirus on windows
 
 remoteinventory:
 * Store remote inventory part checksums in dedicated state files and support maintenance

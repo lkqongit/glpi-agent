@@ -707,7 +707,7 @@ sub getServices {
     foreach my $object (getWMIObjects(
         class      => 'Win32_Service',
         properties => [ qw/
-            Name DisplayName Description State
+            Name DisplayName Description State PathName
             /
         ],
         %params
@@ -718,6 +718,7 @@ sub getServices {
             NAME        => $object->{DisplayName},
             DESCRIPTION => $object->{Description} // "",
             STATUS      => $object->{State}       // "n/a",
+            PATHNAME    => $object->{PathName}    // "",
         };
     }
 

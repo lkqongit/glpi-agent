@@ -6,6 +6,8 @@ use warnings;
 use parent 'GLPI::Agent::Task::Inventory::Module';
 
 use UNIVERSAL::require;
+use File::Spec;
+use File::Basename qw(dirname);
 
 use GLPI::Agent::Tools;
 use GLPI::Agent::Tools::Win32;
@@ -160,14 +162,26 @@ sub doInventory {
             # Cortex XDR support
             name    => "Cortex XDR",
             service => "cyserver",
-            command => "C:\\Program Files\\Palo Alto Networks\\Traps\\cytool.exe",
+            path    => "C:\\Program Files\\Palo Alto Networks\\Traps",
+            command => "cytool.exe",
             func    => \&_setCortexInfos,
         }, {
             # BitDefender support
             name    => "Bitdefender Endpoint Security",
             service => "EPSecurityService",
-            command => "C:\\Program Files\\Bitdefender\\Endpoint Security\\product.console.exe",
+            path    => "C:\\Program Files\\Bitdefender\\Endpoint Security",
+            command => "product.console.exe",
             func    => \&_setBitdefenderInfos,
+        }, {
+            # Trellix/McAfee support
+            name    => "Trellix",
+            service => "masvc",
+            path    => [
+                "C:\\Program Files\\McAfee\\Agent",
+                "C:\\Program Files (x86)\\McAfee\\Commmon Framework",
+            ],
+            command => "CmdAgent.exe",
+            func    => \&_setMcAfeeInfos,
         }) {
             my $antivirus;
             my $service = $services->{$support->{service}}
@@ -176,8 +190,26 @@ sub doInventory {
             $antivirus->{NAME} = $support->{name} || $service->{NAME};
             $antivirus->{ENABLED} = $service->{STATUS} =~ /running/i ? 1 : 0;
 
-            if (my $cmd = $support->{command}) {
-                &{$support->{func}}($antivirus, $logger, $cmd) if canRun($cmd);
+            if ($support->{command}) {
+                my @path;
+                if ($service->{PATHNAME}) {
+                    # First use pathname extracted from service PATHNAME
+                    my ($path) = $service->{PATHNAME} =~ /^"/ ?
+                        $service->{PATHNAME} =~ /^"([^"]+)\"/ :
+                        $service->{PATHNAME} =~ /^(\S+)/ ;
+                    push @path, $path if $path;
+                }
+                push @path, ref($support->{path}) ? @{$support->{path}} : $support->{path}
+                    if $support->{path};
+                my %tried;
+                foreach my $path (@path) {
+                    next if $tried{$path};
+                    $tried{$path} = 1;
+                    my $cmd = File::Spec->catfile($path, $support->{command});
+                    next unless canRun($cmd);
+                    &{$support->{func}}($antivirus, $logger, $cmd);
+                    last;
+                }
             }
 
             # avoid duplicates
@@ -219,7 +251,17 @@ sub _getAntivirusUninstall {
 }
 
 sub _setMcAfeeInfos {
-    my ($antivirus) = @_;
+    my ($antivirus, $logger, $command) = @_;
+
+    if ($command) {
+        my $version = getFirstMatch(
+            command => "\"$command\" /i",
+            pattern => qr/^Version: (.*)$/,
+            logger  => $logger
+        );
+        $antivirus->{VERSION} = $version if $version;
+        $antivirus->{COMPANY} = "Trellix" unless $antivirus->{COMPANY};
+    }
 
     my %properties = (
         BASE_VERSION    => [ qw(AVDatVersion    AVDatVersionMinor) ],
