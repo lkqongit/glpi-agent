@@ -77,6 +77,16 @@ sub createInventory {
 
     $inventory->setHardware( $host->getHardwareInfo() );
 
+    # Add a virtual memory component to report total memory size for system. This remains
+    # an extrapolated total size based on the reported available system memory size.
+    my $memory = $inventory->getHardware("MEMORY");
+    if ($memory) {
+        $inventory->addEntry(
+            section => 'MEMORIES',
+            entry   => _esxTotalMemory($memory),
+        );
+    }
+
     $inventory->setOperatingSystem( $host->getOperatingSystemInfo() );
 
     foreach my $cpu ($host->getCPUs()) {
@@ -124,6 +134,27 @@ sub createInventory {
 
     return $inventory;
 
+}
+
+# Return a total size memory component with capacity rounded to the upper multiple of
+# 1GB if size is lower than 16GB, 4GB for greater size but lower than 100GB and 16GB
+# for even larger values. With $size given in MB.
+sub _esxTotalMemory {
+    my ($size) = @_;
+
+    return unless $size && $size =~ /^\d+$/;
+
+    my $base = $size < 16384 ? 1024 : $size >= 102400 ? 16384 : 4096;
+    my $capacity = (int(int($size)/$base)+1) * $base;
+
+    return {
+        CAPACITY     => $capacity,
+        CAPTION      => "ESX Guessed Total Memory",
+        DESCRIPTION  => "ESX Memory",
+        TYPE         => "Total",
+        MANUFACTURER => "VMware",
+        NUMSLOTS     => "0",
+    };
 }
 
 sub getHostIds {

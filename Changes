@@ -69,6 +69,7 @@ esx:
 * Support reporting of ESX virtualmachines ip and operating system. It requires
   inventory_format schema v1.1.36 on server-side included in GLPI v10.0.17.
 * Add --glpi-version option support to glpi-esx script
+* Add guessed Total ESX memory size as memory component
 
 toolbox:
 * Fix task log reset for enabled tasks
