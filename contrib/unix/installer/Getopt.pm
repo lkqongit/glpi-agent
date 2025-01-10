@@ -15,6 +15,7 @@ my @options = (
     'color',
     'cron=i',
     'debug|d=i',
+    'delaytime=i',
     'distro=s',
     'no-question|Q',
     'extract=s',
@@ -118,6 +119,10 @@ glpi-agent-linux-installer [options]
   Target definition options:
     -s --server=URI                configure agent GLPI server
     -l --local=PATH                configure local path to store inventories
+
+  Target scheduling options:
+    --delaytime=LIMIT              maximum delay before target tasks first run, in seconds (3600)
+                                   It also defines the maximum delay on network error.
 
   Task selection options:
     --no-task=TASK[,TASK]...       configure task to not run

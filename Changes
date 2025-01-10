@@ -83,6 +83,7 @@ packaging:
   - libxml2 2.13.5
   - libiconv 1.18
 * Update MacOSX packages to use OpenSSL 3.4.0
+* fix #816: Support --delaytime option in linux perl installer
 
 1.11 Tue, 24 Sep 2024
 
