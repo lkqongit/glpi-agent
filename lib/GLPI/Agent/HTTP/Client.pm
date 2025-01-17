@@ -694,9 +694,9 @@ sub _KeyChain_or_KeyStore_Export {
 
     # Like Mozilla::CA, but using certs from /etc/ssl/certs
     if ($OSNAME !~ /^darwin|MSWin32$/) {
-        my $cacert = "/etc/ssl/certs/ca-certificates.crt";
-        push @certs, IO::Socket::SSL::Utils::PEM_file2certs($cacert)
-            if -e $cacert;
+        my $sslcacert = "/etc/ssl/certs/ca-certificates.crt";
+        push @certs, IO::Socket::SSL::Utils::PEM_file2certs($sslcacert)
+            if -e $sslcacert;
     }
 
     # Always include default CA file from Mozilla::CA
