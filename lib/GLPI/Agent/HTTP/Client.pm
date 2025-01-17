@@ -699,7 +699,7 @@ sub _KeyChain_or_KeyStore_Export {
     }
 
     # Include default CA file from Mozilla::CA if @certs is empty
-    if (!@certs && Mozilla::CA->require()) {
+    if ((!@certs || $self->{ssl_keystore} !~ /^system-ssl-ca$/i) && Mozilla::CA->require()) {
         my $cacert = Mozilla::CA::SSL_ca_file();
         push @certs, IO::Socket::SSL::Utils::PEM_file2certs($cacert)
             if -e $cacert;
