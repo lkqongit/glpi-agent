@@ -600,13 +600,12 @@ sub _KeyChain_or_KeyStore_Export {
             SUFFIX      => ".pem",
         );
         my $file = $tmpfile->filename;
+        my $command = "security find-certificate -a -p";
+        $command .= " /System/Library/Keychains/SystemRootCertificates.keychain"
+            if $self->{ssl_keystore} =~ /^system-ssl-ca$/i;
         getAllLines(
-            command => "security find-certificate -a -p > '$file'",
-            logger  => $logger
-        );
-        getAllLines(
-            command => "security find-certificate -a -p /System/Library/Keychains/SystemRootCertificates.keychain >> '$file'",
-            logger  => $logger
+             command => "$command > '$file'",
+             logger  => $logger
         );
         push @certs, IO::Socket::SSL::Utils::PEM_file2certs($file)
             if -s $file;
