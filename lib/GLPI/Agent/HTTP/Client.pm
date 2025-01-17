@@ -553,9 +553,6 @@ sub _setSSLOptions {
 sub _KeyChain_or_KeyStore_Export {
     my ($self) = @_;
 
-    # Only MacOSX and MSWin32 are supported
-    return unless $OSNAME =~ /^darwin|MSWin32$/;
-
     # But we don't need to extract anything if we still use an option to authenticate server certificate
     return if $self->{ca_cert_file} || $self->{ca_cert_dir} || (ref($self->{ssl_fingerprint}) eq 'ARRAY' && @{$self->{ssl_fingerprint}});
 
@@ -607,7 +604,11 @@ sub _KeyChain_or_KeyStore_Export {
             command => "security find-certificate -a -p > '$file'",
             logger  => $logger
         );
-        @certs = IO::Socket::SSL::Utils::PEM_file2certs($file)
+        getAllLines(
+            command => "security find-certificate -a -p /System/Library/Keychains/SystemRootCertificates.keychain >> '$file'",
+            logger  => $logger
+        );
+        push @certs, IO::Socket::SSL::Utils::PEM_file2certs($file)
             if -s $file;
     } else {
         my @certCommands;
