@@ -553,9 +553,6 @@ sub _setSSLOptions {
 sub _KeyChain_or_KeyStore_Export {
     my ($self) = @_;
 
-    # Only MacOSX and MSWin32 are supported
-    return unless $OSNAME =~ /^darwin|MSWin32$/;
-
     # But we don't need to extract anything if we still use an option to authenticate server certificate
     return if $self->{ca_cert_file} || $self->{ca_cert_dir} || (ref($self->{ssl_fingerprint}) eq 'ARRAY' && @{$self->{ssl_fingerprint}});
 
@@ -603,11 +600,14 @@ sub _KeyChain_or_KeyStore_Export {
             SUFFIX      => ".pem",
         );
         my $file = $tmpfile->filename;
+        my $command = "security find-certificate -a -p";
+        $command .= " /System/Library/Keychains/SystemRootCertificates.keychain"
+            if $self->{ssl_keystore} =~ /^system-ssl-ca$/i;
         getAllLines(
-            command => "security find-certificate -a -p > '$file'",
-            logger  => $logger
+             command => "$command > '$file'",
+             logger  => $logger
         );
-        @certs = IO::Socket::SSL::Utils::PEM_file2certs($file)
+        push @certs, IO::Socket::SSL::Utils::PEM_file2certs($file)
             if -s $file;
     } else {
         my @certCommands;
@@ -691,8 +691,15 @@ sub _KeyChain_or_KeyStore_Export {
         }
     }
 
-    # Always include default CA file from Mozilla::CA
-    if (Mozilla::CA->require()) {
+    # Like Mozilla::CA, but using certs from /etc/ssl/certs
+    if ($OSNAME !~ /^darwin|MSWin32$/) {
+        my $sslcacert = "/etc/ssl/certs/ca-certificates.crt";
+        push @certs, IO::Socket::SSL::Utils::PEM_file2certs($sslcacert)
+            if -e $sslcacert;
+    }
+
+    # Include default CA file from Mozilla::CA if @certs is empty
+    if ((!@certs || $OSNAME eq 'darwin' && $self->{ssl_keystore} !~ /^system-ssl-ca$/i) && Mozilla::CA->require()) {
         my $cacert = Mozilla::CA::SSL_ca_file();
         push @certs, IO::Socket::SSL::Utils::PEM_file2certs($cacert)
             if -e $cacert;
