@@ -23,6 +23,7 @@ core:
   - Targets list also show target planned tasks for trusted clients
 * Refacto: Add Logger api to register a callback permitting to collect journaling events
 * Fix ToolBox job events support
+* Support ssl-keystore=system-ssl-ca on MacOSX to force using system known public CAs
 
 inventory:
 * Fix rare windows perl error during drives, ipv6 network or videos inventory

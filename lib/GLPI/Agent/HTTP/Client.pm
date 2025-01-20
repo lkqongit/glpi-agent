@@ -604,8 +604,11 @@ sub _KeyChain_or_KeyStore_Export {
         );
         my $file = $tmpfile->filename;
         my $command = "security find-certificate -a -p";
+
+        # Support --ssl-keystore=system-ssl-ca option on MacOSX
         $command .= " /System/Library/Keychains/SystemRootCertificates.keychain"
-            if $self->{ssl_keystore} =~ /^system-ssl-ca$/i;
+            if $self->{ssl_keystore} && $self->{ssl_keystore} =~ /^system-ssl-ca$/i;
+
         getAllLines(
              command => "$command > '$file'",
              logger  => $logger
