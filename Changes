@@ -36,6 +36,7 @@ inventory:
 * Update getProcesses() API to permit filtering and report processes only in the same
   namespace to not list containers processes. Refacto inventory module using this API.
 * Add support for Trellix/McAfee agent as Antivirus on windows
+* fix #827: Fix usb devices inventory on linux which have 0002 as PRODUCTID and are not root hub
 
 remoteinventory:
 * Store remote inventory part checksums in dedicated state files and support maintenance
