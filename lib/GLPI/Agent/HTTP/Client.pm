@@ -603,9 +603,15 @@ sub _KeyChain_or_KeyStore_Export {
             SUFFIX      => ".pem",
         );
         my $file = $tmpfile->filename;
+        my $command = "security find-certificate -a -p";
+
+        # Support --ssl-keystore=system-ssl-ca option on MacOSX
+        $command .= " /System/Library/Keychains/SystemRootCertificates.keychain"
+            if $self->{ssl_keystore} && $self->{ssl_keystore} =~ /^system-ssl-ca$/i;
+
         getAllLines(
-            command => "security find-certificate -a -p > '$file'",
-            logger  => $logger
+             command => "$command > '$file'",
+             logger  => $logger
         );
         @certs = IO::Socket::SSL::Utils::PEM_file2certs($file)
             if -s $file;
