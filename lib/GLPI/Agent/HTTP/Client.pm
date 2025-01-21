@@ -589,6 +589,7 @@ sub _KeyChain_or_KeyStore_Export {
     );
 
     my @certs = ();
+    my $loadMozillaCA = 1;
 
     File::Temp->require();
     if ($EVAL_ERROR) {
@@ -606,8 +607,11 @@ sub _KeyChain_or_KeyStore_Export {
         my $command = "security find-certificate -a -p";
 
         # Support --ssl-keystore=system-ssl-ca option on MacOSX
-        $command .= " /System/Library/Keychains/SystemRootCertificates.keychain"
-            if $self->{ssl_keystore} && $self->{ssl_keystore} =~ /^system-ssl-ca$/i;
+        if ($self->{ssl_keystore} && $self->{ssl_keystore} =~ /^system-ssl-ca$/i) {
+            $command .= " /System/Library/Keychains/SystemRootCertificates.keychain";
+            # In that case, we don't need to load Mozilla::CA
+            $loadMozillaCA = 0;
+        }
 
         getAllLines(
              command => "$command > '$file'",
@@ -698,7 +702,7 @@ sub _KeyChain_or_KeyStore_Export {
     }
 
     # Always include default CA file from Mozilla::CA
-    if (Mozilla::CA->require()) {
+    if ($loadMozillaCA && $Mozilla::CA->require()) {
         my $cacert = Mozilla::CA::SSL_ca_file();
         push @certs, IO::Socket::SSL::Utils::PEM_file2certs($cacert)
             if -e $cacert;
