@@ -37,8 +37,8 @@ lives_ok {
 } 'instanciation: ok';
 
 my $storage_dir = $OSNAME eq 'MSWin32' ?
-    "$basevardir/http..__my.domain.tld_" :
-    "$basevardir/http:__my.domain.tld_" ;
+    "$basevardir/http..__my.domain.tld" :
+    "$basevardir/http:__my.domain.tld" ;
 ok(-d $storage_dir, "storage directory creation");
 is($target->{id}, 'server0', "identifier");
 

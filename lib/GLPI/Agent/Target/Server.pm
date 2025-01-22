@@ -22,13 +22,25 @@ sub new {
     $self->{url} = _getCanonicalURL($params{url});
 
     # compute storage subdirectory from url
-    my $subdir = $self->{url};
+    my $url = ref($self->{url}) eq "URI" ? $self->{url}->clone : URI->new($self->{url});
+    $url->userinfo(undef);
+    my $subdir = $url->as_string;
     $subdir =~ s/\//_/g;
     $subdir =~ s/:/../g if $OSNAME eq 'MSWin32';
+    # Remove any trailing underscore
+    $subdir =~ s/_+$//;
+
+    # Provide oldvardir to eventually migrate it to newer clean version
+    my $oldvardir = ref($self->{url}) eq "URI" ? $self->{url}->as_string : $self->{url};
+    $oldvardir =~ s/\//_/g;
+    $oldvardir =~ s/:/../g if $OSNAME eq 'MSWin32';
+    # But leave it empty if not changed
+    $oldvardir = "" if $subdir eq $oldvardir;
 
     $self->_init(
-        id     => 'server' . $count++,
-        vardir => $params{basevardir} . '/' . $subdir
+        id        => 'server' . $count++,
+        vardir    => $params{basevardir} . '/' . $subdir,
+        oldvardir => $oldvardir ? $params{basevardir} . '/' . $oldvardir : ""
     );
 
     return $self;
@@ -74,7 +86,10 @@ sub getUrl {
 sub getName {
     my ($self) = @_;
 
-    return $self->{url};
+    my $url = ref($self->{url}) eq "URI" ? $self->{url}->clone : URI->new($self->{url});
+    $url->userinfo(undef);
+
+    return $url->as_string;
 }
 
 sub getType {

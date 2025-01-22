@@ -51,6 +51,7 @@ sub _init {
 
     $self->{storage} = GLPI::Agent::Storage->new(
         logger    => $self->{logger},
+        oldvardir => $params{oldvardir} // "",
         directory => $params{vardir}
     );
 

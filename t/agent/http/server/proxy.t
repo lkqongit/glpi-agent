@@ -320,7 +320,7 @@ subtest "failing to pass inventory to server" => sub {
     check_error(500, "Inventory not sent to server0");
 };
 
-$glpi->{url} = "http://glpi-project.test/glpi?test=sent";
+$glpi->{url} = URI->new("http://glpi-project.test/glpi?test=sent");
 _request();
 subtest "send inventory to server" => sub {
     check_error(200, { REPLY => "" }, "Inventory sent to server0", "xml");
@@ -363,7 +363,7 @@ subtest "Supported xml PROLOG query" => sub {
 
 # Same request but with a server set
 $proxy->config("only_local_store", 0);
-$glpi->{url} = "http://glpi-project.test/glpi";
+$glpi->{url} = URI->new("http://glpi-project.test/glpi");
 $glpi->isGlpiServer(1);
 $agent->{targets} = [ $glpi ];
 _request();
@@ -433,7 +433,7 @@ SKIP: {
 }
 
 $proxy->config("only_local_store", 0);
-$glpi->{url} = "http://glpi-project.test/glpi?test=noserver";
+$glpi->{url} = URI->new("http://glpi-project.test/glpi?test=noserver");
 _request();
 subtest "JSON inventory pending request but ko" => sub {
     check_error(202, { status => "pending", expiration => "10s" }, "JSON inventory action stored", "json");
@@ -441,7 +441,7 @@ subtest "JSON inventory pending request but ko" => sub {
 like(shift @events, qr/^PROXYREQ,[0-9A-F]{8},.*"status":"pending"/, "Pending inventory event");
 like(shift @events, qr/^PROXYREQ,[0-9A-F]{8},.*"message":"server0 forward failure"/, "Pending inventory event not sent");
 
-$glpi->{url} = "http://glpi-project.test/glpi?test=sent";
+$glpi->{url} = URI->new("http://glpi-project.test/glpi?test=sent");
 _request();
 subtest "JSON inventory pending request and ok" => sub {
     check_error(202, { status => "pending", expiration => "10s" }, "JSON inventory action stored", "json");
