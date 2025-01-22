@@ -86,6 +86,8 @@ packaging:
   - libiconv 1.18
 * Update MacOSX packages to use OpenSSL 3.4.0
 * fix #816: Support --delaytime option in linux perl installer
+* fix #797: Use option to disable local package gpg check when installing with dnf
+  in linux perl installer
 
 1.11 Tue, 24 Sep 2024
 
