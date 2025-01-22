@@ -53,6 +53,7 @@ netdiscovery/netinventory:
 * Updated sysobject.ids
 * Added Avaya J100 series IP Phones support
 * Updated Lexmark printers support
+* Added Bachmann PDU devices support
 
 deploy:
 * Fix checks on command run and clarify reason of success or failure. This fixes
