@@ -306,7 +306,7 @@ sub delEvent {
         if $self->{_next_event};
 
     # Cleanup event list
-    $self->{_events} = [ grep { $_->name ne $event->name || (($event->init || $event->maintenance) && $_->task ne $event->task) } @{$self->{_events}} ]
+    $self->{_events} = [ grep { $_->name ne $event->name || (($event->init || $event->maintenance || $event->taskrun) && $_->task ne $event->task) } @{$self->{_events}} ];
 }
 
 sub nextEvent {
