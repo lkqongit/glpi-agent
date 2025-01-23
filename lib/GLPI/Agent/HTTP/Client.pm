@@ -666,6 +666,7 @@ sub _KeyChain_or_KeyStore_Export {
             $logger->debug2("Changing to '$certdir' temporary folder");
             chdir $certdir;
 
+            my @deletefolder;
             foreach my $command (@certCommands) {
                 my ($kind, $store) = $command =~ /-Split( -\w+)? -Store (\w+)$/;
                 my $storeDirname = $kind && $kind =~ /^ -(\w+)$/ ? "$1-$store" : $store;
@@ -676,6 +677,7 @@ sub _KeyChain_or_KeyStore_Export {
                     logger  => $logger
                 );
                 chdir "..";
+                push @deletefolder, $storeDirname;
             }
 
             # Export certificates from keystore as crt files
@@ -694,6 +696,9 @@ sub _KeyChain_or_KeyStore_Export {
                 }
                 unlink $certfile;
             }
+
+            # Cleanup temp subfolders
+            map { rmdir $_ } @deletefolder;
 
             # Get back to current dir
             $logger->debug2("Changing back to '$cwd' folder");
