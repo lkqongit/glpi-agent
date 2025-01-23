@@ -65,11 +65,15 @@ sub new {
     } elsif ($params{taskrun} && $params{taskrun} =~ /^yes|1$/i) {
         # Run task request eventually following a runnow event
         $self = {
-            _taskrun  => 1,
+            _taskrun => 1,
             _name    => "run",
             _task    => $params{task} // '',
             _delay   => $params{delay} // 0,
             _httpd   => 1,
+            _params  => {
+                # Support parameter to reset target next rundate on task run
+                reschedule => $params{reschedule} // 0,
+            }
         };
         # Store any other supported params
         if ($params{task} && $params{task} eq "inventory") {

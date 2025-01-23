@@ -182,8 +182,11 @@ sub triggerRunTasksNow {
 
     my %plannedTasks = map { lc($_) => 1 } @{$self->{tasks}};
     my $task = $event->task;
-    my @tasks = $task && $task eq "all" ? @{$self->{tasks}} : split(/,+/, $task);
+    my $all = $task && $task eq "all" ? 1 : 0;
+    my @tasks = $all ? @{$self->{tasks}} : split(/,+/, $task);
+    my $reschedule_index = $all ? scalar(@tasks) : 0;
     foreach my $runtask (map { lc($_) } @tasks) {
+        $reschedule_index--;
         next unless $plannedTasks{$runtask};
 
         my %event = (
@@ -192,6 +195,10 @@ sub triggerRunTasksNow {
             # runnow event can still have been delayed itself
             delay   => 0,
         );
+
+        # permit to reschedule on last task run
+        $event{reschedule} = 1
+            if $all && $reschedule_index == 0;
 
         # Add any supported params
         if ($runtask eq "inventory") {

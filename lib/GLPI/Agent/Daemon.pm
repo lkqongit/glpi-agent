@@ -164,6 +164,20 @@ sub run {
             # Leave immediately if we passed in terminate method
             last if $self->{_terminate};
 
+            # Reschedule if required
+            if ($event->taskrun && $event->get('reschedule')) {
+                # First set rundate to now, than reset next run date
+                $target->setNextRunDateFromNow();
+                $target->resetNextRunDate();
+
+                if ($logger) {
+                    my $date = $target->getFormatedNextRunDate();
+                    my $id   = $target->id();
+                    my $name = $target->getName();
+                    $logger->info("target $id: next run: $date - $name");
+                }
+            }
+
             # We should run service optimization after all targets can be run
             $self->{_run_optimization} = scalar($self->getTargets());
 
