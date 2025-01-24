@@ -6,8 +6,8 @@ use parent 'Exporter';
 use constant {
     # Toolchain setup
     TOOLCHAIN_BASE_URL  => 'https://github.com/brechtsanders/winlibs_mingw/releases/download',
-    TOOLCHAIN_VERSION   => '13.3.0posix-11.0.1-msvcrt-r1',
-    TOOLCHAIN_ARCHIVE   => 'winlibs-x86_64-posix-seh-gcc-13.3.0-mingw-w64msvcrt-11.0.1-r1.zip',
+    TOOLCHAIN_VERSION   => '14.2.0posix-12.0.0-msvcrt-r2',
+    TOOLCHAIN_ARCHIVE   => 'winlibs-x86_64-posix-seh-gcc-14.2.0-mingw-w64msvcrt-12.0.0-r2.zip',
 };
 
 sub toolchain_build_steps {
@@ -39,8 +39,8 @@ sub toolchain_build_steps {
             {
                 plugin          => 'Perl::Dist::Strawberry::Step::Msys2',
                 name            => 'msys2-base',
-                version         => '20240507',
-                folder          => '2024-05-07',
+                version         => '20241208',
+                folder          => '2024-12-08',
                 url             => 'https://github.com/msys2/msys2-installer/releases/download/<folder>/<name>-x86_64-<version>.tar.xz',
                 dest            => 'msys64',
             },
@@ -91,7 +91,7 @@ sub toolchain_build_steps {
             {
                 plugin  => 'Perl::Dist::Strawberry::Step::BuildLibrary',
                 name    => 'xz',
-                version => '5.6.2',
+                version => '5.6.4',
                 url     => 'https://github.com/tukaani-project/<name>/releases/download/v<version>/<name>-<version>.tar.gz',
                 skip_if_file    => 'bin/liblzma-5__.dll',
                 skip_test       => 1,
