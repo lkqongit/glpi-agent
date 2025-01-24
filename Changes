@@ -40,6 +40,8 @@ inventory:
 * Add support for Trellix/McAfee agent as Antivirus on windows
 * fix #827: Fix usb devices inventory on linux which have 0002 as PRODUCTID and are not root hub
 * fix #652: Fix usb printers serialnumber on windows stripping leading zeros
+* Updated pci.ids to 2025.01.13 version
+* Updated usb.ids to 2025.01.14 version
 
 remoteinventory:
 * Store remote inventory part checksums in dedicated state files and support maintenance
@@ -57,6 +59,7 @@ netdiscovery/netinventory:
 * Updated Lexmark printers support
 * Added Bachmann PDU devices support
 * Added RNX PDU devices support
+* Updated sysobject.ids
 
 deploy:
 * Fix checks on command run and clarify reason of success or failure. This fixes
