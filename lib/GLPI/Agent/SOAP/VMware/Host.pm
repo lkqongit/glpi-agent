@@ -3,8 +3,6 @@ package GLPI::Agent::SOAP::VMware::Host;
 use strict;
 use warnings;
 
-use version;
-
 use GLPI::Agent::Tools;
 use GLPI::Agent::Tools::Virtualization;
 use GLPI::Agent::Tools::UUID;
@@ -36,13 +34,13 @@ sub enableFeaturesForGlpiVersion {
 
     return if empty($version);
 
-    $self->{glpi} = version->parse($version);
+    $self->{glpi} = glpiVersion($version);
 }
 
 sub supportGlpiVersion {
     my ($self, $version) = @_;
 
-    return exists($self->{glpi}) && $self->{glpi} >= version->parse($version);
+    return exists($self->{glpi}) && $self->{glpi} >= glpiVersion($version);
 }
 
 sub getBootTime {

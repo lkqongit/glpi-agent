@@ -42,6 +42,7 @@ our @EXPORT = qw(
     getAllLines
     getLinesCount
     compareVersion
+    glpiVersion
     canRun
     canRead
     hex2char
@@ -375,6 +376,15 @@ sub compareVersion {
             &&
             $minor >= $min_minor
         );
+}
+
+# Return a version as an integer to be used in versions comparison
+sub glpiVersion {
+    my ($version) = @_;
+
+    return 0 unless $version && $version =~ /^v?(\d+)(?:\.(\d+))?(?:\.(\d+))?/;
+
+    return int($1) * 1_000_000 + int($2 // 0) * 1000 + int($3 // 0);
 }
 
 sub getUtf8String {

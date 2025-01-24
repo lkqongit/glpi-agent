@@ -5,8 +5,6 @@ use warnings;
 
 use parent 'GLPI::Agent::SNMP::MibSupportTemplate';
 
-use version;
-
 use GLPI::Agent::Tools;
 use GLPI::Agent::Tools::Hardware;
 use GLPI::Agent::Tools::SNMP;
@@ -315,8 +313,8 @@ sub run {
             push @{$device->{STORAGES}}, $storage;
         }
 
-        my $glpi_version = $device->{glpi} ? version->parse($device->{glpi}) : 0;
-        if (!$glpi_version || $glpi_version > version->parse('10.0.10')) {
+        my $glpi_version = $device->{glpi} ? glpiVersion($device->{glpi}) : 0;
+        if (!$glpi_version || $glpi_version > glpiVersion('10.0.10')) {
             my $volumesNames      = $self->walk(syno_raidName) // {};
             my $volumesFreeSizes  = $self->walk(syno_raidFreeSize) // {};
             my $volumesTotalSizes = $self->walk(syno_raidTotalSize) // {};

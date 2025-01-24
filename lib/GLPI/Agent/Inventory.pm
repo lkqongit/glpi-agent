@@ -3,8 +3,6 @@ package GLPI::Agent::Inventory;
 use strict;
 use warnings;
 
-use version;
-
 use Config;
 use Digest::SHA;
 use English qw(-no_match_vars);
@@ -117,7 +115,7 @@ my %checks = (
         STATUS    => qr/^(up|down)$/,
         INTERFACE => {
             # Check can be ignored since GLPI 10.0.4
-            not_since   => version->parse('10.0.4'),
+            not_since   => glpiVersion('10.0.4'),
             regexp      => qr/^(SCSI|HDC|IDE|USB|1394|SATA|SAS|ATAPI)$/
         }
     },
@@ -150,7 +148,7 @@ sub new {
         logger         => $params{logger} || GLPI::Agent::Logger->new(),
         fields         => \%fields,
         _format        => '',
-        _glpi_version  => version->parse('0'),
+        _glpi_version  => glpiVersion('v10'),
         content        => {
             HARDWARE => {
                 VMSYSTEM => "Physical" # Default value
@@ -161,7 +159,7 @@ sub new {
     };
     bless $self, $class;
 
-    $self->{_glpi_version} = version->parse($params{glpi})
+    $self->{_glpi_version} = glpiVersion($params{glpi})
         if $params{glpi};
 
     $self->setTag($params{tag});
@@ -367,7 +365,7 @@ sub addEntry {
         my $value = getSanitizedString($entry->{$field});
         # check value if appliable
         if (ref($checks->{$field}) eq 'HASH') {
-            if ($checks->{$field}->{regexp} && $checks->{$field}->{not_since} > $self->{_glpi_version}) {
+            if ($checks->{$field}->{regexp} && $checks->{$field}->{not_since} && $checks->{$field}->{not_since} > $self->{_glpi_version}) {
                 $self->{logger}->debug(
                     "invalid value $value for field $field for section $section"
                 ) unless $value =~ $checks->{$field}->{regexp};
