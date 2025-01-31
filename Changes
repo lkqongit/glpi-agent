@@ -2,6 +2,10 @@ Revision history for GLPI agent
 
 1.13 not yet released
 
+netdiscovery/netinventory:
+* PR #836 from @eduardomozart: Enhanced HP wireless printers by reporting wifi ports
+  as wireless
+
 packaging:
 * Update Windows MSI packing building process to use:
   - msys2-base 20240507
