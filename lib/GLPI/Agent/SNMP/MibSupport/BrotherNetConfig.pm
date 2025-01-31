@@ -19,6 +19,10 @@ use constant    printerinfomation   => net_peripheral . '.4.2.1.5.5' ;
 use constant    brInfoSerialNumber  => printerinfomation . '.1.0' ;
 use constant    brScanCountCounter  => printerinfomation . '.54.2.2.1.3.3';
 
+use constant    brMultiIFConfigureEntry => brother . '.2.4.4.1240.1.5.1';
+use constant    brMultiIFType           => brMultiIFConfigureEntry . '.2';
+use constant    brMultiIFNodeType       => brMultiIFConfigureEntry . '.8';
+
 # Brother NetConfig
 use constant    brnetconfig => brother . '.2.4.3.1240' ;
 use constant    brconfig    => brnetconfig . '.1' ;
@@ -77,6 +81,37 @@ sub getModel {
     return $model;
 }
 
+sub updatePortIfType {
+    my ($self) = @_;
+
+    my $device = $self->device
+        or return;
+
+    # Get list of device ports
+    my $ports = $device->{PORTS}->{PORT};
+
+    # Get list of device ports types (lan(1)/wirelesslan(2))
+    my $brMultiIFType = $self->walk(brMultiIFType)
+        or return;
+
+    # Get list of device ports names
+    my $brMultiIFNodeType = $self->walk(brMultiIFNodeType)
+        or return;
+
+    foreach my $index (keys %{$brMultiIFType}) {
+        foreach my $port (keys %{$ports}) {
+            next unless defined($ports->{$port}->{IFNAME}) && defined($brMultiIFNodeType->{$index});
+            if ($ports->{$port}->{IFNAME} eq getCanonicalString($brMultiIFNodeType->{$index})) {
+                # wirelesslan(2)
+                if (defined($brMultiIFType->{$index}) && isInteger($brMultiIFType->{$index}) && int($brMultiIFType->{$index}) == 2) {
+                    # ieee80211(71)
+                    $ports->{$port}->{IFTYPE} = 71
+                }
+            }
+        }
+    }
+}
+
 sub run {
     my ($self) = @_;
 
@@ -92,6 +127,8 @@ sub run {
             or next;
         $device->{PAGECOUNTERS}->{$counter} = $count;
     }
+
+    $self->updatePortIfType();
 }
 
 1;
