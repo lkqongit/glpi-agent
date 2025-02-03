@@ -2,6 +2,10 @@ Revision history for GLPI agent
 
 1.13 not yet released
 
+inventory:
+* On windows, don't cache system is not 64 bits for the service lifetime as this can
+  be the result of a failed WMI call at the service start.
+
 netdiscovery/netinventory:
 * PR #836 from @eduardomozart: Enhanced HP wireless printers by reporting wifi ports
   as wireless

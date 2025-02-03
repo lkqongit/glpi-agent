@@ -76,10 +76,18 @@ our @EXPORT = qw(
 );
 
 my $_is64bits = undef;
+my $_is64bits_expiration;
+my $_is64bits_nextcheck = 1;
 sub is64bit {
     # Cache is64bit() result in a private module variable to avoid a lot of wmi
     # calls and as this value won't change during the service/task lifetime
-    return $_is64bits if defined($_is64bits);
+    # Anyway we make the cached value expirable if we didn't detected it as 64bits
+    # and in the case WMI request failed. This guaranty to retry the request and not
+    # cache a wrong value for the service lifetime in some rare cases.
+    return $_is64bits if $_is64bits ||
+        ($_is64bits_expiration && time < $_is64bits_expiration);
+    $_is64bits_expiration = time + $_is64bits_nextcheck;
+    $_is64bits_nextcheck = $_is64bits_nextcheck >= 2000 ? 3600 : $_is64bits_nextcheck * 2;
     return $_is64bits =
         any { $_->{AddressWidth} eq 64 }
         getWMIObjects(
