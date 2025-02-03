@@ -625,8 +625,10 @@ sub _setGenericProperties {
     foreach my $suffix (sort keys %{$results}) {
         my $value = $results->{$suffix};
         next unless $value;
+        # value must match IFNUMBER
+        my $portindex = first { $ports->{$_}->{IFNUMBER} eq $value } keys(%{$ports});
         # safety checks
-        if (! exists $ports->{$value}) {
+        unless ($portindex) {
             $logger->debug(
                 "unknown interface $value for IP address $suffix, ignoring"
             ) if $logger;
@@ -636,8 +638,8 @@ sub _setGenericProperties {
             $logger->debug("invalid IP address $suffix") if $logger;
             next;
         }
-        $ports->{$value}->{IP} = $suffix;
-        push @{$ports->{$value}->{IPS}->{IP}}, $suffix;
+        $ports->{$portindex}->{IP} = $suffix;
+        push @{$ports->{$portindex}->{IPS}->{IP}}, $suffix;
     }
 
     $device->{PORTS}->{PORT} = $ports;
