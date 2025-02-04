@@ -86,7 +86,7 @@ deploy:
   "return code is not" and "command output doesn't contain" checks which was always
   failing.
 * fix #804: Don't scan network and broadcast addresses when using P2P
-* Fix sha512 file checks to also accep provided digest in upper case
+* Fix sha512 file checks to also accept provided digest in upper case
 * Bump Deploy task version to 3.4
 
 collect:
