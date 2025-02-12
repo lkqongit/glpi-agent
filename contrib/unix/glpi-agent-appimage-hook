@@ -98,6 +98,7 @@ GetOptions(
     'httpd-trust=s',
     'remote=s',
     'remote-workers=i',
+    'required-category=s',
     'scan-homedirs',
     'scan-profiles',
     'server|s=s',
@@ -592,6 +593,7 @@ glpi-agent-linux-installer.AppImage [options]
     --force                        always send data to server (false)
     --backend-collect-timeout=TIME timeout for inventory modules execution (30)
     --full-inventory-postpone=NUM  set number of possible full inventory postpone (14)
+    --required-category=CATEGORY   list of category required even when postponing full inventory
 
 =head2 Remote inventory task specific options
 

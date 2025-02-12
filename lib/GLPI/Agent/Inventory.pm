@@ -133,6 +133,39 @@ my %checks = (
     }
 );
 
+# Map category to related fields when not matching directly for required-category support
+my %categoryMap = (
+    os              => [ "OPERATINGSYSTEM" ],
+    battery         => [ "BATTERIES" ],
+    controller      => [ "CONTROLLERS" ],
+    cpu             => [ "CPUS" ],
+    database        => [ "DATABASES_SERVICES" ],
+    drive           => [ "DRIVES" ],
+    environment     => [ "ENVS" ],
+    input           => [ "INPUTS" ],
+    licenseinfo     => [ "LICENSEINFOS" ],
+    local_group     => [ "LOCAL_GROUPS" ],
+    local_user      => [ "LOCAL_USERS" ],
+    lvm             => [ "LOGICAL_VOLUMES", "PHYSICAL_VOLUMES", "VOLUME_GROUPS" ],
+    memory          => [ "MEMORIES" ],
+    modem           => [ "MODEMS" ],
+    monitor         => [ "MONITORS" ],
+    network         => [ "NETWORKS" ],
+    port            => [ "PORTS" ],
+    psu             => [ "POWERSUPPLIES" ],
+    printer         => [ "PRINTERS" ],
+    process         => [ "PROCESSES" ],
+    slot            => [ "SLOTS" ],
+    software        => [ "SOFTWARES", "OPERATINGSYSTEM" ], # Softwares require operatingsystem in GLPI
+    sound           => [ "SOUNDS" ],
+    storage         => [ "STORAGES" ],
+    video           => [ "VIDEOS" ],
+    usb             => [ "USBDEVICES" ],
+    user            => [ "USERS" ],
+    virtualmachine  => [ "VIRTUALMACHINES" ],
+    provider        => [ "VERSIONPROVIDER" ],
+);
+
 # convert fields list into fields hashes, for fast lookup
 foreach my $section (keys %fields) {
     $fields{$section} = { map { $_ => 1 } @{$fields{$section}} };
@@ -149,6 +182,7 @@ sub new {
         fields         => \%fields,
         _format        => '',
         _glpi_version  => glpiVersion('v10'),
+        _required      => $params{required} // [],
         content        => {
             HARDWARE => {
                 VMSYSTEM => "Physical" # Default value
@@ -555,6 +589,18 @@ sub computeChecksum {
     # Always disable postpone if format is not json
     $postpone = 0 unless $self->getFormat() eq 'json';
 
+    # Support required-category configuration
+    my %keep_section;
+    if ($postpone && ref($self->{_required}) eq "ARRAY" && scalar(@{$self->{_required}})) {
+        foreach my $category (@{$self->{_required}}) {
+            if ($categoryMap{$category}) {
+                map { $keep_section{$_} = 1 } @{$categoryMap{$category}};
+            } else {
+                $keep_section{uc($category)} = 1;
+            }
+        }
+    }
+
     my @delete_sections;
     my $keep_os = 0;
     foreach my $section (@checked_sections) {
@@ -578,7 +624,7 @@ sub computeChecksum {
             defined($state->{digest}) && $state->{digest} eq $digest
         ) {
             # In the case we will be able to postpone full inventory, keep section as to be removed
-            if ($postpone && !$always_keep_sections{$section}) {
+            if ($postpone && !($always_keep_sections{$section} || $keep_section{$section})) {
                 push @delete_sections, $section;
             }
             next;

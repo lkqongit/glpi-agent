@@ -42,6 +42,7 @@ my @options = (
     'reinstall',
     'remote=s',
     'remote-workers=i',
+    'required-category=s',
     'runnow',
     'scan-homedirs',
     'scan-profiles',
@@ -135,6 +136,7 @@ glpi-agent-linux-installer [options]
     --backend-collect-timeout=TIME set timeout for inventory modules execution (30)
     -t --tag=TAG                   configure tag to define in inventories
     --full-inventory-postpone=NUM  set number of possible full inventory postpone (14)
+    --required-category=CATEGORY   list of category required even when postponing full inventory
 
   RemoteInventory specific options:
     --remote=REMOTE[,REMOTE]...    list of remotes for remoteinventory task

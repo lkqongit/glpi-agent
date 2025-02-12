@@ -124,6 +124,7 @@ sub run {
         datadir  => $self->{datadir},
         logger   => $self->{logger},
         glpi     => $self->{target}->getTaskVersion('inventory'),
+        required => $self->{config}->{'required-category'} // [],
         tag      => $tag
     );
 

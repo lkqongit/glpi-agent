@@ -343,6 +343,14 @@ sub runTarget {
                             $self->{config}->{"no-category"} = $no_category;
                         }
                     }
+                    # Handle required-category set by server on inventory task
+                    if ($tasks->{inventory}->{"required-category"}) {
+                        my $required_category = [ sort split(/,+/, $tasks->{inventory}->{"required-category"}) ];
+                        unless (@{$self->{config}->{"required-category"}} && join(",", sort @{$self->{config}->{"required-category"}}) eq join(",", @{$required_category})) {
+                            $self->{logger}->debug("set required-category configuration to: ".$tasks->{inventory}->{"required-category"});
+                            $self->{config}->{"required-category"} = $required_category;
+                        }
+                    }
                 }
             }
         }

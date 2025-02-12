@@ -62,6 +62,7 @@ my $default = {
     'vardir'                  => undef,
     'assetname-support'       => 1,
     'full-inventory-postpone' => 14,
+    'required-category'       => [],
     'snmp-retries'            => 0,
 };
 
@@ -344,6 +345,7 @@ sub _checkContent {
             httpd-trust
             no-task
             no-category
+            required-category
             tasks
             ssl-fingerprint
     /) {

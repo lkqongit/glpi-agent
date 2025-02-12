@@ -67,6 +67,7 @@ GetOptions(
     'listen',
     'remote=s',
     'remote-workers=i',
+    'required-category=s',
     'set-forcerun',
     'scan-homedirs',
     'scan-profiles',
@@ -279,6 +280,7 @@ glpi-agent [options] [--server server|--local path]
     --credentials                  set credentials to support database inventory
     --full-inventory-postpone=NUM  set number of possible full inventory postpone (14)
     --full                         force inventory task to generate a full inventory
+    --required-category=CATEGORY   list of category required even when postponing full inventory
 
   RemoteInventory task specific options:
     --remote=REMOTE[,REMOTE]...    specify a list of remotes to process in place
@@ -579,6 +581,14 @@ changed category before generating a full inventory.
 
 Force inventory task to generate a full inventory even if B<full-inventory-postpone> option
 is set. Indeed this is equivalent to set B<--full-inventory-postpone=0>.
+
+=item B<--required-category>=I<CATEGORY>
+
+Force inventory task to always include given category if B<full-inventory-postpone> option
+is set and the current inventory task run involves to generate a partial inventory.
+
+Multiple values can be specified, using comma as a separator. List of categories is the same than the one for I<--no-category> option,
+but I<bios> and I<harware> categories are always implied and can be omitted as they are still required for normal inventory import.
 
 =item B<--scan-homedirs>
 

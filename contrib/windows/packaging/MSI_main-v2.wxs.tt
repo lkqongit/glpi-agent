@@ -233,6 +233,12 @@
     <SetProperty Id="CMDLINE_NO_CATEGORY" Before="AppSearch" Value="[NO_CATEGORY]" />
     <SetProperty Id="NO_CATEGORY"         After="AppSearch"  Value="[CMDLINE_NO_CATEGORY]"><![CDATA[CMDLINE_NO_CATEGORY<>"" OR CMDLINE_CONFIG="reset"]]></SetProperty>
 
+    <Property Id="REQUIRED_CATEGORY" Secure="yes">
+      <RegistrySearch Id="RequiredCategory" Root="HKLM" Key="[%agent_regpath%]" Name="required-category" Type="raw"/>
+    </Property>
+    <SetProperty Id="CMDLINE_REQUIRED_CATEGORY" Before="AppSearch" Value="[REQUIRED_CATEGORY]" />
+    <SetProperty Id="REQUIRED_CATEGORY"         After="AppSearch"  Value="[CMDLINE_REQUIRED_CATEGORY]"><![CDATA[CMDLINE_REQUIRED_CATEGORY<>"" OR CMDLINE_CONFIG="reset"]]></SetProperty>
+
     <Property Id="CA_CERT_DIR" Secure="yes">
       <RegistrySearch Id="CACertDir" Root="HKLM" Key="[%agent_regpath%]" Name="ca-cert-dir" Type="raw"/>
     </Property>

@@ -6,6 +6,11 @@ inventory:
 * On windows, don't cache system is not 64 bits for the service lifetime as this can
   be the result of a failed WMI call at the service start.
 * Fix PostgreSQL inventory when password is given by dedicated databaseinventory plugin
+* Add "required-category" configuration support to always include listed categories in
+  partial inventory generated while postponing full inventory. You can need to setup this
+  option if you're using GLPI rules based on possibly not changing inventory part. For
+  example, you can set it to "network" if you use rules to set asset location from asset
+  ip address or network.
 
 netdiscovery/netinventory:
 * PR #836 from @eduardomozart: Enhanced HP wireless printers by reporting wifi ports

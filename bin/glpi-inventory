@@ -34,6 +34,7 @@ GetOptions(
     'json',
     'no-category=s',
     'partial=s',
+    'required-category=s',
     'scan-homedirs',
     'scan-profiles',
     'tag|t=s',
@@ -56,6 +57,11 @@ pod2usage(-verbose => 0, -exitval => 0) if $options->{help};
 
 my $event;
 if ($options->{partial}) {
+
+    # Merge required category with partial option
+    $options->{partial} = join(",", $options->{partial}, $options->{"required-category"})
+        if $options->{"required-category"};
+
     $event = GLPI::Agent::Event->new(
         task        => "inventory",
         partial     => 1,
@@ -107,6 +113,7 @@ glpi-inventory [options]
     --no-category=CATEGORY         do not list given category items
     --partial=CATEGORY             make a partial inventory of given category
                                      items, this option implies --json
+    --required-category=CATEGORY   list of category required even when generating a partial inventory
     --credentials                  set credentials to support database inventory
     -t --tag=TAG                   mark the machine with given tag
     --backend-collect-timeout=TIME timeout for inventory modules
