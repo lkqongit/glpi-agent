@@ -5,6 +5,7 @@ use warnings;
 
 use lib './lib';
 use setup;
+use lib $setup{libdir};
 
 use English qw(-no_match_vars);
 use Getopt::Long;
