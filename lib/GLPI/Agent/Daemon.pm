@@ -117,7 +117,6 @@ sub run {
 
     # background mode: work on a targets list copy, but loop while
     # the list really exists so we can stop quickly when asked for
-    my $responses;
     while ($self->getTargets()) {
         my $time = time();
 
@@ -131,7 +130,8 @@ sub run {
 
         if ($target->paused()) {
 
-            undef $responses;
+            # Reset target responses
+            $target->responses({});
 
             # Leave immediately if we passed in terminate method
             last if $self->{_terminate};
@@ -140,20 +140,24 @@ sub run {
             # Always remove event from list
             $target->delEvent($event);
 
+            my $responses = $target->responses();
+
             # Contact server if required and cache responses
             if ($event->taskrun) {
-                if (!defined($responses)) {
-                    eval {
-                        $responses = $self->runTarget($target, "contact-only");
-                    };
+                if ((!ref($responses) || !$responses->{CONTACT}) && $target->isGlpiServer()) {
+                    $responses->{CONTACT} = $self->getContact($target, [$target->plannedTasks()]);
+                }
+                if ((!ref($responses) || !$responses->{PROLOG}) && $target->isType('server') && $event->task =~ /^net(discovery|inventory)$/i) {
+                    $responses->{PROLOG} = $self->getProlog($target);
                 }
                 # Fail event on no expected response from server
-                unless (ref($responses)) {
+                unless (ref($responses) && (ref($responses->{CONTACT}) || ref($responses->{PROLOG}))) {
                     $logger->error("Failed to handle run event for ".$event->task) if $logger && $event->task;
                     next;
                 }
-            } else {
-                undef $responses;
+
+                # Keep target responses
+                $target->responses($responses);
             }
 
             eval {
@@ -170,6 +174,9 @@ sub run {
                 $target->setNextRunDateFromNow();
                 $target->resetNextRunDate();
 
+                # This is also safe to reset target responses
+                $target->responses({});
+
                 if ($logger) {
                     my $date = $target->getFormatedNextRunDate();
                     my $id   = $target->id();
@@ -182,8 +189,6 @@ sub run {
             $self->{_run_optimization} = scalar($self->getTargets());
 
         } elsif ($time >= $target->getNextRunDate()) {
-
-            undef $responses;
 
             my $net_error = 0;
             eval {
@@ -275,11 +280,11 @@ sub runTargetEvent {
         $target->triggerRunTasksNow($event);
 
     } elsif (ref($responses)) {
-        my $server_response = $responses->{response};
-        if ($responses->{contact}) {
+        my $server_response = $responses->{PROLOG};
+        if ($responses->{CONTACT}) {
             # Be sure to use expected response for task
             my $task_server = $target->getTaskServer($task) // 'glpi';
-            $server_response = $responses->{contact}
+            $server_response = $responses->{CONTACT}
                 if $task_server eq 'glpi';
         }
         eval {

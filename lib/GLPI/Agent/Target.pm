@@ -215,6 +215,9 @@ sub triggerRunTasksNow {
 
         $self->addEvent(GLPI::Agent::Event->new(%event), 1);
     }
+
+    # Also reset cached responses
+    delete $self->{_responses};
 }
 
 sub addEvent {
@@ -459,6 +462,12 @@ sub getTaskVersion {
     my ($self) = @_;
 
     return $self->{_glpi};
+}
+
+sub responses {
+    my ($self, $responses) = @_;
+    return $self->{_responses} unless defined($responses);
+    $self->{_responses} = $responses;
 }
 
 1;

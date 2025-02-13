@@ -2,6 +2,10 @@ Revision history for GLPI agent
 
 1.13 not yet released
 
+core:
+* fix #851: glpi-agent should also try to request CONTACT after GLPI 10+ answer on PROLOG
+* Reworked target responses caching for event handling
+
 inventory:
 * On windows, don't cache system is not 64 bits for the service lifetime as this can
   be the result of a failed WMI call at the service start.
