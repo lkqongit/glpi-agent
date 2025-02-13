@@ -21,6 +21,9 @@ netdiscovery/netinventory:
   as wireless
 * Fix network ports ip support to avoid wrong allocation in rare cases, seen on a Ricoh printer
 
+deploy:
+* fix #854: Deploy task was not run when forced via httpd interface
+
 packaging:
 * Update Windows packaging to use:
   - OpenSSL 3.4.1

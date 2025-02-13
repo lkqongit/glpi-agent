@@ -436,8 +436,8 @@ sub run {
                 $logger->debug("No need to plan another $name event for $targetid target");
             }
             $self->resetEvent($nextEvent);
+            return;
         }
-        return;
     }
 
     $self->{client} = GLPI::Agent::HTTP::Client::Fusion->new(
