@@ -150,14 +150,16 @@ sub run {
                 if ((!ref($responses) || !$responses->{PROLOG}) && $target->isType('server') && $event->task =~ /^net(discovery|inventory)$/i) {
                     $responses->{PROLOG} = $self->getProlog($target);
                 }
-                # Fail event on no expected response from server
-                unless (ref($responses) && (ref($responses->{CONTACT}) || ref($responses->{PROLOG}))) {
-                    $logger->error("Failed to handle run event for ".$event->task) if $logger && $event->task;
-                    next;
-                }
+                if ($target->isType('server')) {
+                    # Fail event on no expected response from server
+                    unless (ref($responses) && (ref($responses->{CONTACT}) || ref($responses->{PROLOG}))) {
+                        $logger->error("Failed to handle run event for ".$event->task) if $logger && $event->task;
+                        next;
+                    }
 
-                # Keep target responses
-                $target->responses($responses);
+                    # Keep target responses
+                    $target->responses($responses);
+                }
             }
 
             eval {
