@@ -22,6 +22,7 @@ my @options = (
     'extract=s',
     'force',
     'full-inventory-postpone=i',
+    'glpi-version=s',
     'help|h',
     'install',
     'itemtype=s',
@@ -180,6 +181,9 @@ glpi-agent-linux-installer [options]
   Execution mode options:
     --service                      setup the agent as service (true)
     --cron                         setup the agent as cron task running hourly (false)
+
+  Other options:
+    --glpi-version=<VERSION>       set targeted glpi version to enable supported features
 
   Installer options:
     --install                      install the agent (true)

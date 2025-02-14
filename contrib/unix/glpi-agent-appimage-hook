@@ -77,6 +77,7 @@ GetOptions(
     'esx-itemtype=s',
     'force',
     'full-inventory-postpone=i',
+    'glpi-version=s',
     'html',
     'itemtype=s',
     'json',
@@ -644,6 +645,7 @@ glpi-agent-linux-installer.AppImage [options]
 
 =head2 General options
 
+    --glpi-version=<VERSION>       set targeted glpi version to enable supported features
     --conf-reload-interval=TIME    number of seconds between two configuration reloadings
     -t --tag=TAG                   add given tag to inventory results
     --vardir=PATH                  use specified path as storage folder for agent persistent datas (/var/lib/glpi-agent)
