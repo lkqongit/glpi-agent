@@ -558,6 +558,8 @@ sub _tree2xml {
                 $result .= $ident ."  ". qq[    <RegistryValue Name="no-task" Type="string" Value="[NO_TASK]" />\n];
                 $result .= $ident ."  ". qq[    <RegistryValue Name="no-category" Type="string" Value="[NO_CATEGORY]" />\n];
                 $result .= $ident ."  ". qq[    <RegistryValue Name="required-category" Type="string" Value="[REQUIRED_CATEGORY]" />\n];
+                $result .= $ident ."  ". qq[    <RegistryValue Name="esx-itemtype" Type="string" Value="[ESX_ITEMTYPE]" />\n];
+                $result .= $ident ."  ". qq[    <RegistryValue Name="itemtype" Type="string" Value="[ITEMTYPE]" />\n];
                 $result .= $ident ."  ". qq[    <RegistryValue Name="no-compression" Type="string" Value="[NO_COMPRESSION]" />\n];
                 $result .= $ident ."  ". qq[    <RegistryValue Name="html" Type="string" Value="[HTML]" />\n];
                 $result .= $ident ."  ". qq[    <RegistryValue Name="json" Type="string" Value="[JSON]" />\n];

@@ -15,6 +15,12 @@ inventory:
   option if you're using GLPI rules based on possibly not changing inventory part. For
   example, you can set it to "network" if you use rules to set asset location from asset
   ip address or network.
+* Add "itemtype" configuration support to handle requirement for servers supporting genericity
+  like GLPI 11+. Remark: This option is shared with remoteinventory task.
+
+remoteinventory:
+* Add "itemtype" configuration support to handle requirement for servers supporting genericity
+  like GLPI 11+. Remark: This option is shared with inventory task.
 
 netdiscovery/netinventory:
 * PR #836 from @eduardomozart: Enhanced HP wireless printers by reporting wifi ports
@@ -23,6 +29,10 @@ netdiscovery/netinventory:
 
 deploy:
 * fix #854: Deploy task was not run when forced via httpd interface
+
+esx:
+* Add "esx-itemtype" configuration support to handle requirement for servers supporting genericity
+  like GLPI 11+.
 
 packaging:
 * Update Windows packaging to use:

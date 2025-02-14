@@ -98,6 +98,10 @@
           <label>required-category</label>
           <defaultValue></defaultValue>
         </textBox>
+        <textBox refId="GLPI_itemtype">
+          <label>itemtype</label>
+          <defaultValue></defaultValue>
+        </textBox>
         <checkBox refId="GLPI_json">json</checkBox>
       </presentation>
     </presentationTable>

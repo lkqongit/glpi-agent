@@ -239,6 +239,18 @@
     <SetProperty Id="CMDLINE_REQUIRED_CATEGORY" Before="AppSearch" Value="[REQUIRED_CATEGORY]" />
     <SetProperty Id="REQUIRED_CATEGORY"         After="AppSearch"  Value="[CMDLINE_REQUIRED_CATEGORY]"><![CDATA[CMDLINE_REQUIRED_CATEGORY<>"" OR CMDLINE_CONFIG="reset"]]></SetProperty>
 
+    <Property Id="ITEMTYPE" Secure="yes">
+      <RegistrySearch Id="ItemType" Root="HKLM" Key="[%agent_regpath%]" Name="itemtype" Type="raw"/>
+    </Property>
+    <SetProperty Id="CMDLINE_ITEMTYPE" Before="AppSearch" Value="[ITEMTYPE]" />
+    <SetProperty Id="ITEMTYPE"         After="AppSearch"  Value="[CMDLINE_ITEMTYPE]"><![CDATA[CMDLINE_ITEMTYPE<>"" OR CMDLINE_CONFIG="reset"]]></SetProperty>
+
+    <Property Id="ESX_ITEMTYPE" Secure="yes">
+      <RegistrySearch Id="EsxItemType" Root="HKLM" Key="[%agent_regpath%]" Name="esx-itemtype" Type="raw"/>
+    </Property>
+    <SetProperty Id="CMDLINE_ESX_ITEMTYPE" Before="AppSearch" Value="[ESX_ITEMTYPE]" />
+    <SetProperty Id="ESX_ITEMTYPE"         After="AppSearch"  Value="[CMDLINE_ESX_ITEMTYPE]"><![CDATA[CMDLINE_ESX_ITEMTYPE<>"" OR CMDLINE_CONFIG="reset"]]></SetProperty>
+
     <Property Id="CA_CERT_DIR" Secure="yes">
       <RegistrySearch Id="CACertDir" Root="HKLM" Key="[%agent_regpath%]" Name="ca-cert-dir" Type="raw"/>
     </Property>

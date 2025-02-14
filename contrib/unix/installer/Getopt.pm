@@ -18,11 +18,13 @@ my @options = (
     'delaytime=i',
     'distro=s',
     'no-question|Q',
+    'esx-itemtype=s',
     'extract=s',
     'force',
     'full-inventory-postpone=i',
     'help|h',
     'install',
+    'itemtype=s',
     'list',
     'local|l=s',
     'logger=s',
@@ -137,6 +139,10 @@ glpi-agent-linux-installer [options]
     -t --tag=TAG                   configure tag to define in inventories
     --full-inventory-postpone=NUM  set number of possible full inventory postpone (14)
     --required-category=CATEGORY   list of category required even when postponing full inventory
+    --itemtype=TYPE                set asset type for target supporting genericity like GLPI 11+
+
+  ESX task specific options:
+    --esx-itemtype=TYPE            set ESX asset type for target supporting genericity like GLPI 11+
 
   RemoteInventory specific options:
     --remote=REMOTE[,REMOTE]...    list of remotes for remoteinventory task

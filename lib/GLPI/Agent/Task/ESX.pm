@@ -67,6 +67,7 @@ sub createInventory {
         logger   => $self->{logger},
         glpi     => $glpi_version,
         tag      => $tag,
+        itemtype => $self->{config}->{'esx-itemtype'} // "Computer",
         # deviceid can be set and so reused from previous netscan
         deviceid => $deviceid
     );

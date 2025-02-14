@@ -74,9 +74,11 @@ GetOptions(
     'conf-reload-interval=i',
     'debug+',
     'delaytime=i',
+    'esx-itemtype=s',
     'force',
     'full-inventory-postpone=i',
     'html',
+    'itemtype=s',
     'json',
     'lazy',
     'listen',
@@ -594,6 +596,10 @@ glpi-agent-linux-installer.AppImage [options]
     --backend-collect-timeout=TIME timeout for inventory modules execution (30)
     --full-inventory-postpone=NUM  set number of possible full inventory postpone (14)
     --required-category=CATEGORY   list of category required even when postponing full inventory
+    --itemtype=TYPE                set asset type for target supporting genericity like GLPI 11+
+
+=head2 ESX task specific options:
+    --esx-itemtype=TYPE            set ESX asset type for target supporting genericity like GLPI 11+
 
 =head2 Remote inventory task specific options
 

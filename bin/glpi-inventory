@@ -31,6 +31,7 @@ GetOptions(
     'credentials=s@',
     'glpi_version=s',
     'html',
+    'itemtype=s',
     'json',
     'no-category=s',
     'partial=s',
@@ -119,6 +120,7 @@ glpi-inventory [options]
     --backend-collect-timeout=TIME timeout for inventory modules
                                      execution (30)
     --glpi-version=VERSION         set targeted glpi version to enable supported features
+    --itemtype=TYPE                set asset type for target supporting genericity like GLPI 11+
     --additional-content=FILE      additional inventory content file
     --assetname-support=1|2        [unix/linux only] set the asset name depending on the given value:
                                     - 1 (the default), the short hostname is used as asset name

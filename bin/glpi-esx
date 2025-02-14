@@ -39,6 +39,7 @@ GetOptions(
     'dumpfile=s',
     'json',
     'glpi-version=s',
+    'esx-itemtype=s',
 ) or pod2usage(-verbose => 0);
 
 pod2usage(-verbose => 0, -exitstatus => 0) if $options->{help};
@@ -209,6 +210,7 @@ glpi-esx --host <host> --user <user> --password <password> --path <directory or 
     --tag tag              tag for the inventoried machine
     --json                 use json as format for generated inventories
     --glpi-version VERSION set targeted glpi version to enable supported features
+    --esx-itemtype=TYPE    set ESX asset type for target supporting genericity like GLPI 11+
 
   Advanced options:
     --dump                 also dump esx host full info datas in a *-hostfullinfo.dump file
