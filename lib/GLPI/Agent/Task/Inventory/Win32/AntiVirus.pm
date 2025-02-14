@@ -68,37 +68,8 @@ sub doInventory {
 
             # Also support WMI access to Windows Defender
             if (!$antivirus->{VERSION} && $antivirus->{NAME} =~ /Windows Defender/i) {
-                my $defender;
-                # Don't try to access Windows Defender class if not enabled as
-                # WMI call can fail after a too long time while another antivirus
-                # is installed
-                if ($antivirus->{ENABLED}) {
-                    ($defender) = getWMIObjects(
-                        moniker    => 'winmgmts://./root/microsoft/windows/defender',
-                        class      => "MSFT_MpComputerStatus",
-                        properties => [ qw/AMProductVersion AntivirusEnabled
-                            AntivirusSignatureVersion/ ]
-                    );
-                }
-                if ($defender) {
-                    $antivirus->{VERSION} = $defender->{AMProductVersion}
-                        if $defender->{AMProductVersion};
-                    $antivirus->{ENABLED} = 1
-                        if defined($defender->{AntivirusEnabled}) && $defender->{AntivirusEnabled} =~ /^1|true$/;
-                    $antivirus->{BASE_VERSION} = $defender->{AntivirusSignatureVersion}
-                        if $defender->{AntivirusSignatureVersion};
-                }
+                &_setWinDefenderInfos($antivirus, $logger, "");
                 $found_enabled++ if $antivirus->{ENABLED};
-                $antivirus->{COMPANY} = "Microsoft Corporation";
-                # Finally try registry for base version
-                if (!$antivirus->{BASE_VERSION}) {
-                    $defender = _getSoftwareRegistryKeys(
-                        'Microsoft/Windows Defender/Signature Updates',
-                        [ 'AVSignatureVersion' ]
-                    );
-                    $antivirus->{BASE_VERSION} = $defender->{'/AVSignatureVersion'}
-                        if $defender && $defender->{'/AVSignatureVersion'};
-                }
             }
 
             # Finally try to get version from software installation in registry
@@ -159,6 +130,12 @@ sub doInventory {
         my $services = getServices(logger => $logger);
 
         foreach my $support ({
+            # Windows Defender support, path key is not set as it depends on installed version string
+            name    => "Windows Defender",
+            service => "WinDefend",
+            command => "MsMpEng.exe",
+            func    => \&_setWinDefenderInfos,
+        }, {
             # Cortex XDR support
             name    => "Cortex XDR",
             service => "cyserver",
@@ -248,6 +225,46 @@ sub _getAntivirusUninstall {
             } grep { ref($_) } values(%{$registry});
         }
     );
+}
+
+sub _setWinDefenderInfos {
+    my ($antivirus, $logger, $command) = @_;
+
+    my $defender;
+    # Don't try to access Windows Defender class if not enabled as
+    # WMI call can fail after a too long time while another antivirus
+    # is installed
+    if ($antivirus->{ENABLED}) {
+        ($defender) = getWMIObjects(
+            moniker    => 'winmgmts://./root/microsoft/windows/defender',
+            class      => "MSFT_MpComputerStatus",
+            properties => [ qw/AMProductVersion AntivirusEnabled
+                AntivirusSignatureVersion/ ]
+        );
+    }
+    if ($defender) {
+        $antivirus->{VERSION} = $defender->{AMProductVersion}
+            if $defender->{AMProductVersion};
+        $antivirus->{ENABLED} = 1
+            if defined($defender->{AntivirusEnabled}) && $defender->{AntivirusEnabled} =~ /^1|true$/i;
+        $antivirus->{BASE_VERSION} = $defender->{AntivirusSignatureVersion}
+            if $defender->{AntivirusSignatureVersion};
+    }
+    unless ($antivirus->{VERSION} || empty($command)) {
+        my ($version) = $command =~ m{/([0-9.]+)[-/]};
+        $antivirus->{VERSION} = $version
+            unless empty($version);
+    }
+    $antivirus->{COMPANY} = "Microsoft Corporation";
+    # Finally try registry for base version
+    if (!$antivirus->{BASE_VERSION}) {
+        $defender = _getSoftwareRegistryKeys(
+            'Microsoft/Windows Defender/Signature Updates',
+            [ 'AVSignatureVersion' ]
+        );
+        $antivirus->{BASE_VERSION} = $defender->{'/AVSignatureVersion'}
+            if $defender && $defender->{'/AVSignatureVersion'};
+    }
 }
 
 sub _setMcAfeeInfos {
