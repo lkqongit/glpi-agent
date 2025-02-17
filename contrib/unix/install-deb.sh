@@ -93,7 +93,6 @@ echo
 if $tasknetwork; then
     echo "network task is requested"
     echo "installing dependencies"
-    apt update
     apt -y install libnet-snmp-perl libcrypt-des-perl libnet-nbname-perl libdigest-hmac-perl >> GLPIAgentInstallation.log 2>/dev/null
     wget $downloadurlnetwork -q --show-progress
     dpkg -i glpi-agent-task-network_$version\_all.deb
@@ -108,7 +107,6 @@ echo
 if $taskdeploy; then
     echo "deploy task is requested"
     echo "installing dependencies"
-    apt update
     apt -y install libfile-copy-recursive-perl  libparallel-forkmanager-perl >> GLPIAgentInstallation.log 2>/dev/null
     wget $downloadurldeploy -q --show-progress
     dpkg -i glpi-agent-task-deploy_$version\_all.deb
