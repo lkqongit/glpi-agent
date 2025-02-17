@@ -125,7 +125,7 @@ sub run {
         logger   => $self->{logger},
         glpi     => $self->{target}->getTaskVersion('inventory'),
         required => $self->{config}->{'required-category'} // [],
-        itemtype => $self->{config}->{'itemtype'} // "Computer",
+        itemtype => empty($self->{config}->{'itemtype'}) ? "Computer" : $self->{config}->{'itemtype'},
         tag      => $tag
     );
 

@@ -183,7 +183,7 @@ sub new {
         _format        => '',
         _glpi_version  => glpiVersion('v10'),
         _required      => $params{required} // [],
-        _itemtype      => $params{itemtype} // "Computer",
+        _itemtype      => empty($params{itemtype}) ? "Computer" : $params{itemtype},
         content        => {
             HARDWARE => {
                 VMSYSTEM => "Physical" # Default value
@@ -294,7 +294,7 @@ sub getContent {
             deviceid    => $self->getDeviceId(),
             content     => $self->{content},
             partial     => $self->isPartial(),
-            itemtype    => $self->{_itemtype} // "Computer",
+            itemtype    => empty($self->{_itemtype}) ? "Computer" : $self->{_itemtype},
         );
 
         # Support json file on additional-content with json output

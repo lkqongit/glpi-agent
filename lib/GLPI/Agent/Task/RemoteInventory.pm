@@ -54,7 +54,7 @@ sub run {
         my $remoteinv = GLPI::Agent::Inventory->new(
             statedir => $self->{target}->getStorage()->getDirectory(),
             logger   => $self->{logger},
-            itemtype => $self->{config}->{'itemtype'} // "Computer",
+            itemtype => empty($self->{config}->{'itemtype'}) ? "Computer" : $self->{config}->{'itemtype'},
         );
         my $continue = $remoteinv->canCleanupOldRemoteStateFile();
         if ($continue) {
