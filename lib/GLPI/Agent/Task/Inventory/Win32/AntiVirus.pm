@@ -68,7 +68,7 @@ sub doInventory {
 
             # Also support WMI access to Windows Defender
             if (!$antivirus->{VERSION} && $antivirus->{NAME} =~ /Windows Defender/i) {
-                &_setWinDefenderInfos($antivirus, $logger, "");
+                &_setWinDefenderInfos($antivirus);
                 $found_enabled++ if $antivirus->{ENABLED};
             }
 
@@ -133,7 +133,6 @@ sub doInventory {
             # Windows Defender support, path key is not set as it depends on installed version string
             name    => "Windows Defender",
             service => "WinDefend",
-            command => "MsMpEng.exe",
             func    => \&_setWinDefenderInfos,
         }, {
             # Cortex XDR support
@@ -174,6 +173,8 @@ sub doInventory {
                     my ($path) = $service->{PATHNAME} =~ /^"/ ?
                         $service->{PATHNAME} =~ /^"([^"]+)\"/ :
                         $service->{PATHNAME} =~ /^(\S+)/ ;
+                    # Remove filename part
+                    ($path) = $path =~ /^(.*)[\\][^\\]+$/ if !has_folder($path) && $path =~ /\\[^\\]+$/;
                     push @path, $path if $path;
                 }
                 push @path, ref($support->{path}) ? @{$support->{path}} : $support->{path}
@@ -187,6 +188,8 @@ sub doInventory {
                     &{$support->{func}}($antivirus, $logger, $cmd);
                     last;
                 }
+            } elsif ($support->{func}) {
+                &{$support->{func}}($antivirus);
             }
 
             # avoid duplicates
@@ -228,7 +231,7 @@ sub _getAntivirusUninstall {
 }
 
 sub _setWinDefenderInfos {
-    my ($antivirus, $logger, $command) = @_;
+    my ($antivirus) = @_;
 
     my $defender;
     # Don't try to access Windows Defender class if not enabled as
@@ -249,11 +252,6 @@ sub _setWinDefenderInfos {
             if defined($defender->{AntivirusEnabled}) && $defender->{AntivirusEnabled} =~ /^1|true$/i;
         $antivirus->{BASE_VERSION} = $defender->{AntivirusSignatureVersion}
             if $defender->{AntivirusSignatureVersion};
-    }
-    unless ($antivirus->{VERSION} || empty($command)) {
-        my ($version) = $command =~ m{/([0-9.]+)[-/]};
-        $antivirus->{VERSION} = $version
-            unless empty($version);
     }
     $antivirus->{COMPANY} = "Microsoft Corporation";
     # Finally try registry for base version
