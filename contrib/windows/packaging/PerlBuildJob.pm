@@ -6,7 +6,7 @@ use parent 'Exporter';
 use ToolchainBuildJob;
 
 use constant {
-    PERL_VERSION       => "5.38.3",
+    PERL_VERSION       => "5.40.1",
     PERL_BUILD_STEPS   => 9,
 };
 
