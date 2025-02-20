@@ -86,6 +86,22 @@ case "$(uname -s) $ARCH" in
         ;;
 esac
 
+# Check notarization requirements
+if [ "$NOTARIZE" == "yes" ]; then
+    if [ -z "$NOTARIZE_USER" ]; then
+        echo "Can't planify notarization with empty NOTARIZE_USER" >&2
+        exit 4
+    fi
+    if [ -z "$NOTARIZE_PASSWORD" ]; then
+        echo "Can't planify notarization with empty NOTARIZE_PASSWORD" >&2
+        exit 5
+    fi
+    if [ -z "$NOTARIZE_TEAMID" ]
+        echo "Can't planify notarization with empty NOTARIZE_TEAMID" >&2
+        exit 6
+    fi
+fi
+
 export MACOSX_DEPLOYMENT_TARGET
 
 BUILD_PREFIX="/Applications/GLPI-Agent"
@@ -463,7 +479,7 @@ fi
 	    </dict>
 BUILD_INFO
 fi
-if [ -n "$NOTARIZE_USER" -a -n "$NOTARIZE_PASSWORD" -a -n "$NOTARIZE_TEAMID" -a "$NOTARIZE" == "yes" ]; then
+if [ "$NOTARIZE" == "yes" ]; then
     cat >>pkg/build-info.plist <<-BUILD_INFO
 	    <key>notarization_info</key>
 	    <dict>
@@ -579,7 +595,7 @@ mv -vf "pkg/build/$PKG" "build/$PKG"
 [ -n "$INSTSIGNID" ] && pkgutil --check-signature "build/$PKG"
 
 # Notarization check
-[ -n "$NOTARIZE_USER" -a -n "$NOTARIZE_PASSWORD" -a -n "$NOTARIZE_TEAMID" -a "$NOTARIZE" == "yes" ] && xcrun stapler validate "build/$PKG"
+[ "$NOTARIZE" == "yes" ] && xcrun stapler validate "build/$PKG"
 
 rm -f "build/$DMG"
 echo "Create DMG"
