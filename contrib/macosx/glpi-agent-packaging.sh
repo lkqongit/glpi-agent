@@ -96,7 +96,7 @@ if [ "$NOTARIZE" == "yes" ]; then
         echo "Can't planify notarization with empty NOTARIZE_PASSWORD" >&2
         exit 5
     fi
-    if [ -z "$NOTARIZE_TEAMID" ]
+    if [ -z "$NOTARIZE_TEAMID" ]; then
         echo "Can't planify notarization with empty NOTARIZE_TEAMID" >&2
         exit 6
     fi
