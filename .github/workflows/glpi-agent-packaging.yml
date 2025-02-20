@@ -429,6 +429,7 @@ jobs:
         NOTARIZE_PASSWORD: ${{ secrets.MACOSX_NOTARIZE_PASSWORD }}
         NOTARIZE_TEAMID: ${{ vars.MACOSX_NOTARIZE_TEAMID }}
         MACOSX_NOTARIZE: ${{ needs.setup-release.outputs.macosx-notarization }}
+        TAGNAME: ${{ needs.setup-release.outputs.tag_name }}
       shell: bash
     - name: List generated files
       if: success() || failure()

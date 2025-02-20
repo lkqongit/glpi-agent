@@ -586,8 +586,28 @@ cat >pkg/payload/Applications/GLPI-Agent/Contents/Info.plist <<-INFO_PLIST
 	</plist>
 INFO_PLIST
 
+# Disable aborting on error to handle notarization failure
+[ "$NOTARIZE" == "yes" ] && set +e
+
 echo "Build package"
 ./munkipkg pkg
+
+# Analyze return code
+if [ "$?" != "0" ]; then
+    # If pkg file was generated, it means we failed on notarization
+    # Then we can forget notarization unless on release (nightly build case)
+    if [ -s "$PKG" -a "$NOTARIZE" == "yes" -a -z "${TAGNAME##nightly-*}" ]; then
+        echo "By-passing notarization check"
+        # On Github Actions run, add a warning to the build workflow
+        [ -n "$GITHUB_REF" ] && echo "::warning title=Notarization failure for MacOSX $PKG build::By-passing notarization check"
+        NOTARIZE="no"
+    else
+        exit 7
+    fi
+fi
+
+# Enable back shell aborting on error
+set -e
 
 mv -vf "pkg/build/$PKG" "build/$PKG"
 
