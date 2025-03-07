@@ -43,6 +43,9 @@ packaging:
   - liblzma from xz 5.6.4
   - libxml2 2.13.6
 * Update MacOSX packages to use perl 5.40.1 and OpenSSL 3.4.1
+* Fix Windows MSI installer server targets options panel:
+  - User and password are for Basic Authentication support
+  - Add OAuth Authentication fields (requires GLPI 11+)
 
 1.12 Fri, 24 Jan 2025
 

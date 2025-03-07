@@ -65,14 +65,17 @@
   <String Id="SSLFingerPrintDescription">Fingerprint of SSL certificate to trust</String>
   <String Id="NoSSLCheckDescription">Disable SSL check (for security reason, only use it for debugging)</String>
 
-  <!-- custom text for server target Proxy options setup dialog -->
-  <String Id="ProxySetupDlgTitle">[ProductName] Setup</String>
-  <String Id="ProxySetupDlg_Title">{\WixUI_Font_Title}Remote Targets Proxy Options</String>
-  <String Id="ProxySetupDlgDescription">Set Proxy options.</String>
-  <String Id="ProxySetupGroup">Proxy Options</String>
+  <!-- custom text for server target options setup dialog -->
+  <String Id="ServerSetupDlgTitle">[ProductName] Setup</String>
+  <String Id="ServerSetupDlg_Title">{\WixUI_Font_Title}Server Target Options</String>
+  <String Id="ServerSetupDlgDescription">Set server target options.</String>
+  <String Id="ProxyServerSetupGroup">Proxy Options</String>
   <String Id="ProxyServerDescription">Proxy server</String>
-  <String Id="ProxyUserDescription">Proxy server authentication user</String>
-  <String Id="ProxyPasswordDescription">Proxy server authentication password</String>
+  <String Id="ServerAuthenticationSetupGroup">Authentication Options</String>
+  <String Id="BasicAuthenticationUserDescription">Basic authentication user</String>
+  <String Id="BasicAuthenticationPasswordDescription">Basic authentication password</String>
+  <String Id="OAuthAuthenticationClientIdDescription">OAuth Client ID</String>
+  <String Id="OAuthAuthenticationClientSecretDescription">OAuth Client secret</String>
 
   <!-- custom text for execution mode setup dialog -->
   <String Id="ExecModeDlgTitle">[ProductName] Setup</String>
