@@ -302,7 +302,7 @@ sub _getInstances {
         sql     => "SHOW release",
         %params
     );
-    if (first { /^(ERROR|Usage):/ } @test) {
+    if (first { /^(ERROR|Usage|(?:(ORA|SP2)-.*)):/ } @test) {
         my ($error) = first { /^(ORA|SP2)-/ } @test;
         $params{logger}->debug("Oracle CONNECT error: $error") if $error && $params{logger};
         return $ENV{ORACLE_SID}.",FAILURE,0," if $ENV{ORACLE_SID};
@@ -323,7 +323,7 @@ sub _getInstances {
         sql  => "SELECT instance_name, database_status, $version_statement, "._datefield("startup_time")." FROM v\$instance",
         %params
     );
-    if (first { /^(ERROR(?: at line 1)?|Usage):/ } @instances) {
+    if (first { /^(ERROR(?: at line 1)?|Usage|(?:(ORA|SP2)-.*)):/ } @instances) {
         my ($error) = first { /^(ORA|SP2)-/ } @instances;
         $params{logger}->debug("Oracle instance SELECT error: $error") if $error && $params{logger};
         return;
