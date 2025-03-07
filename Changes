@@ -5,6 +5,7 @@ Revision history for GLPI agent
 core:
 * fix #851: glpi-agent should also try to request CONTACT after GLPI 10+ answer on PROLOG
 * Reworked target responses caching for event handling
+* Support 'none' as proxy configuration to not try to use proxy set in environment variables
 
 inventory:
 * On windows, don't cache system is not 64 bits for the service lifetime as this can

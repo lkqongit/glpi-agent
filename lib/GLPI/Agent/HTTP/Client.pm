@@ -77,7 +77,8 @@ sub new {
 
     my $proxy = $params{proxy} || $config->{'proxy'};
     if ($proxy) {
-        $self->{ua}->proxy(['http', 'https'], $proxy);
+        $self->{ua}->proxy(['http', 'https'], $proxy)
+            unless $proxy eq 'none';
     } else {
         $self->{ua}->env_proxy();
     }
