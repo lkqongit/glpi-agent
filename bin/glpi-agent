@@ -665,7 +665,7 @@ Do not use peer to peer to download files.
 
 Use I<PROXY> as HTTP proxy.
 
-By default, the agent uses HTTP_PROXY environment variable.
+By default, the agent uses HTTP_PROXY environment variable unless option value is defined to B<none>.
 
 =item B<-u> I<USER>, B<--user>=I<USER>
 
