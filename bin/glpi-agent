@@ -602,6 +602,8 @@ but I<bios> and I<harware> categories are always implied and can be omitted as t
 
 Allow to set JSON inventory itemtype to I<TYPE>. This feature requires a target supporting genericity, like GLPI 11+.
 
+When expected asset itemtype in GLPI 11+ is B<Server>, I<itemtype> option value must be set to B<\Glpi\CustomAsset\Server>.
+
 =item B<--scan-homedirs>
 
 Allow the agent to scan home directories for virtual machines.
@@ -640,6 +642,8 @@ agent.
 =item B<--esx-itemtype>=I<TYPE>
 
 Allow to set ESX JSON inventory itemtype to I<TYPE>. This feature requires a target supporting genericity, like GLPI 11+.
+
+When expected ESX asset itemtype in GLPI 11+ is B<Esx>, I<esx-itemtype> option value must be set to B<\Glpi\CustomAsset\Esx>.
 
 =back
 
