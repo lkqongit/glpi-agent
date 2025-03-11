@@ -21,7 +21,7 @@ use lib 'lib';
 use GLPI::Agent::Version;
 
 # HACK: make "use Perl::Dist::GLPI::Agent::Step::XXX" works as included plugin
-map { $INC{"Perl/Dist/GLPI/Agent/Step/$_.pm"} = __FILE__ } qw(Update OutputMSI Test ToolChain InstallPerlCore InstallModules);
+map { $INC{"Perl/Dist/GLPI/Agent/Step/$_.pm"} = __FILE__ } qw(Update OutputMSI Test ToolChain InstallPerlCore InstallModules Github);
 
 # Perl::Dist::Strawberry doesn't detect WiX 3.11 which is installed on windows github images
 # Algorithm imported from Perl::Dist::Strawberry::Step::OutputMSM_MSI::_detect_wix_dir
@@ -204,6 +204,33 @@ sub _patch_file {
     $self->_restore_ro($dst, $r);
 
     write_file("$dst.diff", diff("$dst.backup", $dst)) if -f "$dst.backup";
+}
+
+package
+    Perl::Dist::GLPI::Agent::Step::Github;
+
+use parent 'Perl::Dist::Strawberry::Step';
+
+sub run {
+    my ($self) = @_;
+
+    foreach my $s (@{$self->{config}->{downloads}}) {
+        $self->_download($s);
+        $self->boss->message(5, "downloaded='$s->{name}'");
+    }
+}
+
+sub _download {
+    my ($self, $src) = @_;
+    my $name    = $src->{name};
+    my $project = $src->{project};
+    my $release = $src->{release};
+    my $folder  = $self->boss->resolve_name($src->{folder});
+    my $url     = "https://github.com/$project/releases/download/$release/".$src->{file};
+
+    $self->boss->message(1, "installing $name $release from github $project\n");
+
+    $self->boss->mirror_url($url, $folder);
 }
 
 package

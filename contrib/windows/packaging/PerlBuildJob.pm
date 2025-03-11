@@ -7,7 +7,11 @@ use ToolchainBuildJob;
 
 use constant {
     PERL_VERSION       => "5.40.1",
-    PERL_BUILD_STEPS   => 9,
+    # Tag for dmidecode release on glpi-project/dmidecode
+    DMIDECODE_VERSION  => "3.6",
+    # Tag for Glpi-AgentMonitor release on glpi-project/glpi-agentmonitor
+    GAMONITOR_VERSION  => "1.4.0",
+    PERL_BUILD_STEPS   => 10,
 };
 
 our @EXPORT = qw(build_job PERL_VERSION PERL_BUILD_STEPS);
@@ -200,14 +204,32 @@ sub build_job {
                 { do=>'removedir', args=>[ '<image_dir>/lib' ] },
                 { do=>'removedir', args=>[ '<image_dir>/libexec' ] },
                 # Other binaries used by agent
-                { do=>'copyfile', args=>[ 'contrib/windows/packaging/tools/x86/dmidecode.exe', '<image_dir>/perl/bin' ] },
                 { do=>'copyfile', args=>[ 'contrib/windows/packaging/tools/x86/hdparm.exe', '<image_dir>/perl/bin' ] },
                 { do=>'copyfile', args=>[ 'contrib/windows/packaging/tools/'.$arch.'/7z.exe', '<image_dir>/perl/bin' ] },
                 { do=>'copyfile', args=>[ 'contrib/windows/packaging/tools/'.$arch.'/7z.dll', '<image_dir>/perl/bin' ] },
-                { do=>'copyfile', args=>[ 'contrib/windows/packaging/tools/'.$arch.'/GLPI-AgentMonitor-'.$arch.'.exe', '<image_dir>/perl/bin' ] },
             ],
         },
-        ### NEXT STEP 9 Run GLPI Agent test suite ##############################
+        ### NEXT STEP 9 Installation with direct github download ###############
+        {
+            plugin      => 'Perl::Dist::GLPI::Agent::Step::Github',
+            downloads   => [
+                {
+                    name    => 'dmidecode',
+                    project	=> 'glpi-project/dmidecode',
+                    release => DMIDECODE_VERSION,
+                    file    => 'dmidecode.exe',
+                    folder  => '<image_dir>/perl/bin',
+                },
+                {
+                    name    => 'GLPI-AgentMonitor',
+                    project	=> 'glpi-project/glpi-agentmonitor',
+                    release => GAMONITOR_VERSION,
+                    file    => 'GLPI-AgentMonitor-'.$arch.'.exe',
+                    folder  => '<image_dir>/perl/bin',
+                },
+            ],
+        },
+        ### NEXT STEP 10 Run GLPI Agent test suite #############################
         {
             plugin      => 'Perl::Dist::GLPI::Agent::Step::Test',
             disable     => $notest,
@@ -220,7 +242,7 @@ sub build_job {
                 #~ qw(t/agent/config.t)
             ],
         },
-        ### NEXT STEP 10 Finalize environment ##################################
+        ### NEXT STEP 11 Finalize environment ##################################
         {
             plugin => 'Perl::Dist::Strawberry::Step::FilesAndDirs',
             commands => [
@@ -242,15 +264,15 @@ sub build_job {
                 { do=>'copyfile', args=>[ 'contrib/windows/packaging/setup.pm', '<image_dir>/perl/lib' ] },
             ],
         },
-        ### NEXT STEP 11 Finalize release ######################################
+        ### NEXT STEP 12 Finalize release ######################################
         {
             plugin => 'Perl::Dist::GLPI::Agent::Step::Update',
         },
-        ### NEXT STEP 12 Generate Portable Archive #############################
+        ### NEXT STEP 13 Generate Portable Archive #############################
         {
             plugin => 'Perl::Dist::Strawberry::Step::OutputZIP',
         },
-        ### NEXT STEP 13 Generate MSI Package ##################################
+        ### NEXT STEP 14 Generate MSI Package ##################################
         {
             plugin => 'Perl::Dist::GLPI::Agent::Step::OutputMSI',
             exclude  => [],
