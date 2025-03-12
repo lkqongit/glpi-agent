@@ -29,6 +29,7 @@ netdiscovery/netinventory:
 * PR #836 from @eduardomozart: Enhanced HP wireless printers by reporting wifi ports
   as wireless
 * Fix network ports ip support to avoid wrong allocation in rare cases, seen on a Ricoh printer
+* Fix switch known macaddresses analysis
 
 deploy:
 * fix #854: Deploy task was not run when forced via httpd interface
