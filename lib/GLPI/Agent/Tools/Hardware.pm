@@ -626,7 +626,7 @@ sub _setGenericProperties {
         my $value = $results->{$suffix};
         next unless $value;
         # value must match IFNUMBER
-        my $portindex = first { $ports->{$_}->{IFNUMBER} eq $value } keys(%{$ports});
+        my $portindex = first { defined($ports->{$_}->{IFNUMBER}) && $ports->{$_}->{IFNUMBER} eq $value } keys(%{$ports});
         # safety checks
         unless ($portindex) {
             $logger->debug(
