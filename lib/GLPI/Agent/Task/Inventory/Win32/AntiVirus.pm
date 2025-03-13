@@ -158,6 +158,12 @@ sub doInventory {
             ],
             command => "CmdAgent.exe",
             func    => \&_setMcAfeeInfos,
+        }, {
+            # SentinelOne support
+            name    => "SentinelOne",
+            service => "SentinelAgent",
+            command => "SentinelCtl.exe",
+            func    => \&_setSentinelOneInfos,
         }) {
             my $antivirus;
             my $service = $services->{$support->{service}}
@@ -652,6 +658,28 @@ sub _setCortexInfos {
         logger  => $logger
     );
     $antivirus->{BASE_VERSION} = $base_version if $base_version;
+}
+
+sub _setSentinelOneInfos {
+    my ($antivirus, $logger, $command) = @_;
+
+    $antivirus->{COMPANY} = "Sentinel Labs Inc.";
+
+    my $version = getFirstMatch(
+        pattern => qr/^SentinelOne.* ([0-9.]+)$/,
+        command => "\"$command\" version",
+        logger  => $logger
+    );
+    $antivirus->{VERSION} = $version if $version;
+
+    my @lines = getAllLines(
+        command => "\"$command\" status",
+        logger  => $logger
+    );
+    $antivirus->{ENABLED} = 1
+        if first { /^Self-Protection:\s+On$/i } @lines
+        && first { /^SentinelMonitor is loaded$/i } @lines
+        && first { /^SentinelAgent is loaded$/i } @lines;
 }
 
 sub _getSoftwareRegistryKeys {

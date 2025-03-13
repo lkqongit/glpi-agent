@@ -20,6 +20,7 @@ inventory:
   like GLPI 11+. Remark: This option is shared with remoteinventory task.
 * fix #857: Support Microsoft Defender AV detection on Windows Server
 * PR #869: Fix Proxmox/LXC memory conversion
+* fix #868: Support SentinelOne Agent as AV on Windows Server
 
 remoteinventory:
 * Add "itemtype" configuration support to handle requirement for servers supporting genericity
