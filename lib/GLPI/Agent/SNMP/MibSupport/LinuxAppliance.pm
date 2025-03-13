@@ -205,6 +205,11 @@ sub getType {
                 $device->{_Appliance}->{MODEL} = 'FMC';
                 $device->{_Appliance}->{MANUFACTURER} = 'Cisco';
                 return 'NETWORKING';
+            } elsif ($sysDescr && $sysDescr =~ /^(Omada .*)$/i) {
+                # Omada models TP-Link detection
+                $device->{_Appliance}->{MODEL} = $1;
+                $device->{_Appliance}->{MANUFACTURER} = 'TP-Link';
+                return 'NETWORKING';
             }
             return $match->{type};
         }
