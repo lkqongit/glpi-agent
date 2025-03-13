@@ -21,6 +21,7 @@ inventory:
 * fix #857: Support Microsoft Defender AV detection on Windows Server
 * PR #869: Fix Proxmox/LXC memory conversion
 * fix #868: Support SentinelOne Agent as AV on Windows Server
+* Updated pci.ids to 2025.03.09 version
 
 remoteinventory:
 * Add "itemtype" configuration support to handle requirement for servers supporting genericity
@@ -32,6 +33,7 @@ netdiscovery/netinventory:
 * Fix network ports ip support to avoid wrong allocation in rare cases, seen on a Ricoh printer
 * Fix switch known macaddresses analysis
 * fix #870: Add support for TP-Link Omada linux appliances
+* Updated sysobject.ids
 
 deploy:
 * fix #854: Deploy task was not run when forced via httpd interface
