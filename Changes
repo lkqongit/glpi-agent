@@ -2,6 +2,9 @@ Revision history for GLPI agent
 
 1.14 not yet released
 
+inventory:
+* PR #876: Fix Microsoft Defender AV detection on Windows Server
+
 1.13 Thu, 13 Mar 2025
 
 core:
