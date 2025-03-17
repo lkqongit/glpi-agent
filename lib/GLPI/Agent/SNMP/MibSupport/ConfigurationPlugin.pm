@@ -18,7 +18,7 @@ use GLPI::Agent::HTTP::Server::ToolBox;
 
 our $mibSupport = [];
 
-my ($config, $yaml, $logger);
+my ($yaml, $logger);
 
 sub getFirmware {
     my ($self) = @_;
@@ -89,18 +89,15 @@ sub configure {
 
     $logger = $params{logger} || GLPI::Agent::Logger->new();
 
-    $config = $params{config} || GLPI::Agent::Config->new();
+    # Load defaults and plugin configuration
+    my $config = GLPI::Agent::Config->new(
+        defaults => GLPI::Agent::HTTP::Server::ToolBox::defaults(),
+        options  => { config => "none" },
+    );
 
     my $confdir = $config->confdir();
-
-    # Load defaults and plugin configuration
-    my $defaults = GLPI::Agent::HTTP::Server::ToolBox::defaults();
-    foreach my $param (keys(%{$defaults})) {
-        $config->{$param} = $defaults->{$param};
-    }
     $config->loadFromFile({
-        file        => "$confdir/toolbox-plugin.cfg",
-        defaults    => $defaults
+        file => "$confdir/toolbox-plugin.cfg",
     }) if -f "$confdir/toolbox-plugin.cfg";
 
     my $yamlconfig = $confdir . "/" . $config->{yaml};

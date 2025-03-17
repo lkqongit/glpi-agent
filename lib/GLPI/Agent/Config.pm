@@ -73,9 +73,13 @@ my $confReloadIntervalMinValue = 60;
 sub new {
     my ($class, %params) = @_;
 
+    die "config: default can only be a hash ref\n"
+        if defined($params{defaults}) && ref($params{defaults}) ne "HASH";
+
     my $self = {
         '_confdir' => undef, # SYSCONFDIR replaced here from Makefile
         '_options' => $params{options} // {},
+        '_default' => $params{defaults} // $default,
     };
     bless $self, $class;
 
@@ -95,14 +99,16 @@ sub new {
 
     $self->_loadUserParams($params{options});
 
-    if ($params{options}->{vardir} && -d $params{options}->{vardir}) {
-        $self->{vardir} = $params{options}->{vardir};
-    } elsif (!$self->{vardir} || ($self->{vardir} && ! -d $self->{vardir})) {
-        $self->{vardir} = $params{vardir};
-    }
+    if (exists($self->{_default}->{vardir})) {
+        if ($params{options}->{vardir} && -d $params{options}->{vardir}) {
+            $self->{vardir} = $params{options}->{vardir};
+        } elsif (!$self->{vardir} || ($self->{vardir} && ! -d $self->{vardir})) {
+            $self->{vardir} = $params{vardir};
+        }
 
-    # To also keep vardir during reload
-    $self->{_options}->{vardir} = $self->{vardir};
+        # To also keep vardir during reload
+        $self->{_options}->{vardir} = $self->{vardir};
+    }
 
     $self->_checkContent();
 
@@ -163,8 +169,8 @@ sub _loadFromBackend {
 sub _loadDefaults {
     my ($self) = @_;
 
-    foreach my $key (keys %$default) {
-        $self->{$key} = $default->{$key};
+    foreach my $key (keys %{$self->{_default}}) {
+        $self->{$key} = $self->{_default}->{$key};
     }
 
     # No need to reset confdir at each call
@@ -210,7 +216,7 @@ sub _loadFromRegistry {
             $val = hex($val);
         }
 
-        if (exists $default->{$key}) {
+        if (exists $self->{_default}->{$key}) {
             $self->{$key} = $val;
         } else {
             warn "Config: unknown configuration directive $key\n";
@@ -265,9 +271,7 @@ sub loadFromFile {
                 $val =~ s/\s*#.+$//;
             }
 
-            if ($params->{defaults} && exists $params->{defaults}->{$key}) {
-                $self->{$key} = $val;
-            } elsif (!$params->{defaults} && exists $default->{$key}) {
+            if (exists $self->{_default}->{$key}) {
                 $self->{$key} = $val;
             } elsif (lc($key) eq 'include') {
                 $self->_includeDirective($val, $file);
@@ -281,14 +285,14 @@ sub loadFromFile {
             } else {
                 $include =~ s/\s*#.+$//;
             }
-            $self->_includeDirective($include, $file, $params->{defaults});
+            $self->_includeDirective($include, $file);
         }
     }
     close $handle;
 }
 
 sub _includeDirective {
-    my ($self, $include, $currentconfig, $defaults) = @_;
+    my ($self, $include, $currentconfig) = @_;
 
     # Make include path absolute, relatively to current file basedir
     unless (File::Spec->file_name_is_absolute($include)) {
@@ -306,10 +310,10 @@ sub _includeDirective {
         foreach my $cfg ( sort glob("$include/*.cfg") ) {
             # Skip missing or non-readable file
             next unless -f $cfg && -r $cfg;
-            $self->loadFromFile({ file => $cfg, defaults => $defaults });
+            $self->loadFromFile({ file => $cfg });
         }
     } elsif ( -f $include && -r $include ) {
-        $self->loadFromFile({ file => $include, defaults => $defaults });
+        $self->loadFromFile({ file => $include });
     }
 }
 
@@ -335,7 +339,7 @@ sub _checkContent {
     }
 
     # logger backend without a logfile isn't enough
-    if ($self->{'logger'} =~ /file/i && ! $self->{'logfile'}) {
+    if (!empty($self->{'logger'}) && $self->{'logger'} =~ /file/i && empty($self->{'logfile'})) {
         die "Config: usage of 'file' logger backend makes 'logfile' option mandatory\n";
     }
 
@@ -351,6 +355,7 @@ sub _checkContent {
             tasks
             ssl-fingerprint
     /) {
+        next unless exists($self->{$option});
         # Check if defined AND SCALAR
         # to avoid split a ARRAY ref or HASH ref...
         if ($self->{$option} && ref($self->{$option}) eq '') {
@@ -368,7 +373,7 @@ sub _checkContent {
             logfile
             vardir
     /) {
-        next unless $self->{$option};
+        next if empty($self->{$option});
         $self->{$option} = File::Spec->rel2abs($self->{$option});
     }
 
@@ -376,7 +381,7 @@ sub _checkContent {
     # If value is less than the required minimum, we force it to that
     # minimum because it's useless to reload the config so often and,
     # furthermore, it can cause a loss of performance
-    if ($self->{'conf-reload-interval'} != 0) {
+    if (defined($self->{'conf-reload-interval'}) && $self->{'conf-reload-interval'} != 0) {
         if ($self->{'conf-reload-interval'} < 0) {
             $self->{'conf-reload-interval'} = 0;
         } elsif ($self->{'conf-reload-interval'} < $confReloadIntervalMinValue) {

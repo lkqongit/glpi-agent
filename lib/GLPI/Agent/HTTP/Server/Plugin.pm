@@ -38,6 +38,9 @@ sub new {
         ));
     }
 
+    # Handle defaults
+    $self->{_default} = $self->defaults();
+
     return $self;
 }
 
