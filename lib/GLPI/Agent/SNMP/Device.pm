@@ -3,6 +3,8 @@ package GLPI::Agent::SNMP::Device;
 use strict;
 use warnings;
 
+use parent 'GLPI::Agent::SNMP';
+
 use GLPI::Agent::Tools;
 use GLPI::Agent::Tools::SNMP;
 use GLPI::Agent::Tools::Network;
@@ -78,6 +80,7 @@ sub new {
     my $self = {
         snmp   => $snmp,
         glpi   => $params{glpi} // '', # glpi server version if we need to check feature support
+        nowalk => 0, # Can be set to disable walk API for devices not supporting it like Snom phones
         logger => $logger
     };
 
@@ -97,9 +100,32 @@ sub get {
 sub walk {
     my ($self, $oid) = @_;
 
+    return if $self->{nowalk};
+
     return unless $self->{snmp} && $oid;
 
     return $self->{snmp}->walk($oid);
+}
+
+sub disableWalk {
+    my ($self) = @_;
+    $self->{nowalk} = 1;
+}
+
+sub switch_vlan_context {
+    my ($self, $vlan_id) = @_;
+
+    return unless $self->{snmp} && !empty($vlan_id);
+
+    return $self->{snmp}->switch_vlan_context($vlan_id);
+}
+
+sub reset_original_context {
+    my ($self) = @_;
+
+    return unless $self->{snmp};
+
+    return $self->{snmp}->reset_original_context();
 }
 
 sub loadMibSupport {
@@ -256,11 +282,11 @@ sub setSerial {
 
     my $serial =
         # First try MIB Support mechanism
-        $self->getSerialByMibSupport()                         ||
+        $self->getSerialByMibSupport()                 ||
         # Entity-MIB::entPhysicalSerialNum
-        $self->{snmp}->get_first('.1.3.6.1.2.1.47.1.1.1.1.11') ||
+        $self->get_first('.1.3.6.1.2.1.47.1.1.1.1.11') ||
         # Printer-MIB::prtGeneralSerialNumber
-        $self->{snmp}->get_first('.1.3.6.1.2.1.43.5.1.1.17');
+        $self->get_first('.1.3.6.1.2.1.43.5.1.1.17');
 
     if ( not defined $serial ) {
         # vendor specific OIDs
@@ -300,11 +326,11 @@ sub setFirmware {
 
     my $firmware =
         # First try to get firmware from MIB Support mechanism
-        $self->getFirmwareByMibSupport()                       ||
+        $self->getFirmwareByMibSupport()               ||
         # entPhysicalSoftwareRev
-        $self->{snmp}->get_first('.1.3.6.1.2.1.47.1.1.1.1.10') ||
+        $self->get_first('.1.3.6.1.2.1.47.1.1.1.1.10') ||
         # entPhysicalFirmwareRev
-        $self->{snmp}->get_first('.1.3.6.1.2.1.47.1.1.1.1.9');
+        $self->get_first('.1.3.6.1.2.1.47.1.1.1.1.9');
 
     if ( not defined $firmware ) {
         # vendor specific OIDs
@@ -428,7 +454,7 @@ sub setModel {
             $self->get('.1.3.6.1.2.1.25.3.2.1.3.1')    :
             exists $self->{TYPE} && $self->{TYPE} eq 'POWER' ?
             $self->get('.1.3.6.1.2.1.33.1.1.5.0')      : # UPS-MIB
-            $self->{snmp}->get_first('.1.3.6.1.2.1.47.1.1.1.1.13');
+            $self->get_first('.1.3.6.1.2.1.47.1.1.1.1.13');
         $self->{MODEL} = getCanonicalString($model) if $model;
     }
 

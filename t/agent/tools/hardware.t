@@ -6,6 +6,7 @@ use warnings;
 use Test::Deep;
 use Test::More;
 
+use GLPI::Agent::SNMP::Device;
 use GLPI::Agent::SNMP::Mock;
 use GLPI::Agent::Tools::Hardware;
 use GLPI::Agent::Tools::SNMP;
@@ -44,7 +45,7 @@ my @cdp_info_extraction_tests = (
                 MODEL    => 'Cisco IP Phone SPA508G',
                 IP       => '192.168.20.139',
                 SYSNAME  => 'SIPE05FB981A7A7'
-             }
+            }
         },
         'CDP info extraction'
     ],
@@ -285,10 +286,12 @@ cmp_deeply(
 );
 
 foreach my $test (@cdp_info_extraction_tests) {
-    my $snmp  = GLPI::Agent::SNMP::Mock->new(hash => $test->[0]);
+    my $device = GLPI::Agent::SNMP::Device->new(
+        snmp => GLPI::Agent::SNMP::Mock->new(hash => $test->[0])
+    );
 
     my $cdp_info = GLPI::Agent::Tools::Hardware::_getCDPInfo(
-        snmp  => $snmp,
+        device => $device,
     );
 
     cmp_deeply(
@@ -299,10 +302,12 @@ foreach my $test (@cdp_info_extraction_tests) {
 }
 
 foreach my $test (@mac_addresses_extraction_tests) {
-    my $snmp = GLPI::Agent::SNMP::Mock->new(hash => $test->[0]);
+    my $device = GLPI::Agent::SNMP::Device->new(
+        snmp => GLPI::Agent::SNMP::Mock->new(hash => $test->[0])
+    );
 
     my $mac_addresses = GLPI::Agent::Tools::Hardware::_getKnownMacAddresses(
-        snmp           => $snmp,
+        device         => $device,
         address2port   => '.1.3.6.1.2.1.17.4.3.1.2',
         port2interface => '.1.3.6.1.2.1.17.1.4.1.2',
     );
@@ -315,11 +320,13 @@ foreach my $test (@mac_addresses_extraction_tests) {
 }
 
 foreach my $test (@mac_addresses_addition_tests) {
-    my $snmp  = GLPI::Agent::SNMP::Mock->new(hash => $test->[0]);
+    my $device = GLPI::Agent::SNMP::Device->new(
+        snmp => GLPI::Agent::SNMP::Mock->new(hash => $test->[0])
+    );
 
     GLPI::Agent::Tools::Hardware::_setKnownMacAddresses(
-        snmp  => $snmp,
-        ports => $test->[1],
+        device => $device,
+        ports  => $test->[1],
     );
 
     cmp_deeply(
@@ -330,10 +337,12 @@ foreach my $test (@mac_addresses_addition_tests) {
 }
 
 foreach my $test (@trunk_ports_extraction_tests) {
-    my $snmp = GLPI::Agent::SNMP::Mock->new(hash => $test->[0]);
+    my $device = GLPI::Agent::SNMP::Device->new(
+        snmp => GLPI::Agent::SNMP::Mock->new(hash => $test->[0])
+    );
 
     my $trunk_ports = GLPI::Agent::Tools::Hardware::_getTrunkPorts(
-        snmp  => $snmp,
+        device => $device,
     );
 
     cmp_deeply(

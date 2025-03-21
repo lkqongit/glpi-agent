@@ -2,6 +2,7 @@ package GLPI::Agent::SNMP::Mock;
 
 use strict;
 use warnings;
+
 use parent 'GLPI::Agent::SNMP';
 
 use GLPI::Agent::Tools;

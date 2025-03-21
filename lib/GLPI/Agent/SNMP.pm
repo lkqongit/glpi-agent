@@ -7,7 +7,7 @@ use English qw(-no_match_vars);
 
 use GLPI::Agent::Tools;
 
-our $VERSION = '1.1';
+our $VERSION = '1.2';
 
 sub get_first {
     my ($self, $oid) = @_;

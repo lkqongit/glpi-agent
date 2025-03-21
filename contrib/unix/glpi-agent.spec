@@ -315,6 +315,7 @@ fi
 
 %files task-network
 %config(noreplace) %{_sysconfdir}/%{name}/toolbox-plugin.cfg
+%config(noreplace) %{_sysconfdir}/%{name}/snmp-advanced-support.cfg
 %{_bindir}/glpi-netdiscovery
 %{_bindir}/glpi-netinventory
 %{_mandir}/man1/glpi-netdiscovery.1*

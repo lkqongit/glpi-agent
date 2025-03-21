@@ -33,7 +33,7 @@ sub getModel {
     my $device = $self->device
         or return;
 
-    return getCanonicalString($device->{snmp}->get_first(entPhysicalModelName));
+    return getCanonicalString($device->get_first(entPhysicalModelName));
 }
 
 sub getSnmpHostname {

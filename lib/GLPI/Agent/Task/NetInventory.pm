@@ -491,6 +491,7 @@ sub _queryDevice {
                 privprotocol => $credential->{PRIVPROTOCOL},
                 retries      => $self->{config}->{'snmp-retries'} // 0,
             );
+            $snmp->testSession();
         };
         die "SNMP communication error: $EVAL_ERROR" if $EVAL_ERROR;
     }

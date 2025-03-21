@@ -2,11 +2,26 @@ package GLPI::Agent::SNMP::Live;
 
 use strict;
 use warnings;
+
 use parent 'GLPI::Agent::SNMP';
 
 use English qw(-no_match_vars);
 use Net::SNMP;
-use Net::SNMP qw/SNMP_PORT/;
+use Net::SNMP qw/SNMP_PORT :debug/;
+
+use GLPI::Agent::Config;
+use GLPI::Agent::Tools;
+
+my ($config, $config_load_timeout);
+my $config_file = "snmp-advanced-support.cfg";
+
+# etc/snmp-advanced-support.cfg configuration file can be use to change GLPI::Agent::SNMP::Live behavior
+my $defaults = {
+    # oids is a comma-separated list of oids used during session testing. All oids will be requested
+    # and only one has to respond to validate session. If none provides any answer, this means there's
+    # no device or the device is not reachable
+    oids    => '.1.3.6.1.2.1.1.1.0',
+};
 
 sub new {
     my ($class, %params) = @_;
@@ -22,9 +37,33 @@ sub new {
 
     die "invalid SNMP version $params{version} parameter\n" unless $version;
 
-    my $self;
+    my $self = {
+        _hostname => $params{hostname} // "not given",
+    };
 
-    # shared options
+     # Load snmp-advanced-support.cfg configuration at worst one time by minute
+    unless ($config && $config_load_timeout && $config_load_timeout >= time) {
+        $config = GLPI::Agent::Config->new(
+            defaults => $defaults,
+            options  => { config => "none" },
+        );
+
+        my $confdir = $config->confdir();
+        $config->loadFromFile({
+            file => "$confdir/$config_file",
+        }) if -f "$confdir/$config_file";
+
+        # Normalize configuration
+        my @oids = map { trimWhitespace($_); /^\./ ? $_ : ".$_" } split(/,+/, $config->{oids});
+        die "invalid 'oids' configuration in $confdir/$config_file\n"
+            if $config->{oids} ne $defaults->{oids} && scalar(grep { /^\.(?:\d+\.)+\d+$/ } @oids) != scalar(@oids);
+        $self->{_oids} = \@oids;
+
+        # Reload config not before one minute
+        $config_load_timeout = time + 60;
+    }
+
+   # shared options
     my %options = (
         -retries  => $params{retries} // 0,
         -version  => $version,
@@ -51,33 +90,41 @@ sub new {
         $self->{community} = $params{community};
     }
 
-    ($self->{session}, my $error) = Net::SNMP->session(%options);
-    if (!$self->{session}) {
-        die "no response from host $params{hostname}\n"
+    ($self->{session}, $self->{_session_error}) = Net::SNMP->session(%options);
+
+    bless $self, $class;
+
+    return $self;
+}
+
+sub testSession {
+    my ($self) = @_;
+
+    my $error = delete $self->{_session_error};
+    my $host = delete $self->{_hostname};
+    unless ($self->{session}) {
+        die "failed to open snmp session\n" if empty($error);
+        die "no response from $host host\n"
             if $error =~ /^No response from remote host/;
-        die "authentication error on host $params{hostname}\n"
+        die "authentication error on $host host\n"
             if $error =~ /^Received usmStats(WrongDigests|UnknownUserNames)/;
         die "Crypt::Rijndael perl module needs to be installed\n"
             if $error =~ /Required module Crypt\/Rijndael\.pm not found/;
         die $error . "\n";
     }
 
-    if ($version ne 'snmpv3') {
-        my $oid = '.1.3.6.1.2.1.1.1.0';
-        my $response = $self->{session}->get_request(
-            -varbindlist => [$oid]
-        );
-        die "no response from host $params{hostname}\n"
-            if !$response;
-        die "missing response from host $params{hostname}\n"
-            unless defined $response->{$oid};
-        die "no response from host $params{hostname}\n"
-            if $response->{$oid} =~ /No response from remote host/;
-    }
+    my $version_id = $self->{session}->version();
+    return if $version_id && $version_id == 3;
 
-    bless $self, $class;
-
-    return $self;
+    my $response = $self->{session}->get_request(
+        -varbindlist => $self->{_oids},
+    );
+    die "no response from $host host\n"
+        unless $response;
+    die "missing response from $host host\n"
+        unless first { defined($response->{$_}) } @{$self->{_oids}};
+    die "no response from $host host\n"
+        if grep { $response->{$_} && $response->{$_} =~ /No response from remote host/ } @{$self->{_oids}} == scalar(@{$self->{_oids}});
 }
 
 sub switch_vlan_context {
@@ -141,10 +188,11 @@ sub get {
 
     return unless $response;
 
-    return if $response->{$oid} =~ /noSuchInstance/;
-    return if $response->{$oid} =~ /noSuchObject/;
-    return if $response->{$oid} =~ /No response from remote host/;
-
+    unless (empty($response->{$oid})) {
+        return if $response->{$oid} =~ /noSuchInstance/;
+        return if $response->{$oid} =~ /noSuchObject/;
+        return if $response->{$oid} =~ /No response from remote host/;
+    }
 
     my $value = $response->{$oid};
 

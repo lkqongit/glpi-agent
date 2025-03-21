@@ -40,8 +40,11 @@ print AGENT "etc/ssl-server-plugin.cfg /usr/share/glpi-agent/etc\n";
 print AGENT "etc/server-test-plugin.cfg /usr/share/glpi-agent/etc\n";
 print AGENT "etc/proxy-server-plugin.cfg /usr/share/glpi-agent/etc\n";
 print AGENT "etc/proxy2-server-plugin.cfg /usr/share/glpi-agent/etc\n";
-print AGENT "etc/toolbox-plugin.cfg /usr/share/glpi-agent/etc\n";
 print AGENT "usr/share/glpi-agent/edid.ids\n";
 print AGENT "usr/share/glpi-agent/sysobject.ids\n";
 print AGENT "usr/share/glpi-agent/html\n";
 print AGENT "contrib/unix/glpi-agent.service lib/systemd/system\n";
+
+# Dedicated network tasks configuration files
+print AGENT_TASK_NETWORK "etc/toolbox-plugin.cfg /usr/share/glpi-agent/etc\n";
+print AGENT_TASK_NETWORK "etc/snmp-advanced-support /usr/share/glpi-agent/etc\n";

@@ -4,9 +4,18 @@ Revision history for GLPI agent
 
 core:
 * Refacto GLPI::Agent::Config to use generic defaults where necessary
+* Refacto SNMP support: Support of a new "snmp-advanced-support.cfg" configuration file
+  to tune snmp support and permit glpi-agent to handle some rare cases.
 
 inventory:
 * PR #876: Fix Microsoft Defender AV detection on Windows Server
+
+netdiscovery/netinventory:
+* fix #840: Add Snom phones support with "snmp-advanced-support.cfg" file specific configuration
+
+packaging:
+* Default etc/snmp-advanced-support.cfg now included in packages
+* On debian packaging, etc/toolbox-plugin.cfg is now included in glpi-agent-task-network
 
 1.13 Thu, 13 Mar 2025
 

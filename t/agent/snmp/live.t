@@ -16,6 +16,7 @@ plan tests => 12;
 my $snmp;
 throws_ok {
     $snmp = GLPI::Agent::SNMP::Live->new();
+    $snmp->testSession();
 } qr/^no hostname parameter/,
 'instanciation: no hostname parameter';
 
@@ -24,6 +25,7 @@ throws_ok {
         hostname => 'localhost',
         version  => 'foo'
     );
+    $snmp->testSession();
 } qr/^invalid SNMP version/,
 'instanciation: invalid version parameter';
 
@@ -32,6 +34,7 @@ throws_ok {
         hostname => 'localhost',
         version  => 5
     );
+    $snmp->testSession();
 } qr/^invalid SNMP version/,
 'instanciation: invalid version parameter';
 
@@ -40,6 +43,7 @@ throws_ok {
         hostname => 'localhost',
         version => 1
     );
+    $snmp->testSession();
 } qr/[Cc]ommunity (is )?not defined/,
 'instanciation: undefined community';
 
@@ -49,6 +53,7 @@ throws_ok {
         community => 'public',
         hostname  => 'none'
     );
+    $snmp->testSession();
 } qr/^Unable to resolve the UDP\/IPv4 address "none"/,
 'instanciation: unresolvable host';
 
@@ -58,7 +63,8 @@ throws_ok {
         community => 'public',
         hostname  => '1.1.1.1'
     );
-} qr/no response from host 1.1.1.1/,
+    $snmp->testSession();
+} qr/no response from 1.1.1.1 host/,
 'instanciation: unresponding host';
 
 SKIP: {
@@ -70,6 +76,7 @@ lives_ok {
         community => 'public',
         hostname  => 'localhost'
     );
+    $snmp->testSession();
 } 'SNMPv1: instanciation';
 
 is(
@@ -101,6 +108,7 @@ lives_ok {
         community => 'public',
         hostname  => 'localhost'
     );
+    $snmp->testSession();
 } 'SNMPv2c: instanciation';
 
 is(
