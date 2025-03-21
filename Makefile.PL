@@ -248,7 +248,7 @@ sub install {
 config_install : pure_install
 	$(MKPATH) $(DESTDIR)$(SYSCONFDIR)
 	$(NOECHO) $(CHMOD) $(PERM_DIR) $(DESTDIR)$(SYSCONFDIR)
-	for config in agent.cfg $(shell cd etc; echo *-plugin.cfg ); \
+	for config in agent.cfg $(shell cd etc; echo *-plugin.cfg ) snmp-advanced-support.cfg; \
 	do \
 	  if $(TEST_F) $(DESTDIR)$(SYSCONFDIR)/$$config; then \
 	    $(RM_F) $(DESTDIR)$(SYSCONFDIR)/$$config.new; \
