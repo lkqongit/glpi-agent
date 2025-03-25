@@ -6,6 +6,8 @@ core:
 * Refacto GLPI::Agent::Config to use generic defaults where necessary
 * Refacto SNMP support: Support of a new "snmp-advanced-support.cfg" configuration file
   to tune snmp support and permit glpi-agent to handle some rare cases.
+* fix #880: Always requests PROLOG when tasks are forced on HTTPd UI before glpi-agent
+  know if server is a GLPI 10+ server
 
 inventory:
 * PR #876: Fix Microsoft Defender AV detection on Windows Server

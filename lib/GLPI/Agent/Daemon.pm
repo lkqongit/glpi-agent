@@ -147,7 +147,7 @@ sub run {
                 if ((!ref($responses) || !$responses->{CONTACT}) && $target->isGlpiServer()) {
                     $responses->{CONTACT} = $self->getContact($target, [$target->plannedTasks()]);
                 }
-                if ((!ref($responses) || !$responses->{PROLOG}) && $target->isType('server') && $event->task =~ /^net(discovery|inventory)$/i) {
+                if ((!ref($responses) || !$responses->{PROLOG}) && $target->isType('server') && (!$target->isGlpiServer() || $event->task =~ /^net(discovery|inventory)$/i)) {
                     $responses->{PROLOG} = $self->getProlog($target);
                 }
                 if ($target->isType('server')) {
