@@ -141,6 +141,7 @@ $discovery->{jobs} = [
                 IPEND    => $options->{last},
                 PORT     => $options->{port},
                 PROTOCOL => $options->{protocol},
+                ENTITY   => $options->{entity},
             }
         ],
         file        => $options->{file},
@@ -149,10 +150,6 @@ $discovery->{jobs} = [
         showcontrol => $options->{control}
     )
 ];
-
-if (defined($options->{entity})) {
-    $discovery->{jobs}->[0]->{ranges}->[0]->{ENTITY} = $options->{entity};
-}
 
 if ($options->{save} && $options->{debug}) {
     print STDERR

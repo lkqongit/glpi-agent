@@ -12,6 +12,7 @@ inventory:
 
 netdiscovery/netinventory:
 * fix #840: Add Snom phones support with "snmp-advanced-support.cfg" file specific configuration
+* Fix --entity option support in glpi-netinventory script
 
 packaging:
 * Default etc/snmp-advanced-support.cfg now included in packages
