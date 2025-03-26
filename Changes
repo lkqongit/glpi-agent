@@ -11,6 +11,7 @@ core:
 
 inventory:
 * PR #876: Fix Microsoft Defender AV detection on Windows Server
+* PR #884: Updated UUID detection on Solaris Global Zones
 
 netdiscovery/netinventory:
 * fix #840: Add Snom phones support with "snmp-advanced-support.cfg" file specific configuration
