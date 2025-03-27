@@ -303,7 +303,7 @@ sub getRegistryKeyValue {
         $value = decode("UTF16-LE", $valData);
     } elsif ($valType eq Win32::TieRegistry::REG_MULTI_SZ()) {
         substr($valData, -1) = "" if substr($valData,-1) eq "\0";
-        $value = [ map { decode("UTF16-LE", $_) } split (/\0/, $valData) ];
+        $value = [ split (/\0/, decode("UTF16-LE", $valData)) ];
     } else {
         $value = $key->{"/$valueName"};
     }

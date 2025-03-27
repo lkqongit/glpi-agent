@@ -230,8 +230,10 @@ sub _processRemote {
 
     my $method  = exists($answer->{postmethod}) && $answer->{postmethod} eq 'POST' ? 'POST' : 'GET' ;
     my $token = exists($answer->{token}) ? $answer->{token} : '';
+    my $has_csrf_token = empty($token) ? 0 : 1;
     my %jobsdone = ();
 
+JOB:
     foreach my $job (@jobs) {
 
         $self->{logger}->debug2("Starting a collect job...");
@@ -279,8 +281,33 @@ sub _processRemote {
                filename => sprintf('collect_%s_%s.js', $job->{uuid}, $count),
                args     => $result
             );
-            $token = exists($answer->{token}) ? $answer->{token} : '';
+            $token = $answer && exists($answer->{token}) ? $answer->{token} : '';
             $count--;
+
+            # Handle CSRF access denied
+            if ($has_csrf_token && empty($token)) {
+                $self->{logger}->error("Bad answer: CSRF checking is failing");
+                # Send an empty answer to force an error on server job
+                $self->{client}->send(
+                    url  => $remoteUrl,
+                    args => {
+                        uuid   => $job->{uuid},
+                        action => "setAnswer",
+                    }
+                );
+                # Send a last message for server job log
+                $self->{client}->send(
+                    url  => $remoteUrl,
+                    args => {
+                        uuid         => $job->{uuid},
+                        action       => "setAnswer",
+                        csrf_failure => 1,
+                    }
+                );
+                # No need to send job done message
+                delete $jobsdone{$job->{uuid}};
+                last JOB;
+            }
         }
 
         # Set this job is done by uuid
@@ -350,9 +377,16 @@ sub _getFromRegistry {
     } else {
         my ($k) = $params{path} =~ m|([^/]+)$| ;
         my ($value,$type) = @{$values};
-        $result->{$k} = _encodeRegistryValueForCollect($value,$type);
-        $params{logger}->debug2("Found $RegistryType[$type] value: ".$result->{$k})
-            if $params{logger};
+        if (ref($value) eq 'ARRAY') {
+            my @values = map { _encodeRegistryValueForCollect($_) } @{$value};
+            $result->{$k} = join(",", @values);
+            map { $params{logger}->debug2("Found $RegistryType[$type] value: $_") } @{$value}
+                if $params{logger};
+        } else {
+            $result->{$k} = _encodeRegistryValueForCollect($value,$type);
+            $params{logger}->debug2("Found $RegistryType[$type] value: ".$result->{$k})
+                if $params{logger};
+        }
     }
 
     return ($result);
