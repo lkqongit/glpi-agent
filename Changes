@@ -17,6 +17,7 @@ netdiscovery/netinventory:
 * fix #840: Add Snom phones support with "snmp-advanced-support.cfg" file specific configuration
 * Fix --entity option support in glpi-netinventory script
 * Enhanced EMC support for Dell EMC devices with experimental SNMP OIDs
+* fix #873: Enhanced support for Netgear stacked devices
 
 collect:
 * Fix REG_MULTI_SZ registry value type support
