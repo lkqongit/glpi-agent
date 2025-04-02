@@ -6709,8 +6709,10 @@ foreach my $test (keys(%xmlparsing)) {
     ok ($softwaresFromXmlFileSize == $xmlparsing{$test}->{count},
         "count: $softwaresFromXmlFileSize from XML file, expecting ".$xmlparsing{$test}->{count});
 
+    # Test private API in the same way it is used via getSystemProfilerInfos()
+    my $content = GLPI::Agent::Tools::getAllLines(file => $xmlFile);
     my $softs = GLPI::Agent::Tools::MacOS::_extractSoftwaresFromXml(
-        file => $xmlFile,
+        string          => $content,
         localTimeOffset => 7200
     );
     ok (ref($softs) eq 'HASH');
