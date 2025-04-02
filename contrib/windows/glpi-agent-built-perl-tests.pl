@@ -84,8 +84,8 @@ sub run {
 
     # Run few checks
     my @checks = (
-        "OpenSSL version"   => [ "-MNet::SSLeay", "-e", 'print Net::SSLeay::SSLeay_version(0)," (", sprintf("0x%x",Net::SSLeay::SSLeay()),") installed with perl $^V\n"' ],
-        "libxml2 version"   => [ "-MXML::LibXML", "-e", 'print STDERR "Using libxml2 v".XML::LibXML::LIBXML_DOTTED_VERSION()."\n"' ],
+        "OpenSSL version"   => [ "-Ilib", "-Msetup", "-MNet::SSLeay", "-e", 'print Net::SSLeay::SSLeay_version(0)," (", sprintf("0x%x",Net::SSLeay::SSLeay()),") installed with perl $^V\n"' ],
+        "libxml2 version"   => [ "-Ilib", "-Msetup", "-MXML::LibXML", "-e", 'print STDERR "Using libxml2 v".XML::LibXML::LIBXML_DOTTED_VERSION()."\n"' ],
     );
     while (@checks) {
         my $check   = shift @checks;
