@@ -185,7 +185,7 @@ sub build_job {
                 _movebin('perl.exe'),
                 _movebin('perl'.$MAJOR.$MINOR.'.dll'),
                 # Also move DLLs required by modules
-                _movedll('libxml2-2', $dllsuffix),
+                _movedll('libxml2-16', $dllsuffix),
                 _movedll('liblzma-5', $dllsuffix),
                 _movedll('libcharset-1', $dllsuffix),
                 _movedll('libiconv-2', $dllsuffix),

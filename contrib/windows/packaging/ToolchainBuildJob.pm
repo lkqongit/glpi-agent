@@ -195,7 +195,7 @@ sub toolchain_build_steps {
                 name    => 'libxml2',
                 version => '2.14.0',
                 url     => 'https://download.gnome.org/sources/<name>/2.14/<name>-<version>.tar.xz',
-                skip_if_file    => 'bin/libxml2-2__.dll',
+                skip_if_file    => 'bin/libxml2-16__.dll',
                 skip_test       => 1,
                 configure_help  => 1,
                 patch_libtool   => 1,
