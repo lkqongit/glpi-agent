@@ -111,6 +111,8 @@ sub doInventory {
                 _setTrendMicroSecurityAgentInfos($antivirus);
             } elsif ($antivirus->{NAME} =~ /Cortex XDR/i) {
                 _setCortexInfos($antivirus, $logger, "C:\\Program Files\\Palo Alto Networks\\Traps\\cytool.exe");
+            } elsif ($antivirus->{NAME} =~ /CrowdStrike Falcon Sensor/i) {
+                _setCrowdStrikeInfos($antivirus, $logger, "C:\\Program Files\\CrowdStrike\\CSSensorSettings.exe");
             }
 
             $inventory->addEntry(
@@ -164,6 +166,13 @@ sub doInventory {
             service => "SentinelAgent",
             command => "SentinelCtl.exe",
             func    => \&_setSentinelOneInfos,
+        }, {
+            # CronwdStrike support
+            name    => "CrowdStrike Falcon Sensor",
+            service => "csagent",
+            path    => "C:\\Program Files\\CrowdStrike",
+            command => "CSSensorSettings.exe",
+            func    => \&_setCrowdStrikeInfos,
         }) {
             my $antivirus;
             my $service = $services->{$support->{service}}
@@ -675,6 +684,23 @@ sub _setSentinelOneInfos {
 
     # Not supported so we just assume it is updated when enabled.
     $antivirus->{UPTODATE} = $antivirus->{ENABLED};
+}
+
+sub _setCrowdStrikeInfos {
+    my ($antivirus, $logger, $command) = @_;
+
+    $antivirus->{COMPANY} = "CrowdStrike";
+
+    my $version = getFirstMatch(
+        command => "\"$command\" --version",
+        pattern => qr/^CsSensorSettings Version: ([0-9.]+)$/i,
+        logger  => $logger
+    );
+    $antivirus->{VERSION} = $version if $version;
+
+    # Not supported on Windows Server so we just assume it is updated when enabled
+    $antivirus->{UPTODATE} = $antivirus->{ENABLED}
+        unless defined($antivirus->{UPTODATE});
 }
 
 sub _getSoftwareRegistryKeys {
