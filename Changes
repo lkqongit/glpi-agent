@@ -28,7 +28,7 @@ packaging:
 * Default etc/snmp-advanced-support.cfg now included in packages
 * On debian packaging, etc/toolbox-plugin.cfg is now included in glpi-agent-task-network
 * Update Windows packaging to use:
-  - libxml2 2.14.0
+  - libxml2 2.14.1
 
 1.13 Thu, 13 Mar 2025
 
