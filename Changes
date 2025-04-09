@@ -13,6 +13,8 @@ inventory:
 * PR #876: Fix Microsoft Defender AV detection on Windows Server
 * PR #884: Updated UUID detection on Solaris Global Zones
 * Added support for CrowndStrike Falcon as antivirus on windows, macosx & linux
+* fix #894: Fix Windows Store inventory for packages referenced to be installed
+  on a no more available account
 
 netdiscovery/netinventory:
 * fix #840: Add Snom phones support with "snmp-advanced-support.cfg" file specific configuration

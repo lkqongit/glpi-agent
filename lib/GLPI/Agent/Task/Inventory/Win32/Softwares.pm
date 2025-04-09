@@ -455,7 +455,7 @@ sub _getAppxPackages {
     foreach my $line (@lines) {
 
         # Add package on empty line
-        if (!$line && $package->{NAME}) {
+        if (!$line && ($package->{NAME} || $package->{FOLDER} || $package->{VERSION})) {
             push @{$list}, $package;
             $package = { FROM => 'uwp' };
             next;
@@ -598,11 +598,19 @@ $pkgs = New-Object Windows.Management.Deployment.PackageManager
 
 foreach ($pkg in $pkgs.FindPackages()) {
     $id = $pkg.Id
+    $name  = $id.Name
     $fname = $id.FullName
+    $pub   = $id.Publisher
+    $sid   = ""
 
-    # Skip package not really installed
-    $user = $pkgs.FindUsers($fname) | Where-Object { $_.InstallState -eq "Installed" } | Select-Object -First 1
-    if (!$user) { continue }
+    # Skip package not really installed or not owned by at least one valid user
+    foreach ($user in $pkgs.FindUsers($fname)) {
+        if ($user.InstallState -ne "Installed") { continue }
+        $SecurityIdent = New-Object System.Security.Principal.SecurityIdentifier $user.UserSecurityId
+        if (!$SecurityIdent.IsAccountSid()) { continue }
+        $sid = $user.UserSecurityId
+    }
+    if ($sid -eq "") { continue }
 
     $iloc = $pkg.InstalledLocation
 
@@ -612,18 +620,18 @@ foreach ($pkg in $pkgs.FindPackages()) {
         $date = $iloc.DateCreated
     }
 
-    $manifest = Get-AppxPackageManifest -Package $fname -User $user.UserSecurityId
+    $manifest = Get-AppxPackageManifest -Package $fname -User $sid
 
     $prop = $manifest.Package.Properties
 
-    $name = canonicalResourceURI $fname $prop.DisplayName
-    if ($name -Like "") {
-        $name = $id.Name
+    $resname = canonicalResourceURI $fname $prop.DisplayName
+    if ($resname -ne "") {
+        $name = $resname
     }
 
-    $pub = canonicalResourceURI $fname $prop.PublisherDisplayName
-    if ($pub -Like "") {
-        $pub = $id.Publisher
+    $respub = canonicalResourceURI $fname $prop.PublisherDisplayName
+    if ($respub -ne "") {
+        $pub = $respub
     }
 
     $comments = canonicalResourceURI $fname $prop.Description
