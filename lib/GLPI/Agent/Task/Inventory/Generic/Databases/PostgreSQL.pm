@@ -51,9 +51,9 @@ sub _getDatabaseService {
         delete $params{sudo};
 
         $params{options} = "";
-        $params{options} .= " -h '$credential->{host}'"  if $credential->{host};
-        $params{options} .= " -p $credential->{port}"    if $credential->{port};
-        $params{options} .= " -U $credential->{login}" if $credential->{login};
+        $params{options} .= " -h \"$credential->{host}\""  unless empty($credential->{host});
+        $params{options} .= " -p $credential->{port}"      if $credential->{port} && $credential->{port} =~ /^\d+$/;
+        $params{options} .= " -U \"$credential->{login}\"" unless empty($credential->{login});
 
         unless ($params{options}) {
             my $id = getFirstLine(command => "id -u");

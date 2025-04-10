@@ -15,6 +15,7 @@ inventory:
 * Added support for CrowndStrike Falcon as antivirus on windows, macosx & linux
 * fix #894: Fix Windows Store inventory for packages referenced to be installed
   on a no more available account
+* Fix PostgreSQL database inventory on windows
 
 netdiscovery/netinventory:
 * fix #840: Add Snom phones support with "snmp-advanced-support.cfg" file specific configuration
