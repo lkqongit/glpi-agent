@@ -292,6 +292,9 @@ sub _getSanitizedValue {
     if ($format eq 'Hex-STRING') {
         $value =~ s/\s//g;
         $value = "0x".$value;
+    } elsif ($format eq 'INTEGER') {
+        $value = $1 if $value =~ /\w+\((\d+)\)/;
+        $value = int($1)*1024 if $value =~ /(-?\d+) Kbytes/;
     } elsif ($format eq 'STRING') {
         $value =~ s/^(?<!\\)"//;
         $value =~ s/(?<!\\)"$//;
