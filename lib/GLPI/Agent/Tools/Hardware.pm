@@ -636,6 +636,32 @@ sub _setGenericProperties {
         push @{$ports->{$portindex}->{IPS}->{IP}}, $suffix;
     }
 
+    # Try IP-MIB when no IP was found
+    unless (first { $_->{IP} } values(%{$ports})) {
+        my $ipAddressIfIndex = $device->walk('.1.3.6.1.2.1.4.34.1.3');
+        if ($ipAddressIfIndex) {
+            my $ipAddressType = $device->walk('.1.3.6.1.2.1.4.34.1.4');
+            foreach my $key (sort grep { $ipAddressType->{$_} && $ipAddressType->{$_} == 1 } keys(%{$ipAddressType})) {
+                my $port = first { defined($_->{IFNUMBER}) && $_->{IFNUMBER} == $ipAddressIfIndex->{$key} } values(%{$ports})
+                    or next;
+                my ($type, $len, @data) = split(/[.]/, $key);
+                next unless $type && $len && (($type == 1 && $len == 4) || ($type == 2 && $len == 16));
+                if ($type == 1) {
+                    my $ipv4 = join(".", @data);
+                    $port->{IP} = $ipv4 unless $port->{IP} && $port->{IP} =~ /^(?:\d+)(?:\.\d+){3}$/;
+                    push @{$port->{IPS}->{IP}}, $ipv4;
+                } else { # type 2
+                    @data = map { sprintf("%x", $data[$_*2]*256+$data[$_*2+1]) } 0..7;
+                    my $ipv6 = join(":", map { $_ || "" } @data);
+                    $ipv6 =~ s/::+/::/g;
+                    # Keep IPv4 as interface ip if set
+                    $port->{IP} = $ipv6 unless $port->{IP};
+                    push @{$port->{IPS}->{IP}}, $ipv6;
+                }
+            }
+        }
+    }
+
     $device->{PORTS}->{PORT} = $ports;
 }
 

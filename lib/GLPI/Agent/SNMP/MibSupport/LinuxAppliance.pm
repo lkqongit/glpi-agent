@@ -73,6 +73,10 @@ use constant    upsIdentModel                   => upsIdent . '.1.0' ;
 use constant    upsIdentSerialNumber            => upsIdent . '.2.0' ;
 use constant    upsIdentAgentSoftwareVersion    => upsIdent . '.5.0' ;
 
+# Printer-MIB
+use constant    prtGeneral  => iso . '.43.5';
+use constant    prtGeneralPrinterName   => prtGeneral . '.1.1.16.1';
+
 our $mibSupport = [
     {
         name        => "linuxAppliance",
@@ -167,6 +171,18 @@ sub getType {
             };
             return 'NETWORKING';
         }
+    }
+
+    # Printer detection
+    my $prtGeneralPrinterName = $self->get(prtGeneralPrinterName);
+    if ($prtGeneralPrinterName) {
+        $device->{_Appliance} = {
+            MODEL           => $prtGeneralPrinterName,
+        };
+        # Katusha printer support
+        $device->{_Appliance}->{MANUFACTURER} = "Katusha"
+            if $sysDescr && $sysDescr =~ /^Katusha/i;
+        return 'PRINTER';
     }
 
     # SNMP-FRAMEWORK-MIB: Analyze snmpEngineID which can gives:

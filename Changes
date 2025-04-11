@@ -22,6 +22,8 @@ netdiscovery/netinventory:
 * Fix --entity option support in glpi-netinventory script
 * Enhanced EMC support for Dell EMC devices with experimental SNMP OIDs
 * fix #873: Enhanced support for Netgear stacked devices
+* fix #897: Support Katusha printers supporting Printer-MIB in LinuxAppliance
+* Added support for IP-MIB as fallback port ip discovery
 
 collect:
 * Fix REG_MULTI_SZ registry value type support

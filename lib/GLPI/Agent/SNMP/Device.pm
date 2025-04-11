@@ -594,6 +594,33 @@ sub setIp {
         sort values %{$results}
     ] if $results;
 
+    # IP-MIB
+    my $ipAddressIfIndex = $self->walk('.1.3.6.1.2.1.4.34.1.3');
+    if ($ipAddressIfIndex) {
+        my $ipAddressType = $self->walk('.1.3.6.1.2.1.4.34.1.4');
+        my @keys = grep { $ipAddressType->{$_} && $ipAddressType->{$_} == 1 } keys(%{$ipAddressType});
+        my @ips;
+        if (@keys) {
+            foreach my $key (@keys) {
+                my ($type, $len, @data) = split(/[.]/, $key);
+                next unless $type && $len && (($type == 1 && $len == 4) || ($type == 2 && $len == 16));
+                if ($type == 1) {
+                    # skip localhost ips
+                    next if $data[0] == 127;
+                    push @ips, join(".", @data);
+                } else { # type 2
+                    # skip localhost ips
+                    next if $data[0] == 0;
+                    @data = map { sprintf("%x", $data[$_*2]*256+$data[$_*2+1]) } 0..7;
+                    my $ipv6 = join(":", map { $_ || "" } @data);
+                    $ipv6 =~ s/::+/::/g;
+                    push @ips, $ipv6;
+                }
+            }
+            return $self->{IPS}->{IP} = [ sort @ips ] if @ips;
+        }
+    }
+
     my $ip = $self->getIpByMibSupport();
     $self->{IPS}->{IP} = [ $ip ] if $ip;
 }
