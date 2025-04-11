@@ -58,6 +58,13 @@ sub run {
         next unless $serial->{$unit};
 
         $chassis->{SERIAL} = getCanonicalString($serial->{$unit});
+
+        # From GLPI 10.0.19, we can set discovered stack_number to help GLPI to
+        # know which ports are associated with this stack unit
+        my $glpi_version = $device->{glpi} ? glpiVersion($device->{glpi}) : 0;
+        if (!$glpi_version || $glpi_version >= glpiVersion('10.0.19')) {
+            $chassis->{STACK_NUMBER} = $unit;
+        }
     }
 }
 
