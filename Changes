@@ -24,6 +24,7 @@ netdiscovery/netinventory:
 * fix #873: Enhanced support for Netgear stacked devices
 * fix #897: Support Katusha printers supporting Printer-MIB in LinuxAppliance
 * Added support for IP-MIB as fallback port ip discovery
+* fix #900: Support Quantum Linux Appliance
 
 collect:
 * Fix REG_MULTI_SZ registry value type support

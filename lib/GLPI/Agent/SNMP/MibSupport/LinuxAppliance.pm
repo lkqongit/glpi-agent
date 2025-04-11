@@ -77,6 +77,13 @@ use constant    upsIdentAgentSoftwareVersion    => upsIdent . '.5.0' ;
 use constant    prtGeneral  => iso . '.43.5';
 use constant    prtGeneralPrinterName   => prtGeneral . '.1.1.16.1';
 
+# Quantum MIB
+use constant    quantum         => enterprises . '.2036.2';
+use constant    qVendorId       => quantum . '.1.1.4.0';
+use constant    qProdId         => quantum . '.1.1.5.0';
+use constant    qProdRev        => quantum . '.1.1.6.0';
+use constant    qSerialNumber   => quantum . '.1.1.12.0';
+
 our $mibSupport = [
     {
         name        => "linuxAppliance",
@@ -155,6 +162,19 @@ sub getType {
         $device->{_Appliance} = {
             MODEL           => $socomecModel,
             MANUFACTURER    => 'Socomec'
+        };
+        return 'NETWORKING';
+    }
+
+    # Quantum Appliance detection
+    my $qVendorId = getCanonicalString($self->get(qVendorId));
+    if ($qVendorId) {
+        $device->{_Appliance} = {
+            MODEL           => getCanonicalString($self->get(qProdId)),
+            MANUFACTURER    => $qVendorId,
+            FIRMWARE        => getCanonicalString($self->get(qProdRev)),
+            SERIAL          => getCanonicalString($self->get(qSerialNumber)),
+            _QUANTUM        => 1,
         };
         return 'NETWORKING';
     }
@@ -294,7 +314,15 @@ sub getSerial {
         $serial = $self->get(upsIdentSerialNumber);
     } elsif ($device->{_Appliance} && $device->{_Appliance}->{SERIAL}) {
         $serial = $device->{_Appliance}->{SERIAL};
+
+        # Also fix location on Quantum as it seems badly encoded
+        if ($device->{_Appliance}->{_QUANTUM}) {
+            if ($device->{LOCATION} && $device->{LOCATION} =~ /^[0-9a-f]+$/ && length($device->{LOCATION}) % 2 != 1) {
+                $device->{LOCATION} = getCanonicalString(pack("H*", $device->{LOCATION}));
+            }
+        }
     }
+
 
     return $serial;
 }
@@ -409,6 +437,14 @@ sub run {
         $firmware = {
             NAME            => $self->getModel(),
             DESCRIPTION     => "Firmware version",
+            TYPE            => "system",
+            VERSION         => $device->{_Appliance}->{FIRMWARE},
+            MANUFACTURER    => $manufacturer
+        };
+    } elsif ($device->{_Appliance} && $device->{_Appliance}->{_QUANTUM}) {
+        $firmware = {
+            NAME            => $self->getModel(),
+            DESCRIPTION     => "Product revision number",
             TYPE            => "system",
             VERSION         => $device->{_Appliance}->{FIRMWARE},
             MANUFACTURER    => $manufacturer
