@@ -8,6 +8,8 @@ use parent 'GLPI::Agent::SNMP::MibSupportTemplate';
 use GLPI::Agent::Tools;
 use GLPI::Agent::Tools::SNMP;
 
+use constant    priority => 9;
+
 # See HP-LASERJET-COMMON-MIB / JETDIRECT3-MIB
 use constant    hpPeripheral    => '.1.3.6.1.4.1.11.2.3.9' ; # hp.nm.system.net-peripheral
 use constant    hpOfficePrinter => '.1.3.6.1.4.1.29999' ;
@@ -55,8 +57,16 @@ our $mibSupport = [
     {
         name        => "hp-laserjet-pro-mfp",
         sysobjectid => getRegexpOidMatch(hpLaserjetProMFP)
+    },
+    {
+        name        => "hp-peripheral-oid",
+        privateoid  => gdStatusId
     }
 ];
+
+sub getType {
+    return 'PRINTER';
+}
 
 sub getManufacturer {
     my ($self) = @_;
@@ -84,6 +94,12 @@ sub getFirmware {
         }
     }
 
+    # Then try to get serial if set in StatusId string
+    my $statusId = getCanonicalString($self->get(gdStatusId));
+    if ($statusId) {
+        first { /^FW:\s*(.*)$/ and $firmware = $1 } split(/\s*;\s*/, $statusId);
+    }
+
     return $firmware;
 }
 
@@ -96,7 +112,15 @@ sub getFirmwareDate {
 sub getSerial {
     my ($self) = @_;
 
-    return $self->get(serial_number);
+    my $sn = $self->get(serial_number);
+    return $sn if $sn;
+
+    # Then try to get serial if set in StatusId string
+    my $statusId = getCanonicalString($self->get(gdStatusId));
+    if ($statusId) {
+        first { /^SN:\s*(.*)$/ and $sn = $1 } split(/\s*;\s*/, $statusId);
+    }
+    return $sn;
 }
 
 sub getModel {

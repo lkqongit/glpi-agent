@@ -8,6 +8,8 @@ use parent 'GLPI::Agent::SNMP::MibSupportTemplate';
 use GLPI::Agent::Tools;
 use GLPI::Agent::Tools::SNMP;
 
+use constant priority => 20;
+
 use constant sysdescr       => '.1.3.6.1.2.1.1.1.0';
 
 use constant ad             => '.1.3.6.1.4.1.4196';

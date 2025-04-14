@@ -8,6 +8,8 @@ use parent 'GLPI::Agent::SNMP::MibSupportTemplate';
 use GLPI::Agent::Tools;
 use GLPI::Agent::Tools::SNMP;
 
+use constant    priority => 7;
+
 # See ESI-MIB
 
 use constant    esi     => '.1.3.6.1.4.1.683' ;

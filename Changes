@@ -25,6 +25,8 @@ netdiscovery/netinventory:
 * fix #897: Support Katusha printers supporting Printer-MIB in LinuxAppliance
 * Added support for IP-MIB as fallback port ip discovery
 * fix #900: Support Quantum Linux Appliance
+* fix #818: Also detect HP printers on private OID
+* Enhanced HP storages and printers support
 
 collect:
 * Fix REG_MULTI_SZ registry value type support
