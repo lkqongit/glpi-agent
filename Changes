@@ -36,6 +36,7 @@ packaging:
 * Default etc/snmp-advanced-support.cfg now included in packages
 * On debian packaging, etc/toolbox-plugin.cfg is now included in glpi-agent-task-network
 * Update Windows packaging to use:
+  - Patched Perl 5.40.2 built using Perl::Dist::StrawBerry perl library processing
   - libxml2 2.14.1
   - msys2-base 20250221
 

@@ -185,13 +185,26 @@ use Text::Patch;
 use File::Copy qw(copy);
 use File::Slurp;
 use Text::Diff;
+use File::Spec;
+
+sub _patch_dir {
+    my ($self, $new, $dir) = @_;
+
+    $self->boss->message(5, "_patch_file: applying DIFF on dir '$dir'\n");
+    my $wd = $self->_push_dir($dir);
+    system("patch --binary -i \"$new\" -p1") == 0
+        or die "patch '$new' FAILED";
+}
 
 sub _patch_file {
     my ($self, $new, $dst, $dir, $tt_vars, $no_backup) = @_;
 
     # We only need to replace patch case
     return $self->SUPER::_patch_file($new, $dst, $dir, $tt_vars, $no_backup)
-        unless $new =~ /\.patch$/;
+        unless $new =~ /\.(diff|patch)$/;
+
+    return $self->_patch_dir(File::Spec->rel2abs($new), $dir)
+        if $dst =~ /\*$/;
 
     $self->boss->message(5, "_patch_file: applying patch on '$dst'\n");
     copy($dst, "$dst.backup") if !$no_backup && -f $dst && !-f "$dst.backup";
