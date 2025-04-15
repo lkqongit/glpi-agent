@@ -39,6 +39,7 @@ packaging:
   - Patched Perl 5.40.2 built using Perl::Dist::StrawBerry perl library processing
   - libxml2 2.14.1
   - msys2-base 20250221
+* Update MacOSX packages to use perl 5.40.2
 
 1.13 Thu, 13 Mar 2025
 
