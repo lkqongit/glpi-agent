@@ -37,6 +37,7 @@ packaging:
 * On debian packaging, etc/toolbox-plugin.cfg is now included in glpi-agent-task-network
 * Update Windows packaging to use:
   - libxml2 2.14.1
+  - msys2-base 20250221
 
 1.13 Thu, 13 Mar 2025
 
