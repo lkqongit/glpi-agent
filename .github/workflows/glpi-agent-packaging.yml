@@ -252,6 +252,9 @@ jobs:
       if: steps.perl-site-cache.outputs.cache-hit != 'true'
       run: |
         cpanm --notest --verbose https://github.com/StrawberryPerl/Perl-Dist-Strawberry.git
+        cp contrib\windows\packaging\perl-dist-strawberry.patch C:\Strawberry\perl\site
+        cd C:\Strawberry\perl\site
+        patch --binary -i perl-dist-strawberry.patch -p1
       shell: cmd
     - name: Build Extlibs with Perl Toolchain
       if: steps.built-perl-cache.outputs.cache-hit != 'true' && steps.built-extlibs-cache.outputs.cache-hit != 'true'
