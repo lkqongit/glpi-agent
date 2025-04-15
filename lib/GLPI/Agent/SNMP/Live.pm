@@ -63,7 +63,7 @@ sub new {
         $config_load_timeout = time + 60;
     }
 
-   # shared options
+    # shared options
     my %options = (
         -retries  => $params{retries} // 0,
         -version  => $version,
