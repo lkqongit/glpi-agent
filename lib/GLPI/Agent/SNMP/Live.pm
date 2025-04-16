@@ -7,7 +7,7 @@ use parent 'GLPI::Agent::SNMP';
 
 use English qw(-no_match_vars);
 use Net::SNMP;
-use Net::SNMP qw/SNMP_PORT :debug/;
+use Net::SNMP qw/SNMP_PORT :snmp/;
 
 use GLPI::Agent::Config;
 use GLPI::Agent::Tools;
@@ -42,7 +42,7 @@ sub new {
     };
 
      # Load snmp-advanced-support.cfg configuration at worst one time by minute
-    unless ($config && $config_load_timeout && $config_load_timeout >= time) {
+    unless ($self->{_oids} && $config && $config_load_timeout && $config_load_timeout >= time) {
         $config = GLPI::Agent::Config->new(
             defaults => $defaults,
             options  => { config => "none" },
@@ -114,7 +114,10 @@ sub testSession {
     }
 
     my $version_id = $self->{session}->version();
-    return if $version_id && $version_id == 3;
+    die "no version set on snmp session\n" unless defined($version_id);
+
+    # No need to test SNMPv3 session as still established
+    return if $version_id == SNMP_VERSION_3;
 
     my $response = $self->{session}->get_request(
         -varbindlist => $self->{_oids},
@@ -133,10 +136,10 @@ sub switch_vlan_context {
     my $version_id = $self->{session}->version();
 
     my $version =
-        $version_id == 0 ? 'snmpv1'  :
-        $version_id == 1 ? 'snmpv2c' :
-        $version_id == 3 ? 'snmpv3'  :
-                             undef   ;
+        $version_id == SNMP_VERSION_1  ? 'snmpv1'  :
+        $version_id == SNMP_VERSION_2C ? 'snmpv2c' :
+        $version_id == SNMP_VERSION_3  ? 'snmpv3'  :
+                                          undef;
 
     my $error;
     if ($version eq 'snmpv3') {
@@ -159,15 +162,7 @@ sub switch_vlan_context {
 sub reset_original_context {
     my ($self) = @_;
 
-    my $version_id = $self->{session}->version();
-
-    my $version =
-        $version_id == 0 ? 'snmpv1'  :
-        $version_id == 1 ? 'snmpv2c' :
-        $version_id == 3 ? 'snmpv3'  :
-                             undef   ;
-
-    if ($version eq 'snmpv3') {
+    if ($self->{session}->version() == SNMP_VERSION_3) {
         $self->{context} = "";
     } else {
         $self->{session} = $self->{oldsession};
@@ -207,7 +202,7 @@ sub walk {
     my $session = $self->{session};
     my %options = (-baseoid => $oid);
     $options{'-contextname'}    = $self->{context} if defined($self->{context});
-    $options{'-maxrepetitions'} = 1                if $session->version() != 0;
+    $options{'-maxrepetitions'} = 1                if $session->version() != SNMP_VERSION_1;
 
     my $response = $session->get_table(%options);
 
