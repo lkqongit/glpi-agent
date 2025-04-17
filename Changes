@@ -16,6 +16,7 @@ inventory:
 * fix #894: Fix Windows Store inventory for packages referenced to be installed
   on a no more available account
 * Fix PostgreSQL database inventory on windows
+* Updated usb.ids to 2025.04.01 version
 
 netdiscovery/netinventory:
 * fix #840: Add Snom phones support with "snmp-advanced-support.cfg" file specific configuration
@@ -27,6 +28,7 @@ netdiscovery/netinventory:
 * fix #900: Support Quantum Linux Appliance
 * fix #818: Also detect HP printers on private OID
 * Enhanced HP storages and printers support
+* Updated sysobject.ids
 
 collect:
 * Fix REG_MULTI_SZ registry value type support
