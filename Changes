@@ -2,6 +2,10 @@ Revision history for GLPI agent
 
 1.15 not yet released
 
+packaging:
+* Update Windows packaging to use:
+  - libxml2 2.14.2
+
 1.14 Thu, 17 Apr 2025
 
 core:

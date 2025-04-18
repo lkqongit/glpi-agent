@@ -568,7 +568,7 @@ sub _handle_status {
         200,
         'OK',
         HTTP::Headers->new('Content-Type' => 'text/plain'),
-       "status: ".$status
+        "status: ".$status
     );
     $client->send_response($response);
     return 200;
