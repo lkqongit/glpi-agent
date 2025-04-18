@@ -5,7 +5,9 @@ Revision history for GLPI agent
 packaging:
 * Update Windows packaging to use:
   - gcc 14.2.0posix-19.1.7-12.0.0-msvcrt-r3
+  - OpenSSL 3.5.0
   - libxml2 2.14.2
+* Update MacOSX packages to use OpenSSL 3.5.0
 
 1.14 Thu, 17 Apr 2025
 
