@@ -46,6 +46,16 @@ if [ -e "glpi-agent/GLPI-Agent-$VERSION-x86.msi" -a -e "glpi-agent/GLPI-Agent-$V
     MSI_X86="32 bits | [GLPI-Agent-$VERSION-x86.msi](GLPI-Agent-$VERSION-x86.msi) | [GLPI-Agent-$VERSION-x86.zip](GLPI-Agent-$VERSION-x86.zip)"
 fi
 
+# Set size for linux installers
+LININST="~9M"
+if [ -e "glpi-agent-${VERSION}-linux-installer.pl" ]; then
+    read LININST X <<<$(LANG=C ls -sh glpi-agent-${VERSION}-linux-installer.pl)
+fi
+LINBIGINST="~41M"
+if [ -e "glpi-agent-${VERSION}-with-snap-linux-installer.pl" ]; then
+    read LINBIGINST X <<<$(LANG=C ls -sh glpi-agent-${VERSION}-with-snap-linux-installer.pl)
+fi
+
 cat <<DESCRIPTION
 # GLPI-Agent v$VERSION nightly build
 
@@ -80,13 +90,13 @@ arm64 | DMG: [GLPI-Agent-${VERSION}_arm64.dmg](GLPI-Agent-${VERSION}_arm64.dmg)
 
 Linux installer for redhat/centos/debian/ubuntu|Size
 ---|---
-[glpi-agent-${VERSION}-linux-installer.pl](glpi-agent-${VERSION}-linux-installer.pl)|~2Mb
+[glpi-agent-${VERSION}-linux-installer.pl](glpi-agent-${VERSION}-linux-installer.pl)|${LININST}b
 
 <p/>
 
 Linux installer for redhat/centos/debian/ubuntu, including snap install support|Size
 ---|---
-[glpi-agent-${VERSION}-with-snap-linux-installer.pl](glpi-agent-${VERSION}-with-snap-linux-installer.pl)|~20Mb
+[glpi-agent-${VERSION}-with-snap-linux-installer.pl](glpi-agent-${VERSION}-with-snap-linux-installer.pl)|${LINBIGINST}b
 
 ### Snap package for amd64
 
