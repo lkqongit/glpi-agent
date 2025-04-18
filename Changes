@@ -4,6 +4,7 @@ Revision history for GLPI agent
 
 packaging:
 * Update Windows packaging to use:
+  - gcc 14.2.0posix-19.1.7-12.0.0-msvcrt-r3
   - libxml2 2.14.2
 
 1.14 Thu, 17 Apr 2025

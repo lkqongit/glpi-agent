@@ -6,8 +6,8 @@ use parent 'Exporter';
 use constant {
     # Toolchain setup
     TOOLCHAIN_BASE_URL  => 'https://github.com/brechtsanders/winlibs_mingw/releases/download',
-    TOOLCHAIN_VERSION   => '13.3.0posix-11.0.1-msvcrt-r1',
-    TOOLCHAIN_ARCHIVE   => 'winlibs-x86_64-posix-seh-gcc-13.3.0-mingw-w64msvcrt-11.0.1-r1.zip',
+    TOOLCHAIN_VERSION   => '14.2.0posix-19.1.7-12.0.0-msvcrt-r3',
+    TOOLCHAIN_ARCHIVE   => 'winlibs-x86_64-posix-seh-gcc-14.2.0-mingw-w64msvcrt-12.0.0-r3.zip',
 };
 
 sub toolchain_build_steps {

@@ -119,7 +119,8 @@ sub build_job {
                 qw/ HTTP-Server-Simple LWP::Protocol::https LWP::UserAgent /,
 
                 # crypto
-                qw/ Crypt::DES Crypt::Rijndael /,
+                { module => 'https://github.com/g-bougard/Crypt-DES/releases/download/2.07_01/Crypt-DES-2.07_01.tar.gz' }, # Patched Crypt::DES
+                qw/ Crypt::Rijndael /,
                 qw/ Digest-SHA /,
                 qw/ Digest-MD5 Digest-SHA1 Digest::HMAC /, # Required for SNMP v3 authentication
 
@@ -133,7 +134,8 @@ sub build_job {
                     URI::Escape Net::NBName Thread::Queue Thread::Semaphore
                     Net::SNMP Net::SNMP::Security::USM Net::SNMP::Transport::IPv4::TCP
                     Net::SNMP::Transport::IPv6::TCP Net::SNMP::Transport::IPv6::UDP
-                    Net::IP Win32::Unicode::File Data::UUID Archive::Zip /,
+                    Net::IP Data::UUID Archive::Zip /,
+                { module => 'https://github.com/g-bougard/win32-unicode/releases/download/0.38_02/Win32-Unicode-0.38_02.tar.gz' }, # Patched Win32::Unicode
                 # For Wake-On-LAN task
                 #qw/ Net::Write::Layer2 /,
             ],
