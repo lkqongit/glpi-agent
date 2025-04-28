@@ -499,6 +499,8 @@ categories are:
 
 =item * accesslog
 
+=item * antivirus
+
 =item * battery
 
 =item * bios
@@ -512,6 +514,8 @@ categories are:
 =item * drive
 
 =item * environment
+
+=item * firewall
 
 =item * hardware
 

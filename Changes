@@ -2,6 +2,9 @@ Revision history for GLPI agent
 
 1.15 not yet released
 
+core:
+* Fix glpi-agent script listed supported categories
+
 packaging:
 * Update Windows packaging to use:
   - gcc 14.2.0posix-19.1.7-12.0.0-msvcrt-r3
