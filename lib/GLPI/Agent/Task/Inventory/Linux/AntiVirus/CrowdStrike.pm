@@ -44,7 +44,7 @@ sub _getCrowdStrikeInfo {
 
     my $version = getFirstMatch(
         pattern => qr/version\s*=\s*([0-9.]+[0-9]+)/,
-        command => falconctl . "-g --version",
+        command => falconctl . " -g --version",
         %params
     );
 
