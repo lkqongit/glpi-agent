@@ -8,7 +8,7 @@ use parent 'GLPI::Agent::Task::Inventory::Module';
 use GLPI::Agent::Tools;
 
 sub isEnabled {
-  return canRead('/etc/os-release');
+    return canRead('/etc/os-release');
 }
 
 sub doInventory {
@@ -22,6 +22,10 @@ sub doInventory {
     # by checking /etc/debian_version
     _fixDebianOS(file => '/etc/debian_version', os => $os)
         if canRead('/etc/debian_version');
+
+    # Handle Astra Linux information
+    _fixAstraOS(os => $os)
+        if canRead('/etc/astra/build_version');
 
     # Handle CentOS case as version is not well-defined on this distro
     # See https://bugs.centos.org/view.php?id=8359
@@ -55,6 +59,32 @@ sub _fixDebianOS {
     my $debian_version = getFirstLine(%params);
     $os->{VERSION} = $debian_version
         if $debian_version && $debian_version =~ /^\d/;
+}
+
+sub _fixAstraOS {
+    my (%params) = @_;
+    my $os = $params{os} ||= {};
+
+    if (my $version = getFirstLine(file => '/etc/astra/build_version')) {
+        $os->{VERSION} = $version if $version =~ /^\d/;
+    }
+
+    return unless canRead('/etc/astra_license');
+
+    if (my $edition = getFirstMatch(
+        pattern => qr/^DESCRIPTION="?(.*?)"?$/,
+        file    => '/etc/astra_license'
+    )) {
+        my $security_level =
+            $edition =~ /^([^\s()]+)\s*\(/    ? $1 :
+            $edition =~ /\(([^\s()]+)\)/      ? $1 :
+            $edition =~ /\(([^)]+)\)/         ? (split(/\s+/, $1))[0] :
+            'unknown';
+
+        $security_level = trimWhitespace($security_level) || 'unknown';
+        $os->{FULL_NAME} =~ s/\(.*?\)//g;
+        $os->{FULL_NAME} = trimWhitespace($os->{FULL_NAME}) . " (Security level: $security_level)";
+    }
 }
 
 sub _fixCentOS {
