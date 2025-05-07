@@ -463,7 +463,7 @@ packaging:
   configuration to gain higher privileges if installed on windows with MSI packaging.
   The fix is now based on our own CustomAction Dll which not rely on our capacity
   to run an external command requiring elevated privilege.
-  So it is far more robust than preivous one.
+  So it is far more robust than previous one.
 * Update Windows MSI packing building process to use:
   - gcc 13.2.0posix-18.1.5-11.0.1-msvcrt-r8
   - msys2-base 20240113
