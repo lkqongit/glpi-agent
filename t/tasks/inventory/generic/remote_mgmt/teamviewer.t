@@ -26,6 +26,7 @@ my %teamviewer_win32 = (
 );
 
 my %teamviewer_info = (
+    '15.65.4-DEB' => "552",
     '15.11.6-RPM' => "999"
 );
 

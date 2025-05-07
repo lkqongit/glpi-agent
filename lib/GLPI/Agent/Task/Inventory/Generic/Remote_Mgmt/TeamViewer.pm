@@ -140,7 +140,7 @@ sub _getID_teamviewer_info {
 
     return getFirstMatch(
         command => "teamviewer --info",
-        pattern => qr/TeamViewer ID:(?:\033\[0m|\s)*(\d+)\s+/,
+        pattern => qr/TeamViewer ID:(?:\033\[0m|\s)*(\d+)/,
         %params
     );
 }

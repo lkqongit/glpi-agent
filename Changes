@@ -7,6 +7,7 @@ core:
 
 inventory:
 * fix #917: Fix CrowndStrike Falcon antivirus support on linux
+* Fix TeamViewer ID remote management inventory on linux
 
 injector:
 * fix #921: Provide an agentid on json submission when sending content from stdin
