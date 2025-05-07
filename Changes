@@ -8,6 +8,7 @@ core:
 inventory:
 * fix #917: Fix CrowndStrike Falcon antivirus support on linux
 * Fix TeamViewer ID remote management inventory on linux
+* PR #920: Added Astra Linux distro support in distro inventory
 
 injector:
 * fix #921: Provide an agentid on json submission when sending content from stdin

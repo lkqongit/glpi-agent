@@ -65,15 +65,17 @@ sub _fixAstraOS {
     my (%params) = @_;
     my $os = $params{os} ||= {};
 
-    if (my $version = getFirstLine(file => '/etc/astra/build_version')) {
+    # Support unittest via build in params
+    if (my $version = getFirstLine(file => $params{build} // '/etc/astra/build_version')) {
         $os->{VERSION} = $version if $version =~ /^\d/;
     }
 
-    return unless canRead('/etc/astra_license');
+    # Support unittest via license in params
+    return unless canRead($params{license} // '/etc/astra_license');
 
     if (my $edition = getFirstMatch(
         pattern => qr/^DESCRIPTION="?(.*?)"?$/,
-        file    => '/etc/astra_license'
+        file    => $params{license} // '/etc/astra_license'
     )) {
         my $security_level =
             $edition =~ /^([^\s()]+)\s*\(/    ? $1 :

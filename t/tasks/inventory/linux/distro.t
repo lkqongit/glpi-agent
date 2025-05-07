@@ -27,6 +27,11 @@ my %osrelease = (
         NAME        => 'Debian GNU/Linux',
         VERSION     => '11.2',
     },
+    'astralinux-1.8' => {
+        FULL_NAME   => 'Astra Linux (Security level: maximum)',
+        NAME        => 'Astra Linux',
+        VERSION     => '1.8.2.7',
+    },
 );
 
 plan tests => (scalar keys %osrelease) + 1;
@@ -38,5 +43,9 @@ foreach my $test (keys %osrelease) {
     GLPI::Agent::Task::Inventory::Linux::Distro::OSRelease::_fixDebianOS(file => $file, os => $os) if -e $file;
     $file = "resources/linux/distro/centos-release-$test";
     GLPI::Agent::Task::Inventory::Linux::Distro::OSRelease::_fixCentOS(file => $file, os => $os) if -e $file;
+
+    my $astra_license = "resources/linux/distro/astra_license-$test";
+    my $build_version = "resources/linux/distro/build_version-$test";
+    GLPI::Agent::Task::Inventory::Linux::Distro::OSRelease::_fixAstraOS(license => $astra_license, build => $build_version, os => $os) if -e $astra_license && -e $build_version;
     cmp_deeply($os, $osrelease{$test}, '$test os-release: parsing');
 }
