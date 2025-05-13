@@ -66,10 +66,13 @@ sub build_job {
             cf_email   => 'strawberry-perl@project', #IMPORTANT: keep 'strawberry-perl' before @
             perl_debug => 0,    # can be overridden by --perl_debug=N option
             perl_64bitint => 1, # ignored on 64bit, can be overridden by --perl_64bitint | --noperl_64bitint option
+            # Remove not required locale support to fix a locale support issue
+            buildoptextra => '-DNO_LOCALE',
             patch => { #DST paths are relative to the perl src root
                 'contrib/windows/packaging/agentexe.ico'    => 'win32/agentexe.ico',
                 'contrib/windows/packaging/agentexe.rc.tt'  => 'win32/perlexe.rc',
-                'contrib/windows/packaging/Makefile.patch'  => 'win32/Makefile', # Define USE_NO_REGISTRY in Makefile
+                'contrib/windows/packaging/Makefile.patch'  => 'win32/GNUmakefile',
+                'contrib/windows/packaging/makedef.patch'   => 'makedef.pl',
                 'contrib/windows/packaging/23179.patch'     => '*', # backport of https://github.com/Perl/perl5/pull/23179
                 '<dist_sharedir>/perl-5.40/posix_bessel.patch' => '*',
                 'config_H.gc'   => {
