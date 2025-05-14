@@ -17,7 +17,7 @@ packaging:
 * Update Windows packaging to use:
   - gcc 15.1.0posix-12.0.0-msvcrt-r1
   - OpenSSL 3.5.0
-  - libxml2 2.14.2
+  - libxml2 2.14.3
   - removed not required locale support
 * Update MacOSX packages to use OpenSSL 3.5.0
 
