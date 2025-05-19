@@ -4,6 +4,7 @@ Revision history for GLPI agent
 
 core:
 * Fix glpi-agent script listed supported categories
+* Update deviceid on startup if assetname-support or even hostname changes
 
 inventory:
 * fix #917: Fix CrowndStrike Falcon antivirus support on linux
@@ -12,6 +13,9 @@ inventory:
 
 injector:
 * fix #921: Provide an agentid on json submission when sending content from stdin
+
+toolbox:
+* fix #783: Fix "No Valid Agentid set on HTTP Client" error on remote inventory tasks
 
 packaging:
 * Update Windows packaging to use:

@@ -74,16 +74,7 @@ sub init {
     $self->{_pages}  = {};
     $self->{_ajax}   = {};
 
-    # Check to fix basevardir against hostname and reset deviceid to support
-    # running from different places, very important for local inventory support
-    my $hostname = getHostname() || 'unknown';
     my $agent = $self->{server}->{agent};
-    if ($agent && $agent->{deviceid} && $agent->{deviceid} !~ /^$hostname-/) {
-        $agent->{vardir} .= "/$hostname";
-        delete $agent->{storage};
-        delete $agent->{deviceid};
-        $agent->_handlePersistentState();
-    }
 
     # Register all supported pages
     my ($pages_path) = $INC{module2file(__PACKAGE__)} =~ /(.*)\.pm/;

@@ -630,6 +630,42 @@ sub getAvailableTasks {
     return \%tasks;
 }
 
+sub getAssetName {
+    my ($self) = @_;
+
+    my %config = ();
+    if ($self->{config}->{'assetname-support'}) {
+        if ($self->{config}->{'assetname-support'} == 1) {
+            $config{short} = 1;
+        } elsif ($self->{config}->{'assetname-support'} == 3) {
+            $config{fqdn} = 1;
+        }
+    }
+
+    return getHostname(%config) || "unknown";
+}
+
+sub normalizeDeviceId {
+    my ($self, $deviceid) = @_;
+
+    my ($assetname, $timestamp) = $deviceid =~ /^(.*)(-\d+-\d+-\d+-\d+-\d+-\d+)$/
+        or return $deviceid;
+
+    my $real = $self->getAssetName();
+    return $deviceid if $assetname eq $real;
+
+    # Assume assetname-support returns now a fqdn
+    return $real.$timestamp
+        if length($real) > length($assetname) && $real =~ /^$assetname\./;
+
+    # Assume assetname-support returns now a short name
+    return $real.$timestamp
+        if length($real) < length($assetname) && $assetname =~ /^$real\./;
+
+    # Finally assume deviceid has to be reset
+    return "";
+}
+
 sub _handlePersistentState {
     my ($self) = @_;
 
@@ -644,23 +680,19 @@ sub _handlePersistentState {
     # Load current agent state
     my $data = $self->{storage}->restore(name => "$PROVIDER-Agent");
 
+    # We should fix deviceid if assetname-support changed
+    $data->{deviceid} = $self->normalizeDeviceId($data->{deviceid})
+        if $data && !empty($data->{deviceid});
+
     if (!$self->{deviceid} && !$data->{deviceid}) {
         # compute an unique agent identifier, based on host name and current time
-        my %config = ();
-        if ($self->{config}->{'assetname-support'}) {
-            if ($self->{config}->{'assetname-support'} == 1) {
-                $config{short} = 1;
-            } elsif ($self->{config}->{'assetname-support'} == 3) {
-                $config{fqdn} = 1;
-            }
-        }
-        my $hostname = getHostname(%config);
+        my $assetname = $self->getAssetName();
 
         my ($year, $month , $day, $hour, $min, $sec) =
             (localtime (time))[5, 4, 3, 2, 1, 0];
 
         $data->{deviceid} = sprintf "%s-%02d-%02d-%02d-%02d-%02d-%02d",
-            $hostname, $year + 1900, $month + 1, $day, $hour, $min, $sec;
+            $assetname, $year + 1900, $month + 1, $day, $hour, $min, $sec;
     } elsif (!$data->{deviceid}) {
         $data->{deviceid} = $self->{deviceid};
     }
