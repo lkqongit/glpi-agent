@@ -24,6 +24,7 @@ packaging:
   - libxml2 2.14.3
   - removed not required locale support
 * Update MacOSX packages to use OpenSSL 3.5.0
+* win32: Updated GLPI-AgentMonitor to v1.4.1
 
 1.14 Thu, 17 Apr 2025
 
