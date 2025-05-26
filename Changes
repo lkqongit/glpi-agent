@@ -23,6 +23,7 @@ packaging:
   - OpenSSL 3.5.0
   - libxml2 2.14.3
   - removed not required locale support
+  - dmidecode 3.6-update-1
 * Update MacOSX packages to use OpenSSL 3.5.0
 * win32: Updated GLPI-AgentMonitor to v1.4.1
 
