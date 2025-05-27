@@ -50,7 +50,7 @@ jobs:
       run: |
         if [ "${{ vars.WIN32_SIGNING }}" == "no" ]; then
             echo "win32-signing=no" >>$GITHUB_OUTPUT
-        elif [ -n "$CODESIGN_HOST" ]; then
+        elif [ -n "$CODESIGN_COMMAND" ]; then
             echo "win32-signing=yes" >>$GITHUB_OUTPUT
         else
             echo "win32-signing=no" >>$GITHUB_OUTPUT
@@ -150,7 +150,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         PUBLISHING_TOKEN: ${{ secrets.PUBLISHING_TOKEN }}
-        CODESIGN_HOST: ${{ secrets.CODESIGN_HOST }}
+        CODESIGN_COMMAND: ${{ secrets.CODESIGN_COMMAND }}
         APPSIGNID: ${{ vars.MACOSX_APPSIGNID }}
         INSTSIGNID: ${{ vars.MACOSX_INSTSIGNID }}
     - name: Generate release description
@@ -253,37 +253,6 @@ jobs:
         cd C:\Strawberry\perl\site
         patch --binary -i perl-dist-strawberry.patch -p1
       shell: cmd
-    - name: Install OpenSSH for remote Code Signing
-      if: ${{ needs.setup-release.outputs.win32-signing == 'yes' }}
-      run: |
-        winget install Microsoft.OpenSSH.Preview
-      shell: cmd
-    - name: Prepare for remote Code Signing
-      if: ${{ needs.setup-release.outputs.win32-signing == 'yes' }}
-      run: |
-        umask 0077
-        mkdir ~/.ssh
-        echo "$CODESIGN_KNOWNHOST"            > ~/.ssh/known_hosts
-        echo "$CODESIGN_PRIVATE"              > private.key
-        echo '@echo OFF'                      > codesign.bat
-        echo "set SSH_PORT=$CODESIGN_PORT"    >>codesign.bat
-        echo "set SSH_USER=$CODESIGN_USER"    >>codesign.bat
-        echo "set SSH_HOST=$CODESIGN_HOST"    >>codesign.bat
-        echo 'type "%1" | "C:\\Program Files\OpenSSH\ssh.exe" -T -o StrictHostKeyChecking=yes -p %SSH_PORT% %SSH_USER%@%SSH_HOST% codesign "%1" > "%2"' >>codesign.bat
-        umask 0002
-      shell: bash
-      env:
-        CODESIGN_KNOWNHOST: ${{ secrets.CODESIGN_KNOWNHOST }}
-        CODESIGN_PRIVATE: ${{ secrets.CODESIGN_PRIVATE }}
-        CODESIGN_HOST: ${{ secrets.CODESIGN_HOST }}
-        CODESIGN_USER: ${{ secrets.CODESIGN_USER }}
-        CODESIGN_PORT: ${{ secrets.CODESIGN_PORT }}
-    - name: Setup for remote Code Signing
-      if: ${{ needs.setup-release.outputs.win32-signing == 'yes' }}
-      run: |
-        "C:\\Program Files\OpenSSH\ssh-add.exe" private.key
-        del /F private.key
-      shell: cmd
     - name: Build Extlibs with Perl Toolchain
       if: steps.built-perl-cache.outputs.cache-hit != 'true' && steps.built-extlibs-cache.outputs.cache-hit != 'true'
       run: |
@@ -301,13 +270,21 @@ jobs:
     - name: MSI Signing
       if: ${{ needs.setup-release.outputs.win32-signing == 'yes' }}
       run: |
-        set OUTPUT=C:\Strawberry-perl-for-GLPI-Agent_build\output
-        set MSI=GLPI-Agent-${{ needs.setup-release.outputs.version }}-${{ matrix.arch }}.msi
-        set SIGNED=GLPI-Agent-${{ needs.setup-release.outputs.version }}-${{ matrix.arch }}-signed.msi
-        codesign.bat %OUTPUT%\%MSI% %OUTPUT%\%SIGNED%
-        del /F %OUTPUT%\%MSI%
-        ren %OUTPUT%\%SIGNED% %MSI%
-      shell: cmd
+        cd "C:\\Strawberry-perl-for-GLPI-Agent_build"
+        umask 0077
+        mkdir ~/.ssh
+        echo "$CODESIGN_KNOWNHOST"            > ~/.ssh/known_hosts
+        echo "$CODESIGN_PRIVATE"              > private.key
+        umask 0002
+        MSI="GLPI-Agent-${{ needs.setup-release.outputs.version }}-${{ matrix.arch }}.msi"
+        cat "output\\$MSI" | $CODESIGN_COMMAND codesign "$MSI" > "$MSI"
+        rm -f private.key ~/.ssh/known_hosts "output\\$MSI"
+        mv -vf "$MSI" "output\\$MSI"
+      shell: bash
+      env:
+        CODESIGN_KNOWNHOST: ${{ secrets.CODESIGN_KNOWNHOST }}
+        CODESIGN_COMMAND: ${{ secrets.CODESIGN_COMMAND }}
+        CODESIGN_PRIVATE: ${{ secrets.CODESIGN_PRIVATE }}
     - name: List generated files
       if: success() || failure()
       run: |
