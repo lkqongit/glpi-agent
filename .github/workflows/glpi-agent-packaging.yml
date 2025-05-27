@@ -258,7 +258,7 @@ jobs:
     - name: Install OpenSSH for remote Code Signing
       if: ${{ needs.setup-release.outputs.win32-signing == 'yes' }}
       run: |
-        winget install Microsoft.OpenSSH.Preview --disable-interactivity --accept-source-agreements
+        winget install Microsoft.OpenSSH.Preview
       shell: cmd
     - name: Prepare for remote Code Signing
       if: ${{ needs.setup-release.outputs.win32-signing == 'yes' }}
