@@ -51,9 +51,7 @@ jobs:
         if [ "${{ vars.WIN32_SIGNING }}" == "no" ]; then
             echo "win32-signing=no" >>$GITHUB_OUTPUT
         elif [ -n "$CODESIGN_COMMAND" ]; then
-            echo "win32-signing=alt" >>$GITHUB_OUTPUT
-        elif [ -n "$CST_USERNAME" ]; then
-            echo "win32-signing=cst" >>$GITHUB_OUTPUT
+            echo "win32-signing=yes" >>$GITHUB_OUTPUT
         else
             echo "win32-signing=no" >>$GITHUB_OUTPUT
         fi
@@ -153,7 +151,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         PUBLISHING_TOKEN: ${{ secrets.PUBLISHING_TOKEN }}
         CODESIGN_COMMAND: ${{ secrets.CODESIGN_COMMAND }}
-        CST_USERNAME: ${{ secrets.CST_USERNAME }}
         APPSIGNID: ${{ vars.MACOSX_APPSIGNID }}
         INSTSIGNID: ${{ vars.MACOSX_INSTSIGNID }}
     - name: Generate release description
@@ -270,18 +267,8 @@ jobs:
       run: |
         perl contrib\windows\glpi-agent-packaging.pl --arch ${{ matrix.arch }}
       shell: cmd
-    - name: MSI Signing (CST)
-      if: ${{ needs.setup-release.outputs.win32-signing == 'cst' }}
-      run: |
-        perl tools\msi-signing.pl "C:\Strawberry-perl-for-GLPI-Agent_build" "GLPI-Agent-${{ needs.setup-release.outputs.version }}-${{ matrix.arch }}.msi"
-      shell: cmd
-      env:
-        CST_USERNAME: ${{ secrets.CST_USERNAME }}
-        CST_PASSWORD: ${{ secrets.CST_PASSWORD }}
-        CST_SECRET: ${{ secrets.CST_SECRET }}
-        CST_CREDENTIALID: ${{ secrets.CST_CREDENTIALID }}
-    - name: MSI Signing (ALT)
-      if: ${{ needs.setup-release.outputs.win32-signing == 'alt' }}
+    - name: MSI Signing
+      if: ${{ needs.setup-release.outputs.win32-signing == 'yes' }}
       run: |
         cd "C:\\Strawberry-perl-for-GLPI-Agent_build"
         umask 0077
