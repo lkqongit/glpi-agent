@@ -98,7 +98,7 @@
           <select class='input-row' id='weekday' name='input/weekday'{$type eq "delay" ? " disabled" : ""}>
             <option{$weekday eq "*"         ? " selected" : ""} value="*">{_("all")}</option>
             <option{$weekday eq "mon"    ? " selected" : ""} value="mon">{_("monday")}</option>
-            <option{$weekday eq "tue"   ? " selected" : ""} value="tues">{_("tuesday")}</option>
+            <option{$weekday eq "tue"   ? " selected" : ""} value="tue">{_("tuesday")}</option>
             <option{$weekday eq "wed" ? " selected" : ""} value="wed">{_("wednesday")}</option>
             <option{$weekday eq "thu"  ? " selected" : ""} value="thu">{_("thursday")}</option>
             <option{$weekday eq "fri"    ? " selected" : ""} value="fri">{_("friday")}</option>

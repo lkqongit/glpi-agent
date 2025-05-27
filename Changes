@@ -17,6 +17,7 @@ injector:
 
 toolbox:
 * fix #783: Fix "No Valid Agentid set on HTTP Client" error on remote inventory tasks
+* Fix scheduling not working when set on "tuesday"
 
 packaging:
 * Update Windows packaging to use:
