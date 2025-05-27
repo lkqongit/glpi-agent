@@ -253,6 +253,8 @@ jobs:
         cd C:\Strawberry\perl\site
         patch --binary -i perl-dist-strawberry.patch -p1
       shell: cmd
+    - name: Install winget (only for windows-2022 image)
+      uses: Cyberboss/install-winget@v1
     - name: Install OpenSSH for remote Code Signing
       if: ${{ needs.setup-release.outputs.win32-signing == 'yes' }}
       run: |
