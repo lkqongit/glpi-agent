@@ -253,23 +253,16 @@ jobs:
         cd C:\Strawberry\perl\site
         patch --binary -i perl-dist-strawberry.patch -p1
       shell: cmd
-    - name: Download OpenSSH for remote Code Signing
-      if: ${{ needs.setup-release.outputs.win32-signing == 'yes' }}
-      run: |
-        curl -L -s -o C:\Strawberry-perl-for-GLPI-Agent_build\build\OpenSSH-Win64-v9.8.3.0.msi \
-            https://github.com/PowerShell/Win32-OpenSSH/releases/download/v9.8.3.0p2-Preview/OpenSSH-Win64-v9.8.3.0.msi
-      shell: bash
     - name: Prepare for remote Code Signing
       if: ${{ needs.setup-release.outputs.win32-signing == 'yes' }}
       run: |
         mkdir ~/.ssh
         echo "$CODESIGN_KNOWNHOST"            > ~/.ssh/known_hosts
         echo "$CODESIGN_PRIVATE"              > private.key
-        echo '@echo OFF'                      > codesign.bat
-        echo "set SSH_PORT=$CODESIGN_PORT"    >>codesign.bat
-        echo "set SSH_USER=$CODESIGN_USER"    >>codesign.bat
-        echo "set SSH_HOST=$CODESIGN_HOST"    >>codesign.bat
-        echo 'type "%1" | "C:\\Program Files\OpenSSH\ssh.exe" -T -o StrictHostKeyChecking=yes -p %SSH_PORT% %SSH_USER%@%SSH_HOST% codesign "%1" > "%2"' >>codesign.bat
+        echo "Host codesign"                  > ~/.ssh/config
+        echo "    HostName $CODESIGN_HOST"    >>~/.ssh/config
+        echo "    Port $CODESIGN_PORT"        >>~/.ssh/config
+        echo "    User $CODESIGN_USER"        >>~/.ssh/config
       shell: bash
       env:
         CODESIGN_KNOWNHOST: ${{ secrets.CODESIGN_KNOWNHOST }}
@@ -277,20 +270,6 @@ jobs:
         CODESIGN_HOST: ${{ secrets.CODESIGN_HOST }}
         CODESIGN_USER: ${{ secrets.CODESIGN_USER }}
         CODESIGN_PORT: ${{ secrets.CODESIGN_PORT }}
-    - name: Install OpenSSH client for remote Code Signing
-      if: ${{ needs.setup-release.outputs.win32-signing == 'yes' }}
-      run: |
-        msiexec /i C:\Strawberry-perl-for-GLPI-Agent_build\build\OpenSSH-Win64-v9.8.3.0.msi ADDLOCAL=Client
-      shell: cmd
-    - name: Setup for remote Code Signing
-      if: ${{ needs.setup-release.outputs.win32-signing == 'yes' }}
-      run: |
-        icacls.exe private.key /reset
-        icacls.exe private.key /GRANT:R "%USERNAME%:(R)"
-        icacls.exe private.key /inheritance:r
-        "C:\\Program Files\OpenSSH\ssh-add.exe" private.key
-        del /F private.key
-      shell: cmd
     - name: Build Extlibs with Perl Toolchain
       if: steps.built-perl-cache.outputs.cache-hit != 'true' && steps.built-extlibs-cache.outputs.cache-hit != 'true'
       run: |
@@ -311,9 +290,14 @@ jobs:
         set OUTPUT=C:\Strawberry-perl-for-GLPI-Agent_build\output
         set MSI=GLPI-Agent-${{ needs.setup-release.outputs.version }}-${{ matrix.arch }}.msi
         set SIGNED=GLPI-Agent-${{ needs.setup-release.outputs.version }}-${{ matrix.arch }}-signed.msi
-        codesign.bat %OUTPUT%\%MSI% %OUTPUT%\%SIGNED%
+        perl contrib\windows\code-signing.pl %OUTPUT%\%MSI% %OUTPUT%\%SIGNED%
         del /F %OUTPUT%\%MSI%
         ren %OUTPUT%\%SIGNED% %MSI%
+      shell: cmd
+    - name: Cleanup private key
+      if: ${{ needs.setup-release.outputs.win32-signing == 'yes' }}
+      run: |
+        del /F private.key
       shell: cmd
     - name: List generated files
       if: success() || failure()
