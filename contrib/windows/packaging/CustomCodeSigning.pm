@@ -22,7 +22,7 @@ sub _resolve_file {
 sub run {
     my ($self) = @_;
 
-    unless ($self->{global}->{codesigning}) {
+    unless ($self->global->{codesigning}) {
         $self->boss->message(2, "* skipping as code signing is not enabled");
         return;
     }

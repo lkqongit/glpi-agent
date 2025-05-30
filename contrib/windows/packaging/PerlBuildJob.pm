@@ -316,7 +316,7 @@ sub build_job {
             msi_dialog_bmp      => 'contrib/windows/packaging/GLPI-Agent_Dialog.bmp',
             msi_banner_bmp      => 'contrib/windows/packaging/GLPI-Agent_Banner.bmp',
             msi_debug           => 0,
-        }
+        },
         ### NEXT STEP 18 : Sign MSI ############################################
         {
             plugin => 'CustomCodeSigning',
