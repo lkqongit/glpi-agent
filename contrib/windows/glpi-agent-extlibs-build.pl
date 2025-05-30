@@ -29,22 +29,22 @@ my $provider = $GLPI::Agent::Version::PROVIDER;
 my $version = $GLPI::Agent::Version::VERSION;
 
 sub toolchain_builder {
-    my ($arch, $notest, $clean, $cpus, $cadll, $sign) = @_;
+    my ($arch, %params) = @_;
 
     my $app = Perl::Dist::ToolChain->new(
         _provided_by        => PROVIDED_BY,
-        _no_test            => $notest,
-        _clean              => $clean,
+        _no_test            => $params{notest},
+        _clean              => $params{clean},
         arch                => $arch,
         _dllsuffix          => $arch eq "x86" ? '_' : '__',
-        _cpus               => $cpus,
-        _cadll              => $cadll,
-        codesigning         => $sign,
+        _cpus               => $params{cpus},
+        _cadll              => $params{cadll},
+        codesigning         => $params{codesigning},
     );
 
     # We use same working_dir to share cached download folder in GH Actions
     $app->parse_options(
-        -image_dir      => $cadll ?
+        -image_dir      => $params{cadll} ?
             "C:\\Strawberry-perl-for-$provider-Agent_build\\build"
             : "C:\\Strawberry-perl-for-$provider-Agent",
         -working_dir    => "C:\\Strawberry-perl-for-$provider-Agent_build",
@@ -56,10 +56,13 @@ sub toolchain_builder {
 }
 
 my %do = ();
-my $notest = 0;
-my $clean  = 0;
-my $cadll  = 0;
-my $sign   = 0;
+my %args = (
+    no_test     => 0,
+    clean       => 0,
+    cadll       => 0,
+    codesigning => 0,
+    cpus        => 0,
+);
 while ( @ARGV ) {
     my $arg = shift @ARGV;
     if ($arg eq "--arch") {
@@ -69,13 +72,13 @@ while ( @ARGV ) {
     } elsif ($arg eq "--all") {
         %do = ( x86 => 32, x64 => 64);
     } elsif ($arg eq "--no-test") {
-        $notest = 1;
+        $args{no_test} = 1;
     } elsif ($arg eq "--clean") {
-        $clean = 1;
+        $args{clean} = 1;
     } elsif ($arg eq "--cadll") {
-        $cadll = 1;
+        $args{cadll} = 1;
     } elsif ($arg =~ /^--code-signing=(.*)$/) {
-        $sign = 1 if $1 =~ /^yes|1$/i;
+        $args{codesigning} = 1 if $1 =~ /^yes|1$/i;
     } else {
         warn "Unsupported option: $arg\n";
     }
@@ -92,19 +95,19 @@ if (open my $fh, "-|", "wmic cpu get NumberOfCores") {
     while (<$fh>) {
         next unless /^(\d+)/;
         my $count = int($1);
-        $cpus = $count if $count > 1;
+        $args{cpus} = $count if $count > 1;
         last;
     }
     close($fh);
 }
 
 foreach my $arch (sort keys(%do)) {
-    if ($cadll) {
+    if ($args{cadll}) {
         print "Building $arch ca.dll for $provider-Agent $version MSI installer CustomAction...\n";
     } else {
         print "Building $arch toolchain packages for $provider-Agent $version...\n";
     }
-    my $builder = toolchain_builder($arch, $notest, $clean, $cpus, $cadll);
+    my $builder = toolchain_builder($arch, %args);
     $builder->do_job();
     exit(1) unless -e catfile($builder->global->{debug_dir}, 'global_dump_FINAL.txt');
 }
@@ -581,7 +584,7 @@ sub _make {
     my @command = ('gmake');
     if ($what) {
         push @command, $what;
-    } elsif (!defined($what) && $self->{config}->{make_use_cpus} && $self->global->{_cpus}) {
+    } elsif (!defined($what) && $self->{config}->{make_use_cpus} && $self->global->{_cpus} > 1) {
         push @command, "-j".$self->global->{_cpus};
     }
     push @command, map { $self->_resolve($_) } @{$opts} if $opts;

@@ -48,7 +48,7 @@ sub build_steps {
             },
             ### NEXT STEP 3 : Sign ca.dll ######################################
             {
-                plugin => 'Perl::Dist::Strawberry::Step::CodeSigning',
+                plugin => 'CustomCodeSigning',
                 files  => [
                     'tools/ca/ca.dll',
                 ],

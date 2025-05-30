@@ -65,7 +65,7 @@ sub run {
     my $count = 0;
     foreach my $file (@files) {
         my $installedfile = $self->_resolve_file(ref($file) ? $file{filename} : $file);
-        unless (-e $installfile) {
+        unless (-e $installedfile) {
             $self->boss->message(2, " * no such '$file' file, skipping");
             next;
         }
@@ -75,7 +75,10 @@ sub run {
         my $command = "cat '$installedfile' | ".ssh." '$name' > '$signedfile'";
         my $signed = 0;
         if (system(bash, "-c", $command) == 0 && -s $signedfile) {
-            if (unlink $installedfile && rename $signedfile, $installedfile) {
+            unless (unlink $installedfile) {
+                $self->boss->message(2, " * $file: failed to delete '$installedfile'");
+            }
+            if (rename $signedfile, $installedfile) {
                 $self->boss->message(1, " * signed '$file'");
                 $count++;
                 $signed = 1;
