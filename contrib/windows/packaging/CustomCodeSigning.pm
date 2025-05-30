@@ -75,7 +75,7 @@ sub run {
         my $command = "cat '$installedfile' | ".ssh." '$name' > '$signedfile'";
         my $signed = 0;
         if (system(bash, "-c", $command) == 0 && -s $signedfile) {
-            if (delete $installedfile && rename $signedfile, $installedfile) {
+            if (unlink $installedfile && rename $signedfile, $installedfile) {
                 $self->boss->message(1, " * signed '$file'");
                 $count++;
                 $signed = 1;
@@ -84,7 +84,7 @@ sub run {
             }
         }
         unless ($signed) {
-            $self->boss->message(1, " * failed to signed '$file'".($expected>1 && $count < $expected ? ", aborting..." : "");
+            $self->boss->message(1, " * failed to signed '$file'".($expected>1 && $count < $expected ? ", aborting..." : ""));
             last;
         }
     }
