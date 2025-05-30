@@ -289,10 +289,7 @@ jobs:
       run: |
         set OUTPUT=C:\Strawberry-perl-for-GLPI-Agent_build\output
         set MSI=GLPI-Agent-${{ needs.setup-release.outputs.version }}-${{ matrix.arch }}.msi
-        set SIGNED=GLPI-Agent-${{ needs.setup-release.outputs.version }}-${{ matrix.arch }}-signed.msi
-        perl contrib\windows\code-signing.pl %OUTPUT%\%MSI% %OUTPUT%\%SIGNED%
-        del /F %OUTPUT%\%MSI%
-        ren %OUTPUT%\%SIGNED% %MSI%
+        perl contrib\windows\code-signing.pl %OUTPUT%\%MSI%
       shell: cmd
     - name: Cleanup private key
       if: ${{ needs.setup-release.outputs.win32-signing == 'yes' }}
