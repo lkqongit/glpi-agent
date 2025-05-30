@@ -32,7 +32,7 @@ sub run {
         return;
     }
 
-    unless  (ref($self->{config}->{files}) eq 'ARRAY' && @{$self->{config}->{files}}) {
+    unless  (ref($self->{config}->{files}) || ref($self->{config}->{dlls})) {
         $self->boss->message(2, "* skipping as no file configured for code signing");
         return;
     }
@@ -62,14 +62,18 @@ sub run {
     }
 
     my $expected = scalar(@files);
+
+    $self->boss->message(2, " * having $expected files to sign")
+        if $self->{config}->{dlls} && $expected > 1;
+
     my $count = 0;
     foreach my $file (@files) {
-        my $installedfile = $self->_resolve_file(ref($file) ? $file{filename} : $file);
+        my $installedfile = $self->_resolve_file(ref($file) ? $file->{filename} : $file);
         unless (-e $installedfile) {
             $self->boss->message(2, " * no such '$file' file, skipping");
             next;
         }
-        my $name = ref($file) ? $self->_resolve_file($file{name}) : $file;
+        my $name = ref($file) ? $self->_resolve_file($file->{name}) : $file;
         $name =~ s/<.*>\///g;
         my $signedfile = $installedfile =~ /^(.*)\.(\w+)$/ ? "$1-signed.$2" : $source . "-signed";
         my $command = "cat '$installedfile' | ".ssh." '$name' > '$signedfile'";

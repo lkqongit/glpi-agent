@@ -50,7 +50,7 @@ sub build_steps {
             {
                 plugin => 'CustomCodeSigning',
                 files  => [
-                    'tools/ca/ca.dll',
+                    'contrib/windows/packaging/tools/ca/ca.dll',
                 ],
             },
         ]

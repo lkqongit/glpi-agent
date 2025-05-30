@@ -201,7 +201,7 @@ jobs:
       id: built-ca-dll-cache
       with:
         path: contrib/windows/packaging/tools/ca/ca.dll
-        key: windows-packaging-ca-dll-cache-${{ matrix.arch }}-${{ hashFiles('contrib\windows\glpi-agent-extlibs-build.pl', 'contrib\windows\packaging\ToolchainBuildJob.pm', 'contrib\windows\packaging\CustomActionDllBuildJob.pm', 'contrib\windows\packaging\tools\ca\Makefile', 'contrib\windows\packaging\tools\ca\dll\*') }}
+        key: windows-packaging-ca-dll-cache-${{ matrix.arch }}-${{ hashFiles('contrib\windows\glpi-agent-extlibs-build.pl', 'contrib\windows\packaging\ToolchainBuildJob.pm', 'contrib\windows\packaging\CustomCodeSigning.pm', 'contrib\windows\packaging\CustomActionDllBuildJob.pm', 'contrib\windows\packaging\tools\ca\Makefile', 'contrib\windows\packaging\tools\ca\dll\*') }}
     - name: Restore Toolchain points cache
       uses: actions/cache@v4
       id: built-extlibs-cache
@@ -210,7 +210,7 @@ jobs:
         path: |
             C:/Strawberry-perl-for-GLPI-Agent_build/download/winlibs*.zip
             C:/Strawberry-perl-for-GLPI-Agent_build/download/extlibs.zip
-        key: windows-packaging-extlibs-cache-${{ matrix.arch }}-${{ hashFiles('contrib\windows\glpi-agent-extlibs-build.pl', 'contrib\windows\packaging\ToolchainBuildJob.pm', 'contrib\windows\packaging\*.patch') }}
+        key: windows-packaging-extlibs-cache-${{ matrix.arch }}-${{ hashFiles('contrib\windows\glpi-agent-extlibs-build.pl', 'contrib\windows\packaging\ToolchainBuildJob.pm', 'contrib\windows\packaging\CustomCodeSigning.pm', 'contrib\windows\packaging\*.patch') }}
     - name: List files in cached paths
       if: success() || failure()
       run: |
