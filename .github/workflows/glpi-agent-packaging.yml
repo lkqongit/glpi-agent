@@ -273,26 +273,19 @@ jobs:
     - name: Build Extlibs with Perl Toolchain
       if: steps.built-perl-cache.outputs.cache-hit != 'true' && steps.built-extlibs-cache.outputs.cache-hit != 'true'
       run: |
-        perl contrib\windows\glpi-agent-extlibs-build.pl --arch ${{ matrix.arch }}
+        perl contrib\windows\glpi-agent-extlibs-build.pl --arch ${{ matrix.arch }} --code-signing=${{ vars.WIN32_SIGNING }}
       shell: cmd
     - name: Build ca.dll with Perl Toolchain
       if: steps.built-ca-dll-cache.outputs.cache-hit != 'true'
       run: |
-        perl contrib\windows\glpi-agent-extlibs-build.pl --arch ${{ matrix.arch }} --cadll
+        perl contrib\windows\glpi-agent-extlibs-build.pl --arch ${{ matrix.arch }} --cadll --code-signing=${{ vars.WIN32_SIGNING }}
       shell: cmd
     - name: Build package
       run: |
-        perl contrib\windows\glpi-agent-packaging.pl --arch ${{ matrix.arch }}
-      shell: cmd
-    - name: MSI Signing
-      if: ${{ needs.setup-release.outputs.win32-signing == 'yes' }}
-      run: |
-        set OUTPUT=C:\Strawberry-perl-for-GLPI-Agent_build\output
-        set MSI=GLPI-Agent-${{ needs.setup-release.outputs.version }}-${{ matrix.arch }}.msi
-        perl contrib\windows\code-signing.pl %OUTPUT%\%MSI%
+        perl contrib\windows\glpi-agent-packaging.pl --arch ${{ matrix.arch }} --code-signing=${{ vars.WIN32_SIGNING }}
       shell: cmd
     - name: Cleanup private key
-      if: ${{ needs.setup-release.outputs.win32-signing == 'yes' }}
+      if: ${{ ( success() || failure() ) && needs.setup-release.outputs.win32-signing == 'yes' }}
       run: |
         del /F private.key
       shell: cmd

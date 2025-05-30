@@ -32,7 +32,7 @@ sub build_steps {
                     { do => 'copyfile', args => [ '<image_dir>/mingw64/bin/mingw32-make.exe', '<image_dir>/mingw64/bin/gmake.exe', 1 ] },
                 ],
             },
-            ### NEXT STEP 2 : Build ca.dll ###############################
+            ### NEXT STEP 2 : Build ca.dll #####################################
             {
                 plugin  => 'Perl::Dist::Strawberry::Step::BuildLibrary',
                 name    => 'ca',
@@ -45,6 +45,13 @@ sub build_steps {
                 make_use_cpus   => 1,
                 skip_install    => 1,
                 skip_test       => 1,
+            },
+            ### NEXT STEP 3 : Sign ca.dll ######################################
+            {
+                plugin => 'Perl::Dist::Strawberry::Step::CodeSigning',
+                files  => [
+                    'tools/ca/ca.dll',
+                ],
             },
         ]
     };

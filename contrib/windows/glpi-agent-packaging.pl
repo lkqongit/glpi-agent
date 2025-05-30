@@ -15,6 +15,8 @@ use constant {
 };
 
 use lib abs_path(File::Spec->rel2abs('../packaging', __FILE__));
+
+use CustomCodeSigning;
 use PerlBuildJob;
 
 use lib 'lib';
@@ -75,7 +77,7 @@ if ($ENV{GITHUB_REF} && $ENV{GITHUB_REF} =~ m|refs/tags/(.+)$|) {
 }
 
 sub build_app {
-    my ($arch, $notest) = @_;
+    my ($arch, $notest, $sign) = @_;
 
     my $package_rev = $ENV{PACKAGE_REVISION} || PACKAGE_REVISION;
 
@@ -98,6 +100,7 @@ sub build_app {
         arch            => $arch,
         _dllsuffix      => $arch eq "x86" ? '_' : '__',
         _restore_step   => PERL_BUILD_STEPS,
+        codesigning     => $sign,
     );
 
     $app->parse_options(
@@ -115,6 +118,7 @@ sub build_app {
 
 my %do = ();
 my $notest = 0;
+my $sign   = 0;
 while ( @ARGV ) {
     my $arg = shift @ARGV;
     if ($arg eq "--arch") {
@@ -125,6 +129,10 @@ while ( @ARGV ) {
         %do = ( x86 => 32, x64 => 64);
     } elsif ($arg eq "--no-test") {
         $notest = 1;
+    } elsif ($arg =~ /^--code-signing=(.*)$/) {
+        $sign = 1 if $1 =~ /^yes|1$/i;
+    } else {
+        warn "Unsupported option: $arg\n";
     }
 }
 
@@ -136,7 +144,7 @@ die "32 bits packaging build no more supported\n"
 
 foreach my $arch (sort keys(%do)) {
     print "Building $arch packages...\n";
-    my $app = build_app($arch, $notest);
+    my $app = build_app($arch, $notest, $sign);
     $app->do_job();
     # global_dump_FINAL.txt must exist in debug_dir if all steps have been passed
     exit(1) unless -e catfile($app->global->{debug_dir}, 'global_dump_FINAL.txt');

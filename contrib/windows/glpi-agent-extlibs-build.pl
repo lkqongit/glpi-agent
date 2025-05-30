@@ -17,6 +17,7 @@ use GLPI::Agent::Version;
 use lib abs_path(File::Spec->rel2abs('../packaging', __FILE__));
 
 use CustomActionDllBuildJob;
+use CustomCodeSigning;
 use ToolchainBuildJob;
 
 BEGIN {
@@ -28,7 +29,7 @@ my $provider = $GLPI::Agent::Version::PROVIDER;
 my $version = $GLPI::Agent::Version::VERSION;
 
 sub toolchain_builder {
-    my ($arch, $notest, $clean, $cpus, $cadll) = @_;
+    my ($arch, $notest, $clean, $cpus, $cadll, $sign) = @_;
 
     my $app = Perl::Dist::ToolChain->new(
         _provided_by        => PROVIDED_BY,
@@ -38,6 +39,7 @@ sub toolchain_builder {
         _dllsuffix          => $arch eq "x86" ? '_' : '__',
         _cpus               => $cpus,
         _cadll              => $cadll,
+        codesigning         => $sign,
     );
 
     # We use same working_dir to share cached download folder in GH Actions
@@ -57,6 +59,7 @@ my %do = ();
 my $notest = 0;
 my $clean  = 0;
 my $cadll  = 0;
+my $sign   = 0;
 while ( @ARGV ) {
     my $arg = shift @ARGV;
     if ($arg eq "--arch") {
@@ -71,6 +74,10 @@ while ( @ARGV ) {
         $clean = 1;
     } elsif ($arg eq "--cadll") {
         $cadll = 1;
+    } elsif ($arg =~ /^--code-signing=(.*)$/) {
+        $sign = 1 if $1 =~ /^yes|1$/i;
+    } else {
+        warn "Unsupported option: $arg\n";
     }
 }
 

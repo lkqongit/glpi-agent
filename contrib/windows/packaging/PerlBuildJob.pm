@@ -11,7 +11,7 @@ use constant {
     DMIDECODE_VERSION  => "3.6-update-1",
     # Tag for Glpi-AgentMonitor release on glpi-project/glpi-agentmonitor
     GAMONITOR_VERSION  => "1.4.1",
-    PERL_BUILD_STEPS   => 10,
+    PERL_BUILD_STEPS   => 12,
 };
 
 our @EXPORT = qw(build_job PERL_VERSION PERL_BUILD_STEPS);
@@ -93,11 +93,18 @@ sub build_job {
                 'Copying'  => '<image_dir>/licenses/perl/Copying',
             },
         },
-        ### NEXT STEP 3 Upgrade CPAN modules ###################################
+        ### NEXT STEP 3 : Sign perl DLL ########################################
+        {
+            plugin => 'CustomCodeSigning',
+            files  => [
+                '<image_dir>/perl/bin/perl'.$MAJOR.$MINOR.'.dll',
+            ],
+        },
+        ### NEXT STEP 4 Upgrade CPAN modules ###################################
         {
             plugin => 'Perl::Dist::Strawberry::Step::UpgradeCpanModules',
         },
-        ### NEXT STEP 4 Install needed modules with agent dependencies #########
+        ### NEXT STEP 5 Install needed modules with agent dependencies #########
         {
             plugin => 'Perl::Dist::GLPI::Agent::Step::InstallModules',
             modules => [
@@ -143,12 +150,12 @@ sub build_job {
                 #qw/ Net::Write::Layer2 /,
             ],
         },
-        ### NEXT STEP 5 ########################################################
+        ### NEXT STEP 6 ########################################################
         {
             plugin => 'Perl::Dist::Strawberry::Step::FixShebang',
             shebang => '#!perl',
         },
-        ### NEXT STEP 6 Clean up ###############################################
+        ### NEXT STEP 7 Clean up ###############################################
         {
             plugin => 'Perl::Dist::Strawberry::Step::FilesAndDirs',
             commands => [
@@ -165,7 +172,7 @@ sub build_job {
                 { do=>'removefile_recursive', args=>[ '<image_dir>/perl', qr/\.pod$/i ] },
             ],
         },
-        ### NEXT STEP 7 Install modules for test ###############################
+        ### NEXT STEP 8 Install modules for test ###############################
         {
             plugin => 'Perl::Dist::GLPI::Agent::Step::InstallModules',
             modules => [ map {
@@ -181,7 +188,15 @@ sub build_job {
                 )
             ],
         },
-        ### NEXT STEP 8 Clean up and finalize perl envirtonment ################
+        ### NEXT STEP 9 : Sign MSI ############################################
+        {
+            plugin => 'CustomCodeSigning',
+            dlls   => [
+                '<image_dir>/perl/lib/auto',
+                '<image_dir>/perl/vendor/lib/auto',
+            ],
+        },
+        ### NEXT STEP 10 Clean up and finalize perl envirtonment ################
         {
             plugin => 'Perl::Dist::Strawberry::Step::FilesAndDirs',
             commands => [
@@ -216,7 +231,7 @@ sub build_job {
                 { do=>'copyfile', args=>[ 'contrib/windows/packaging/tools/'.$arch.'/7z.dll', '<image_dir>/perl/bin' ] },
             ],
         },
-        ### NEXT STEP 9 Installation with direct github download ###############
+        ### NEXT STEP 11 Installation with direct github download ##############
         {
             plugin      => 'Perl::Dist::GLPI::Agent::Step::Github',
             downloads   => [
@@ -236,7 +251,7 @@ sub build_job {
                 },
             ],
         },
-        ### NEXT STEP 10 Run GLPI Agent test suite #############################
+        ### NEXT STEP 12 Run GLPI Agent test suite #############################
         {
             plugin      => 'Perl::Dist::GLPI::Agent::Step::Test',
             disable     => $notest,
@@ -249,7 +264,7 @@ sub build_job {
                 #~ qw(t/agent/config.t)
             ],
         },
-        ### NEXT STEP 11 Finalize environment ##################################
+        ### NEXT STEP 13 Finalize environment ##################################
         {
             plugin => 'Perl::Dist::Strawberry::Step::FilesAndDirs',
             commands => [
@@ -271,15 +286,22 @@ sub build_job {
                 { do=>'copyfile', args=>[ 'contrib/windows/packaging/setup.pm', '<image_dir>/perl/lib' ] },
             ],
         },
-        ### NEXT STEP 12 Finalize release ######################################
+        ### NEXT STEP 14 : Sign MSI ############################################
+        {
+            plugin => 'CustomCodeSigning',
+            files  => [
+                '<image_dir>/perl/bin/glpi-agent.exe',
+            ],
+        },
+        ### NEXT STEP 15 Finalize release ######################################
         {
             plugin => 'Perl::Dist::GLPI::Agent::Step::Update',
         },
-        ### NEXT STEP 13 Generate Portable Archive #############################
+        ### NEXT STEP 16 Generate Portable Archive #############################
         {
             plugin => 'Perl::Dist::Strawberry::Step::OutputZIP',
         },
-        ### NEXT STEP 14 Generate MSI Package ##################################
+        ### NEXT STEP 17 Generate MSI Package ##################################
         {
             plugin => 'Perl::Dist::GLPI::Agent::Step::OutputMSI',
             exclude  => [],
@@ -295,6 +317,16 @@ sub build_job {
             msi_banner_bmp      => 'contrib/windows/packaging/GLPI-Agent_Banner.bmp',
             msi_debug           => 0,
         }
+        ### NEXT STEP 18 : Sign MSI ############################################
+        {
+            plugin => 'CustomCodeSigning',
+            files  => [
+                {
+                    name        => '<output_basename>.msi',
+                    filename    => '<output_dir>/<output_basename>.msi',
+                },
+            ],
+        },
         ],
     }
 }
