@@ -51,11 +51,11 @@ sub run {
         }
         foreach my $entry (readdir($dh)) {
             next if $entry eq "." || $entry eq "..";
-            my $path = catfile($folder, $entry);
-            if (-f $path && $entry =~ /\.dll$/i) {
-                push @files, catfile($name, $entry);
-            } elsif (-d $path) {
-                push @dllsfolders, catfile($name, $entry);
+            my $fullpath = catfile($folder, $entry);
+            if (-f $fullpath && $entry =~ /\.dll$/i) {
+                push @files, catfile($path, $entry);
+            } elsif (-d $fullpath) {
+                push @dllsfolders, catfile($path, $entry);
             }
         }
         closedir($dh);
@@ -68,9 +68,10 @@ sub run {
 
     my $count = 0;
     foreach my $file (@files) {
-        my $installedfile = $self->_resolve_file(ref($file) ? $file->{filename} : $file);
+        my $path = ref($file) ? $file->{filename} : $file;
+        my $installedfile = $self->_resolve_file($path);
         unless (-e $installedfile) {
-            $self->boss->message(2, " * no such '$file' file, skipping");
+            $self->boss->message(2, " * no such '$path' file, skipping");
             next;
         }
         my $name = ref($file) ? $self->_resolve_file($file->{name}) : $file;
@@ -80,18 +81,18 @@ sub run {
         my $signed = 0;
         if (system(bash, "-c", $command) == 0 && -s $signedfile) {
             unless (unlink $installedfile) {
-                $self->boss->message(2, " * $file: failed to delete '$installedfile'");
+                $self->boss->message(2, " * $path: failed to delete '$installedfile'");
             }
             if (rename $signedfile, $installedfile) {
-                $self->boss->message(1, " * signed '$file'");
+                $self->boss->message(1, " * signed '$path'");
                 $count++;
                 $signed = 1;
             } else {
-                $self->boss->message(2, " * $file: failed to replace '$installedfile' by '$signedfile' signed version");
+                $self->boss->message(2, " * $path: failed to replace '$installedfile' by '$signedfile' signed version");
             }
         }
         unless ($signed) {
-            $self->boss->message(1, " * failed to signed '$file'".($expected>1 && $count < $expected ? ", aborting..." : ""));
+            $self->boss->message(1, " * failed to signed '$path'".($expected>1 && $count < $expected ? ", aborting..." : ""));
             last;
         }
     }
