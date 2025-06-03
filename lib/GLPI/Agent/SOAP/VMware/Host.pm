@@ -425,24 +425,26 @@ sub getVirtualMachines {
 
         # At least Glpi version 10.0.17 will include required schema to validate following fields
         if ($self->supportGlpiVersion('10.0.17')) {
-            $vmInventory->{IPADDRESS} = $machine->{summary}{guest}{ipAddress}
-                unless empty($machine->{summary}{guest}{ipAddress});
-            unless (empty($machine->{summary}{guest}{guestFullName})) {
-                $vmInventory->{OPERATINGSYSTEM}->{FULL_NAME} = $machine->{summary}{guest}{guestFullName};
+            if (ref($machine->{summary}{guest})) {
+                $vmInventory->{IPADDRESS} = $machine->{summary}{guest}{ipAddress}
+                    unless empty($machine->{summary}{guest}{ipAddress});
+                $vmInventory->{OPERATINGSYSTEM}->{FULL_NAME} = $machine->{summary}{guest}{guestFullName}
+                    unless empty($machine->{summary}{guest}{guestFullName});
             }
-            unless (empty($machine->{guest}{hostName})) {
-                $vmInventory->{OPERATINGSYSTEM}->{FQDN} = $machine->{guest}{hostName};
-            }
-            if (ref($machine->{guest}{net})) {
-                my @guestnet = ref($machine->{guest}{net}) eq 'ARRAY' ?
-                    @{$machine->{guest}{net}} : ($machine->{guest}{net});
-                foreach my $guestnet (@guestnet) {
-                    next unless ref($guestnet->{dnsConfig});
-                    my $dnsConfig = ref($guestnet->{dnsConfig}) eq 'HASH' ?
-                        $guestnet->{dnsConfig} : $guestnet->{dnsConfig}->[0];
-                    next if ref($dnsConfig) ne 'HASH' || empty($dnsConfig->{domainName});
-                    $vmInventory->{OPERATINGSYSTEM}->{DNS_DOMAIN} = $dnsConfig->{domainName};
-                    last;
+            if (ref($machine->{guest})) {
+                $vmInventory->{OPERATINGSYSTEM}->{FQDN} = $machine->{guest}{hostName}
+                    unless empty($machine->{guest}{hostName});
+                if ($machine->{guest}{net}) {
+                    my @guestnet = ref($machine->{guest}{net}) eq 'ARRAY' ?
+                        @{$machine->{guest}{net}} : ($machine->{guest}{net});
+                    foreach my $guestnet (@guestnet) {
+                        next unless ref($guestnet->{dnsConfig});
+                        my $dnsConfig = ref($guestnet->{dnsConfig}) eq 'HASH' ?
+                            $guestnet->{dnsConfig} : $guestnet->{dnsConfig}->[0];
+                        next if ref($dnsConfig) ne 'HASH' || empty($dnsConfig->{domainName});
+                        $vmInventory->{OPERATINGSYSTEM}->{DNS_DOMAIN} = $dnsConfig->{domainName};
+                        last;
+                    }
                 }
             }
             unless (empty($machine->{summary}{runtime}{bootTime})) {

@@ -12,6 +12,9 @@ inventory:
 * PR #920: Added Astra Linux distro support in distro inventory
 * PR #944: Fix MSSQL database inventory
 
+esx:
+* fix #941: Fix perl error on non existing perl ref
+
 injector:
 * fix #921: Provide an agentid on json submission when sending content from stdin
 
