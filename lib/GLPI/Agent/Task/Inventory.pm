@@ -191,8 +191,8 @@ sub setupEvent {
     my ($self) = @_;
 
     my $event = $self->resetEvent();
-    if ($self->{target}->isType('server') && !$self->{target}->isGlpiServer()) {
-        $self->{logger}->debug($self->{target}->id().": server target for inventory events need to be a GLPI server");
+    if ($self->{target}->isType('server') && !$self->{target}->isGlpiServer() && $event->partial) {
+        $self->{logger}->debug($self->{target}->id().": server target for partial inventory events need to be a GLPI server");
         return;
     }
 

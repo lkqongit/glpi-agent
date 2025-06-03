@@ -11,6 +11,7 @@ inventory:
 * Fix TeamViewer ID remote management inventory on linux
 * PR #920: Added Astra Linux distro support in distro inventory
 * PR #944: Fix MSSQL database inventory
+* fix #947: Always support inventory task event for server target if not partial
 
 esx:
 * fix #941: Fix perl error on non existing perl ref
