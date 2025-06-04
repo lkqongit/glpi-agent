@@ -75,6 +75,7 @@ sub build_job {
                 'contrib/windows/packaging/makedef.patch'   => 'makedef.pl',
                 'contrib/windows/packaging/23179.patch'     => '*', # backport of https://github.com/Perl/perl5/pull/23179
                 '<dist_sharedir>/perl-5.40/posix_bessel.patch' => '*',
+                'contrib/windows/packaging/CVE-2025-40909.patch' => '*',
                 'config_H.gc'   => {
                     HAS_MKSTEMP             => 'define',
                     HAS_BUILTIN_CHOOSE_EXPR => 'define',
