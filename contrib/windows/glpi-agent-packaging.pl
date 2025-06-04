@@ -195,6 +195,62 @@ use File::Slurp;
 use Text::Diff;
 use File::Spec;
 
+sub _update_config_gc {
+    my ($self, $fname, $update_hash) = @_;
+
+    die "update hash arg is not a hash ref"
+      if not ref($update_hash) =~ /HASH/;
+
+    open my $fh, $fname or die "Unable to open $fname, $!";
+
+    my @lines = (<$fh>);
+    close $fh;
+
+    my %data;
+    my @output;
+    my @perl_lines; #  lines starting with PERL
+
+    while (defined(my $line = shift @lines)) {
+        $line =~ s/[\r\n]+$//;
+        if ($line =~ /^#/) {
+            #  headers stay as they are
+            push @output, $line;
+        }
+        elsif ($line =~ /^PERL/) {
+            push @perl_lines, $line;
+        }
+        elsif ($line =~ m/^([\w]+)=(.*)$/) {
+            $data{$1} = length($2) ? $2 : "''";
+        }
+    }
+
+    my $default_config_hash = $self->_get_default_config_hash;
+    @data{keys %$default_config_hash} = values %$default_config_hash;
+
+    # fix up quoting of values
+    foreach my $val (values %$update_hash) {
+        next if $val =~ /^'/;  # assumes symmetry, i.e. opening and closing
+        $val = "'$val'";
+    }
+
+    @data{keys %$update_hash} = values %$update_hash;
+
+    my (@ucfirst_lines, @lcfirst_lines);
+    foreach my $key (grep {/^[A-Z]/} keys %data) {
+        push @ucfirst_lines, "$key=$data{$key}";
+    }
+    foreach my $key (grep {/^[_a-z]/} keys %data) {
+        push @lcfirst_lines, "$key=$data{$key}";
+    }
+    push @output, (sort @ucfirst_lines), (sort @lcfirst_lines), @perl_lines;
+
+    # long name but otherwise we interfere with patch backups
+    rename $fname, "$fname.orig.before_hash_update" or die $!;
+    open my $ofh, ">:raw", $fname or die "Unable to open $fname to write to, $!";
+    map { print $ofh $_, "\n" } @output;
+    $ofh->close;
+}
+
 sub _patch_dir {
     my ($self, $new, $dir) = @_;
 
