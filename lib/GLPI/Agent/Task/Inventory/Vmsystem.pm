@@ -249,7 +249,7 @@ sub _getType {
     # WSL
     if (has_file('/proc/sys/fs/binfmt_misc/WSLInterop')) {
         return "WSL";
-    } elsif (canRun('lscpu') && getFirstMatch(command => 'lscpu', pattern => qr/^Hypervisor vendor:\s+(Windows Subsystem for Linux|Microsoft)/)) {
+    } elsif (canRun('lscpu') && getFirstMatch(command => 'lscpu', pattern => qr/^Hypervisor vendor:\s+Windows Subsystem for Linux/)) {
         return "WSL";
     } elsif (has_file('/proc/mounts') && getFirstMatch(file => '/proc/mounts', pattern => qr/^rootfs\s+\/\s+(wslfs)/)) {
         return "WSL";
