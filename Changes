@@ -26,6 +26,7 @@ toolbox:
 packaging:
 * Update Windows packaging to use:
   - gcc 15.1.0posix-12.0.0-msvcrt-r1
+  - Perl patch to fix CVE-2025-40909
   - OpenSSL 3.5.0
   - libxml2 2.14.3
   - removed not required locale support
