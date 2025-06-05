@@ -27,12 +27,18 @@ use constant KEY_READ     => 0x20019;
 BEGIN {
     use English qw(-no_match_vars);
     # Fake Win32 module loading unless under testing with our oab fakes modules
+    our @win32_tieregistry_params = (
+        Delimiter   => '/',
+        ArrayValues => 0,
+    );
     if ($OSNAME ne 'MSWin32' && ! grep { $_ =~ qr{t/lib/fake/windows} } @INC) {
         $INC{'Win32/Job.pm'} = "-";
         $INC{'Win32/TieRegistry.pm'} = "-";
+        undef @win32_tieregistry_params;
     }
 }
 
+our @win32_tieregistry_params;
 our $Registry;
 ################################################################################
 
@@ -41,10 +47,7 @@ use English qw(-no_match_vars);
 use File::Temp qw(:seekable tempfile);
 use File::Basename qw(basename);
 use Win32::Job;
-use Win32::TieRegistry (
-    Delimiter   => '/',
-    ArrayValues => 0,
-);
+use Win32::TieRegistry @win32_tieregistry_params;
 
 use GLPI::Agent::Tools;
 use GLPI::Agent::Tools::Expiration;
