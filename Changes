@@ -36,6 +36,7 @@ packaging:
   - libxml2 2.14.3
   - removed not required locale support
   - dmidecode 3.6-update-1
+  - MSI installer and windows binaries are now signed
 * Update MacOSX packages to use OpenSSL 3.5.0
 * win32: Updated GLPI-AgentMonitor to v1.4.1
 
