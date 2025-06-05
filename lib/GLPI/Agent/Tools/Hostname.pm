@@ -59,6 +59,11 @@ sub _getHostnameUnix {
     my $hostname;
 
     if ($params{fqdn}) {
+        # Net::Domain is known to not be accurate on linux, so first try hostname command
+        if ($OSNAME eq 'linux') {
+            my $fqdn = getFirstLine(command => "hostname -f");
+            return $fqdn unless empty($fqdn);
+        }
         Net::Domain->require();
         my $fqdn = Net::Domain::hostfqdn();
         unless (empty($fqdn)) {

@@ -13,6 +13,10 @@ inventory:
 * PR #944: Fix MSSQL database inventory
 * fix #947: Always support inventory task event for server target if not partial
 * fix #919: Don't inventory Hyper-V virtualmachine as WSL
+* fix #948: Fix fqdn on linux for assetname-support=3
+
+remoteinventory:
+* First try hostname command to find system fqdn and domain via ssh
 
 esx:
 * fix #941: Fix perl error on non existing perl ref

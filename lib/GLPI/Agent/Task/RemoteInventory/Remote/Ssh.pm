@@ -412,6 +412,8 @@ sub getRemoteHostname {
 sub getRemoteFQDN {
     my ($self) = @_;
     # command is run remotely
+    my $fqdn = $self->getRemoteFirstLine(command => "hostname -f");
+    return $fqdn unless empty($fqdn);
     return $self->getRemoteFirstLine(command => "perl -e \"use Net::Domain qw(hostfqdn); print hostfqdn()\"")
         if $self->mode('perl');
 }
@@ -419,6 +421,8 @@ sub getRemoteFQDN {
 sub getRemoteHostDomain {
     my ($self) = @_;
     # command will be run remotely
+    my $domain = $self->getRemoteFirstLine(command => "hostname -d");
+    return $domain unless empty($domain);
     return $self->getRemoteFirstLine(command => "perl -e \"use Net::Domain qw(hostdomain); print hostdomain()\"")
         if $self->mode('perl');
 }
