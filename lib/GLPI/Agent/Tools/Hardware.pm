@@ -693,7 +693,7 @@ sub _setPrinterProperties {
         my $color_id = $color_ids->{$consumable_id};
 
         my $type;
-        if ($type_id != 1) {
+        if (defined($type_id) && $type_id =~ /^\d+$/ && int($type_id) != 1 && $consumable_types{$type_id}) {
             $type = $consumable_types{$type_id};
         } else {
             # fallback on description
@@ -708,7 +708,7 @@ sub _setPrinterProperties {
         if (!$type) {
             $logger->debug("unknown consumable type $type_id: " .
                 (getCanonicalString($descriptions->{$consumable_id}) || "no description")
-            ) if $logger;
+            ) if $logger && defined($type_id);
             next;
         }
 
