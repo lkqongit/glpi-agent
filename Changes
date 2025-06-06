@@ -21,6 +21,7 @@ remoteinventory:
 netdiscovery/netinventory:
 * fix #896: Don't override manufacturer for devices with wrong sysobjectid
 * fix #904: Fix page counters support for Xerox printers
+* fix #946: Add Digipower PDUs support
 
 esx:
 * fix #941: Fix perl error on non existing perl ref
