@@ -45,6 +45,12 @@ sub getType {
 }
 
 sub getManufacturer {
+    my ($self) = @_;
+
+    my $device = $self->device
+        or return;
+
+    return if $device->{MANUFACTURER};
     return 'Siemens';
 }
 

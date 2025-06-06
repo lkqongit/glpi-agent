@@ -18,6 +18,9 @@ inventory:
 remoteinventory:
 * First try hostname command to find system fqdn and domain via ssh
 
+netdiscovery/netinventory:
+* fix #896: Don't override manufacturer for devices with wrong sysobjectid
+
 esx:
 * fix #941: Fix perl error on non existing perl ref
 
