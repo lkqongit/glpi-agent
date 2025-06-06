@@ -57,7 +57,7 @@ sub run {
         } else {
             $count = $self->get($mapping{$counter});
         }
-        next unless $count;
+        next unless $count && $count =~ /^\d+$/;
         $device->{PAGECOUNTERS}->{$counter} = $count;
     }
 
