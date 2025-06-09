@@ -14,6 +14,7 @@ inventory:
 * fix #947: Always support inventory task event for server target if not partial
 * fix #919: Don't inventory Hyper-V virtualmachine as WSL
 * fix #948: Fix fqdn on linux for assetname-support=3
+* Updated pci.ids to 2025.06.09 version
 
 remoteinventory:
 * First try hostname command to find system fqdn and domain via ssh
@@ -22,6 +23,7 @@ netdiscovery/netinventory:
 * fix #896: Don't override manufacturer for devices with wrong sysobjectid
 * fix #904: Fix page counters support for Xerox printers
 * fix #946: Add Digipower PDUs support
+* Updated sysobject.ids
 
 esx:
 * fix #941: Fix perl error on non existing perl ref
