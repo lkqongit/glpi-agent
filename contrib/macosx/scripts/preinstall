@@ -17,6 +17,7 @@ if [ -e /Library/LaunchDaemons/org.glpi-project.glpi-agent.plist ]; then
     echo "Stopping service"
     sudo launchctl stop org.glpi-project.glpi-agent
     sudo launchctl unload /Library/LaunchDaemons/org.glpi-project.glpi-agent.plist
+    sudo rm -f /Library/LaunchDaemons/org.glpi-project.glpi-agent.plist
 fi
 
 # Still wait until process has been stopped
