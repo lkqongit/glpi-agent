@@ -18,7 +18,7 @@ use GLPI::Agent::Tools;
 use GLPI::Agent::Tools::Hostname;
 use GLPI::Agent::Tools::UUID;
 
-our $VERSION = "1.5";
+our $VERSION = "1.6";
 
 my %api_match = (
     version             => \&_version,
