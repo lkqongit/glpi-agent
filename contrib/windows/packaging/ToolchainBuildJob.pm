@@ -6,8 +6,8 @@ use parent 'Exporter';
 use constant {
     # Toolchain setup
     TOOLCHAIN_BASE_URL  => 'https://github.com/brechtsanders/winlibs_mingw/releases/download',
-    TOOLCHAIN_VERSION   => '15.1.0posix-12.0.0-msvcrt-r1',
-    TOOLCHAIN_ARCHIVE   => 'winlibs-x86_64-posix-seh-gcc-15.1.0-mingw-w64msvcrt-12.0.0-r1.zip',
+    TOOLCHAIN_VERSION   => '15.1.0posix-13.0.0-msvcrt-r2',
+    TOOLCHAIN_ARCHIVE   => 'winlibs-x86_64-posix-seh-gcc-15.1.0-mingw-w64msvcrt-13.0.0-r2.zip',
 };
 
 sub toolchain_build_steps {
@@ -97,7 +97,7 @@ sub toolchain_build_steps {
             {
                 plugin  => 'Perl::Dist::Strawberry::Step::BuildLibrary',
                 name    => 'xz',
-                version => '5.6.4',
+                version => '5.8.1',
                 url     => 'https://github.com/tukaani-project/<name>/releases/download/v<version>/<name>-<version>.tar.gz',
                 skip_if_file    => 'bin/liblzma-5__.dll',
                 skip_test       => 1,
