@@ -6,6 +6,7 @@ packaging:
 * Update Windows packaging to use:
   - gcc 15.1.0posix-13.0.0-msvcrt-r2
   - liblzma from xz 5.8.1
+  - libxml2 2.14.4
 
 1.15 Mon, 09 Jun 2025
 
