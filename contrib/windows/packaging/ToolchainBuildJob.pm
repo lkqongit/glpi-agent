@@ -39,8 +39,8 @@ sub toolchain_build_steps {
             {
                 plugin          => 'Perl::Dist::Strawberry::Step::Msys2',
                 name            => 'msys2-base',
-                version         => '20250221',
-                folder          => '2025-02-21',
+                version         => '20250622',
+                folder          => '2025-06-22',
                 url             => 'https://github.com/msys2/msys2-installer/releases/download/<folder>/<name>-x86_64-<version>.tar.xz',
                 dest            => 'msys64',
             },
