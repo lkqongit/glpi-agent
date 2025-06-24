@@ -5,6 +5,9 @@ Revision history for GLPI agent
 inventory:
 * PR #931: Added DrWeb & Karpersky Endpoint for Linux antivirus support on linux
 
+netdiscovery/netinventory:
+* fix #922: Add Radware Alteon Load Balancer support
+
 packaging:
 * Update Windows packaging to use:
   - gcc 15.1.0posix-13.0.0-msvcrt-r2
