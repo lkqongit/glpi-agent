@@ -42,12 +42,14 @@ sub _getKESLInfo {
     };
 
     my $service_status = getFirstLine(
+        file    => $params{ksel_active}, # Only used by tests
         command => 'systemctl is-active kesl.service',
         %params
     );
     $av->{ENABLED} = $service_status && $service_status eq 'active' ? 1 : 0;
 
     my @app_info = getAllLines(
+        file    => $params{ksel_appinfo}, # Only used by tests
         command => 'kesl-control --app-info',
         %params
     );

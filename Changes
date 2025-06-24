@@ -2,6 +2,9 @@ Revision history for GLPI agent
 
 1.16 not yet released
 
+inventory:
+* PR #931: Added DrWeb & Karpersky Endpoint for Linux antivirus support on linux
+
 packaging:
 * Update Windows packaging to use:
   - gcc 15.1.0posix-13.0.0-msvcrt-r2

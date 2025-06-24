@@ -41,6 +41,7 @@ sub _getDrWebInfo {
     };
 
     my $version_output = getFirstLine(
+        file    => $params{drweb_version}, # Only used by tests
         command => 'drweb-ctl --version',
         %params
     );
@@ -50,12 +51,14 @@ sub _getDrWebInfo {
     }
 
     my $service_status = getFirstLine(
+        file    => $params{drweb_active}, # Only used by tests
         command => 'systemctl is-active drweb-configd.service',
         %params
     );
     $av->{ENABLED} = $service_status && $service_status eq 'active' ? 1 : 0;
 
     my @baseinfo = getAllLines(
+        file    => $params{drweb_baseinfo}, # Only used by tests
         command => 'drweb-ctl baseinfo',
         %params
     );
@@ -67,6 +70,7 @@ sub _getDrWebInfo {
     }
 
     my $expiration = getFirstMatch(
+        file    => $params{drweb_license}, # Only used by tests
         command => 'drweb-ctl license',
         pattern => qr/expires (\d+-\w+-\d+)/,
         %params
@@ -75,7 +79,6 @@ sub _getDrWebInfo {
         my $m = month($2);
         $av->{EXPIRATION} = sprintf("%d-%02d-%02d", $1, $m, $3) if $m;
     }
-
 
     return $av;
 }
