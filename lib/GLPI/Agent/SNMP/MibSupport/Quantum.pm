@@ -41,18 +41,18 @@ sub getFirmware {
     return getCanonicalString($self->get(productSnmpAgentVersion));
 }
 
+sub _index {
+    my ($key) = @_;
+    my ($index) = $key =~ /(\d+)$/
+        or return 0;
+    return int($index)
+}
+
 sub getComponents {
     my ($self) = @_;
 
     my $device = $self->device
         or return;
-
-    sub _index {
-        my ($key) = @_;
-        my ($index) = $key =~ /(\d+)$/
-            or return 0;
-        return int($index)
-    }
 
     my %types = (
         1, "mcb",       # Management control blade
