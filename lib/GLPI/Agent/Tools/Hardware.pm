@@ -523,6 +523,9 @@ sub getDeviceFullInfo {
         );
     }
 
+    # Set components without device type restriction
+    $device->setComponents();
+
     # Run any detected mib support
     $device->runMibSupport();
 
@@ -843,8 +846,6 @@ sub _setNetworkingProperties {
         ports  => $ports,
         logger => $logger
     );
-
-    $device->setComponents();
 }
 
 sub _getPercentValue {
