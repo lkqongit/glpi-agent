@@ -9,6 +9,7 @@ netdiscovery/netinventory:
 * fix #922: Add Radware Alteon Load Balancer support
 * Add components even not only for networking type
 * fix #924: Add Quantum storage library support
+* fix #962: Fix Extreme Networks devices VLAN inventory
 
 packaging:
 * Update Windows packaging to use:

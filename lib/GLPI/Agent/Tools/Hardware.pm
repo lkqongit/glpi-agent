@@ -1510,14 +1510,29 @@ sub _setVlans {
 
     my $ports  = $params{ports};
     my $logger = $params{logger};
+    my $device = $params{device}
+        or return;
+
+    # port to interface mapping
+    my $port2interface = $device->walk('.1.3.6.1.2.1.17.1.4.1.2'); # dot1dBasePortIfIndex
 
     foreach my $port_id (keys %$vlans) {
         # safety check
         if (! exists $ports->{$port_id}) {
-            $logger->debug(
-                "invalid interface ID $port_id while setting vlans, skipping"
-            ) if $logger;
-            next;
+            # Handle case where port_id is indeed an index from LLDP vlan datas like Extreme Networks devices
+            if ($port2interface && $port2interface->{$port_id} && $ports->{$port2interface->{$port_id}}) {
+                $vlans->{$port2interface->{$port_id}} = delete $vlans->{$port_id};
+                $port_id = $port2interface->{$port_id};
+            } elsif (isInteger($port_id) && $port2interface && $port2interface->{$port_id-1} && $ports->{$port2interface->{$port_id-1}+1}) {
+                # Last port is often management port and may miss in $port2interface but are following the last known one
+                $vlans->{$port2interface->{$port_id-1}+1} = delete $vlans->{$port_id};
+                $port_id = $port2interface->{$port_id-1}+1;
+            } else {
+                $logger->debug(
+                    "invalid interface ID $port_id while setting vlans, skipping"
+                ) if $logger;
+                next;
+            }
         }
         $ports->{$port_id}->{VLANS}->{VLAN} = $vlans->{$port_id};
     }
@@ -1729,7 +1744,11 @@ sub _getTrunkPorts {
         my $port2interface = $device->walk('.1.3.6.1.2.1.17.1.4.1.2');
         while (my ($id, $value) = each %{$vlanId}) {
             my $interface_id =
-                ! exists $port2interface->{$id} ? $id                   :
+                ! exists $port2interface->{$id} ?
+                # Handle management port not always referenced in $port2interface
+                # with index following numerically the previous one
+                isInteger($id) && exists $port2interface->{$id-1} ?
+                    $port2interface->{$id-1}+1 :  $id                   :
                                                   $port2interface->{$id};
             $results->{$interface_id} = $value == 0 ? 1 : 0;
         }
