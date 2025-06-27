@@ -23,7 +23,7 @@ sub getSystemUserProfiles {
         query      => "SELECT * FROM Win32_UserProfile WHERE LocalPath IS NOT NULL AND Special=FALSE",
         properties => [ qw/Sid Loaded LocalPath/ ],
     )) {
-        next unless $userprofile->{Sid} && $userprofile->{Sid} =~ /^S-\d+-5-21(-\d+)+$/;
+        next unless $userprofile->{Sid} && $userprofile->{Sid} =~ /^S-\d+-(5-21|12-1)(-\d+)+$/;
 
         next unless defined($userprofile->{Loaded}) && defined($userprofile->{LocalPath});
 

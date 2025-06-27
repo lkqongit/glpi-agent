@@ -4,6 +4,7 @@ Revision history for GLPI agent
 
 inventory:
 * PR #931: Added DrWeb & Karpersky Endpoint for Linux antivirus support on linux
+* fix #963: Software inventory with scan-profiles option fixed for Azure AD users
 
 netdiscovery/netinventory:
 * fix #922: Add Radware Alteon Load Balancer support
