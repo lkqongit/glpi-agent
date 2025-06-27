@@ -35,9 +35,21 @@ sub doInventory {
     my $inventory = $params{inventory};
     my $logger    = $params{logger};
 
+    my $interface = _getIpmitoolInterface(logger => $logger)
+        or return;
+
+    $inventory->addEntry(
+        section => 'NETWORKS',
+        entry   => $interface
+    );
+}
+
+sub _getIpmitoolInterface {
+    my (%params) = @_;
+
     my @lines = getAllLines(
-        logger => $logger,
         command => "ipmitool lan print",
+        %params
     );
     return unless @lines;
 
@@ -63,16 +75,15 @@ sub doInventory {
         }
     }
 
-    $interface->{IPSUBNET} = getSubnetAddress(
-        $interface->{IPADDRESS}, $interface->{IPMASK}
-    );
+    if ($interface->{IPADDRESS}) {
+        $interface->{IPSUBNET} = getSubnetAddress(
+            $interface->{IPADDRESS}, $interface->{IPMASK}
+        );
 
-    $interface->{STATUS} = 'Up' if $interface->{IPADDRESS};
+        $interface->{STATUS} = 'Up';
+    }
 
-    $inventory->addEntry(
-        section => 'NETWORKS',
-        entry   => $interface
-    );
+    return $interface;
 }
 
 1;
