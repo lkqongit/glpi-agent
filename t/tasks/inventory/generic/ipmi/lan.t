@@ -21,6 +21,17 @@ my %tests = (
         IPMASK      => '255.255.255.0',
         MACADDR     => '00:15:17:8f:48:32',
     },
+    'RH1288 V3' => {
+        DESCRIPTION => 'bmc',
+        TYPE        => 'ethernet',
+        MANAGEMENT  => 1,
+        STATUS      => 'Up',
+        IPADDRESS   => '12.34.123.111',
+        IPMASK      => '255.255.255.0',
+        IPSUBNET    => '12.34.123.0',
+        IPGATEWAY   => '12.34.123.254',
+        MACADDR     => 'd0:ef:c1:00:de:ad',
+    },
 );
 
 plan tests => 2 * (scalar keys %tests) + 1;
