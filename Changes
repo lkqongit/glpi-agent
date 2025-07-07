@@ -19,6 +19,7 @@ packaging:
   - liblzma from xz 5.8.1
   - libxml2 2.14.4
   - msys2-base 20250622
+  - 7-Zip v25.00
 * Update MacOSX packages to use OpenSSL 3.5.1
 
 1.15 Mon, 09 Jun 2025
