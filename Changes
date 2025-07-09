@@ -11,6 +11,8 @@ netdiscovery/netinventory:
 * Add components even not only for networking type
 * fix #924: Add Quantum storage library support
 * fix #962: Fix Extreme Networks devices VLAN inventory
+* fix #960: Add Juniper device MibSupport to merge virtual ports with physical
+  parent to better handle connections
 
 packaging:
 * Update Windows packaging to use:

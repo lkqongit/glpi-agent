@@ -1220,6 +1220,18 @@ sub _sortChassisIdSuffix {
         ) || $a[0] <=> $b[0];
 }
 
+sub _normalized_connection {
+    my ($conn) = @_;
+
+    # Remove digit suffix on remote Juniper IFDESCR
+    if ($conn->{SYSDESCR} && $conn->{SYSDESCR} =~ /^Juniper/) {
+        $conn->{IFDESCR} =~ s/\.\d+$//
+            if $conn->{IFDESCR} && $conn->{IFDESCR} =~ m{\d/\d+/\d+\.\d+$};
+    }
+
+    return $conn;
+}
+
 sub _getLLDPInfo {
     my (%params) = @_;
 
@@ -1343,7 +1355,8 @@ sub _getLLDPInfo {
             $params{vendor} eq 'Juniper'    ? $id                   :
                                               $port2interface->{$id};
 
-        $results->{$interface_id} = $connection;
+        # Normalization related to manufacturers
+        $results->{$interface_id} = _normalized_connection($connection);
     }
 
     return $results;
