@@ -70,6 +70,85 @@ my %df_tests = (
             FILESYSTEM => 'crypt'
         }
     ],
+    'linux-bigdisk' => [
+        {
+            VOLUMN     => 'udev',
+            TOTAL      => '3946',
+            FREE       => '3946',
+            TYPE       => '/dev',
+            FILESYSTEM => 'devtmpfs'
+        },
+        {
+            VOLUMN     => 'tmpfs',
+            TOTAL      => '794',
+            FREE       => '777',
+            TYPE       => '/run',
+            FILESYSTEM => 'tmpfs'
+        },
+        {
+            VOLUMN     => '/dev/mapper/archiwum--vg-root',
+            TOTAL      => '68762711',
+            FREE       => '14463579',
+            TYPE       => '/',
+            FILESYSTEM => 'ext4'
+        },
+        {
+            VOLUMN     => 'tmpfs',
+            TOTAL      => '3970',
+            FREE       => '3970',
+            TYPE       => '/dev/shm',
+            FILESYSTEM => 'tmpfs'
+        },
+        {
+            VOLUMN     => 'tmpfs',
+            TOTAL      => '5',
+            FREE       => '5',
+            TYPE       => '/run/lock',
+            FILESYSTEM => 'tmpfs'
+        },
+        {
+            VOLUMN     => '/dev/sda2',
+            TOTAL      => '455',
+            FREE       => '318',
+            TYPE       => '/boot',
+            FILESYSTEM => 'ext2'
+        },
+        {
+            VOLUMN     => '/dev/mapper/vg_monthly-monthly',
+            TOTAL      => '94369798',
+            FREE       => '75346970',
+            TYPE       => '/home/services/monthly',
+            FILESYSTEM => 'xfs'
+        },
+        {
+            VOLUMN     => 'tmpfs',
+            TOTAL      => '794',
+            FREE       => '794',
+            TYPE       => '/run/user/1261',
+            FILESYSTEM => 'tmpfs'
+        },
+        {
+            VOLUMN     => 'tmpfs',
+            TOTAL      => '794',
+            FREE       => '794',
+            TYPE       => '/run/user/4931',
+            FILESYSTEM => 'tmpfs'
+        },
+        {
+            VOLUMN     => 'tmpfs',
+            TOTAL      => '794',
+            FREE       => '794',
+            TYPE       => '/run/user/3870',
+            FILESYSTEM => 'tmpfs'
+        },
+        {
+            VOLUMN     => 'tmpfs',
+            TOTAL      => '794',
+            FREE       => '794',
+            TYPE       => '/run/user/4376',
+            FILESYSTEM => 'tmpfs'
+        }
+    ],
     'netbsd' => [
         {
             VOLUMN     => '/dev/wd0a',
