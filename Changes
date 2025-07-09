@@ -13,6 +13,7 @@ netdiscovery/netinventory:
 * fix #962: Fix Extreme Networks devices VLAN inventory
 * fix #960: Add Juniper device MibSupport to merge virtual ports with physical
   parent to better handle connections
+* fix #967: Add support for OmniOS and update Soclaris CPU inventory for OmniOS
 
 packaging:
 * Update Windows packaging to use:
