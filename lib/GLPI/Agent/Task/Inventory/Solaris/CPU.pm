@@ -95,6 +95,12 @@ sub _getCPUs {
             $type eq 'SPARC64-VIII'   ? (8,     2) : # Venus SPARC64-VIII
                                         (1,     1) ;
 
+        # Get core and threads from physical cpu if set
+        if ($physical_cpus[0]->{cores} && $physical_cpus[0]->{count}) {
+            $cores = $physical_cpus[0]->{cores};
+            $threads = int($physical_cpus[0]->{count}/$cores);
+        }
+
         if ($type =~ /MB86907/) {
             $type = "TurboSPARC-II $type";
         } elsif ($type =~ /MB86904|390S10/) {
@@ -174,6 +180,7 @@ sub _getPhysicalCPUs {
 
         if ($line =~ /^The physical processor has (\d+) cores and (\d+) virtual/) {
             push @cpus, {
+                cores => $1,
                 count => $2
             };
             next;
@@ -194,13 +201,12 @@ sub _getPhysicalCPUs {
             next;
         }
 
+        my $cpu = $cpus[-1];
         if ($line =~ /Intel\(r\) Xeon\(r\) CPU +(\S+)/) {
-            my $cpu = $cpus[-1];
             $cpu->{type} = "Xeon $1";
-        }
-
-        if ($line =~ /(\S.+) Processor/) {
-            my $cpu = $cpus[-1];
+        } elsif ($line =~ /Intel\(r\) Core\(tm\) (\S+) CPU/) {
+            $cpu->{type} = "Intel Core $1";
+        } elsif ($line =~ /(\S.+) Processor/) {
             $cpu->{type} = $1;
         }
     }

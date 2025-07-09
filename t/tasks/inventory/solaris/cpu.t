@@ -33,6 +33,7 @@ my %vpcu_tests = (
     ],
     'sparc-t5'  => [ _map(64, { speed => '3600', type => 'sparcv9' }) ],
     'oi-2021.10' => [ _map(2, { speed => '3823', type => 'i386' })    ],
+    'omnios-11' => [ _map(8, { speed => '3411', type => 'i386' })     ],
 );
 
 my %pcpu_tests = (
@@ -70,7 +71,7 @@ my %pcpu_tests = (
         _map(1, { speed => '1165', type => 'UltraSPARC-T2', count => 32 })
     ],
     solaris11 => [
-        _map(1, { speed => '1000', type => 'UltraSPARC-T1', count => 32 })
+        _map(1, { speed => '1000', type => 'UltraSPARC-T1', count => 32, cores => 8 })
     ],
     e6900 => [
         _map(8, { speed => '1350', type => 'UltraSPARC-IV'  , count => 2 }),
@@ -81,6 +82,9 @@ my %pcpu_tests = (
     ],
     'oi-2021.10' => [
         _map(1, { speed => '3823', type => 'AMD Ryzen 9 3900X 12-Core', count => 2 })
+    ],
+    'omnios-11' => [
+        _map(1, { speed => '3411', type => 'Intel Core i7-2600K', count => 8, cores => 4 })
     ],
 );
 
@@ -245,6 +249,17 @@ my %cpu_tests = (
                 SPEED        => 3823,
                 THREAD       => 1,
                 CORE         => 12
+            }
+        )
+    ],
+    'omnios-11'=> [
+        _map(1,
+            {
+                NAME         => 'Intel Core i7-2600K',
+                MANUFACTURER => 'Intel',
+                SPEED        => 3411,
+                THREAD       => 2,
+                CORE         => 4
             }
         )
     ],
