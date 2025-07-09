@@ -376,6 +376,9 @@ sub getReleaseInfo {
         ($subversion) = $id =~ /_(u\d+)/;
     } elsif ($fullname =~ /OpenIndiana/) {
         ($version) = $fullname =~ /([\d.]+)/;
+    } elsif ($fullname =~ /^OmniOS v(\d+) r(\d+)/) {
+        $version = $1;
+        $subversion = $2;
     }
 
     return {
