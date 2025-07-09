@@ -369,10 +369,10 @@ sub setMacAddress {
 
     my $address_oid = ".1.3.6.1.2.1.17.1.1.0";
     my $address = getCanonicalMacAddress(
-        # use BRIDGE-MIB::dot1dBaseBridgeAddress if available
-        $self->get($address_oid) ||
         # Try MIB Support mechanism
-        $self->getMacAddressByMibSupport()
+        $self->getMacAddressByMibSupport() ||
+        # use BRIDGE-MIB::dot1dBaseBridgeAddress if available
+        $self->get($address_oid)
     );
 
     return $self->{MAC} = $address
