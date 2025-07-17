@@ -27,6 +27,7 @@ sub doInventory {
         class      => 'Win32_OperatingSystem',
         properties => [ qw/
             Caption Version CSDVersion LastBootUpTime InstallDate BuildNumber
+            OSArchitecture
         / ]
     );
 
@@ -37,7 +38,10 @@ sub doInventory {
         / ]
     );
 
-    my $arch = is64bit() ? '64-bit' : '32-bit';
+    my $arch = is64bit() ?
+        $operatingSystem->{OSArchitecture} && $operatingSystem->{OSArchitecture} =~ /ARM/i ? 'Arm64'
+        : '64-bit'
+        : '32-bit';
 
     my $boottime = getFormatedWMIDateTime($operatingSystem->{LastBootUpTime});
 

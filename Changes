@@ -15,6 +15,7 @@ netdiscovery/netinventory:
   parent to better handle connections
 * fix #967: Add support for OmniOS and update Soclaris CPU inventory for OmniOS
 * windows: Report only one printer when they have same portname
+* fix #929: Support reporting Windows OS architecture as Arm64
 
 packaging:
 * Update Windows packaging to use:
