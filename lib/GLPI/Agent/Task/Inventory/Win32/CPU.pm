@@ -88,7 +88,7 @@ sub _getCPUs {
         my $wmi_threads   = !$dmidecodeInfo->{THREAD} && $object->{NumberOfCores} && $object->{NumberOfLogicalProcessors} ?
             $object->{NumberOfLogicalProcessors}/$object->{NumberOfCores} : undef;
 
-        # Support case thread count is not an integer. This can happen is cpu provides performance and efficiency cores.
+        # Support case thread count is not an integer. This can happen if cpu provides performance and efficiency cores.
         $wmi_threads = int($wmi_threads)+1 if $wmi_threads && $wmi_threads > int($wmi_threads);
 
         # Split CPUID from its value inside registry
