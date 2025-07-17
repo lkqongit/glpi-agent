@@ -6,9 +6,13 @@ use lib 't/lib';
 
 use English qw(-no_match_vars);
 use Test::More;
+use Test::Deep;
+use Test::Exception;
 use Test::MockModule;
 use UNIVERSAL::require;
+use Data::Dumper;
 
+use GLPI::Agent::Inventory;
 use GLPI::Test::Utils;
 
 BEGIN {
@@ -51,15 +55,64 @@ my %tests = (
     }
 );
 
+my %printers = (
+    windows => [
+        {
+            DRIVER          => 'Adobe PDF Converter',
+            NAME            => 'Adobe PDF',
+            NETWORK         => 0,
+            PORT            => 'Documents\\*.pdf',
+            PRINTPROCESSOR  => 'winprint',
+            RESOLUTION      => '1200x1200',
+            SHARED          => 0,
+            STATUS          => 'Idle'
+        },
+        {
+            DRIVER          => 'Microsoft Print To PDF',
+            NAME            => 'Microsoft Print to PDF',
+            NETWORK         => 0,
+            PORT            => 'PORTPROMPT:',
+            PRINTPROCESSOR  => 'winprint',
+            RESOLUTION      => '600x600',
+            SHARED          => 0,
+            STATUS          => 'Idle'
+        },
+        {
+            COMMENT         => 'PDF24 Printer',
+            DRIVER          => 'PDF24',
+            NAME            => 'PDF24',
+            NETWORK         => 0,
+            PORT            => '\\\\.\\pipe\\PDFPrint',
+            PRINTPROCESSOR  => 'winprint',
+            RESOLUTION      => '600x600',
+            SHARED          => 0,
+            STATUS          => 'Idle'
+        },
+        {
+            DRIVER          => 'Lexmark Universal v2',
+            NAME            => 'printer03-main',
+            NETWORK         => 0,
+            PORT            => 'printer03-main',
+            PRINTPROCESSOR  => 'LMUD1O4C',
+            RESOLUTION      => '600x600',
+            SHARED          => 0,
+            STATUS          => 'Idle'
+        }
+    ],
+);
+
 my $plan = 1;
 foreach my $test (keys %tests) {
     $plan += scalar (keys %{$tests{$test}});
 }
+$plan += 2 * scalar (keys %printers);
 plan tests => $plan;
 
 my $module = Test::MockModule->new(
     'GLPI::Agent::Task::Inventory::Win32::Printers'
 );
+
+my $inventory = GLPI::Agent::Inventory->new();
 
 foreach my $test (keys %tests) {
     $module->mock(
@@ -74,4 +127,35 @@ foreach my $test (keys %tests) {
             "$test sample, $port printer"
         );
     }
+}
+
+foreach my $test (keys %printers) {
+    $module->mock(
+        'getRegistryKey',
+        mockGetRegistryKey($test)
+    );
+
+    $module->mock(
+        'getWMIObjects',
+        mockGetWMIObjects($test)
+    );
+
+    my @printers = GLPI::Agent::Task::Inventory::Win32::Printers::_getPrinters();
+
+    if (ref($printers{$test}) eq 'ARRAY' && scalar(@{$printers{$test}})) {
+        cmp_deeply(
+            \@printers,
+            $printers{$test},
+            "$test: printers parsing"
+        );
+    } else {
+        my $dumper = Data::Dumper->new([\@printers], [$test])->Useperl(1)->Indent(1)->Quotekeys(0)->Sortkeys(1)->Pad("    ");
+        $dumper->{xpad} = "    ";
+        print STDERR $dumper->Dump();
+        fail "$test: result still not integrated";
+    }
+
+    lives_ok {
+        $inventory->addEntry(section => 'PRINTERS', entry => $_) foreach @printers;
+    } "$test: registering";
 }

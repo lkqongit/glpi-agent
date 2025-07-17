@@ -51,6 +51,18 @@ sub doInventory {
 
     my $inventory = $params{inventory};
 
+    foreach my $printer (_getPrinters()) {
+        $inventory->addEntry(
+            section => 'PRINTERS',
+            entry   => $printer
+        );
+    }
+}
+
+sub _getPrinters {
+
+    my %seen;
+
     foreach my $object (getWMIObjects(
         class      => 'Win32_Printer',
         properties => [ qw/
@@ -59,44 +71,48 @@ sub doInventory {
             ServerName ShareName PrintProcessor
         / ]
     )) {
+        next if empty($object->{Name}) || empty($object->{PortName});
 
-        my $errStatus;
-        if ($object->{ExtendedDetectedErrorState}) {
-            $errStatus = $errStatus[$object->{ExtendedDetectedErrorState}];
-        }
+        # Deduplicate printers with different names but same portname
+        # Be sure also to keep printer with same name as portname in that case
+        next if $seen{$object->{PortName}} && $object->{PortName} ne $object->{Name};
 
-        my $resolution;
+        my $printer = {
+            NAME           => $object->{Name},
+            DRIVER         => $object->{DriverName},
+            PORT           => $object->{PortName},
+            NETWORK        => defined($object->{Network}) && $object->{Network} =~ /^1|true$/ ? 1 : 0,
+            SHARED         => defined($object->{Shared}) && $object->{Shared} =~ /^1|true$/ ? 1 : 0,
+            STATUS         => $status[$object->{PrinterStatus} // 0],
+            PRINTPROCESSOR => $object->{PrintProcessor},
+        };
+
+        map {
+            $printer->{uc($_)} = $object->{$_};
+        } grep { !empty($object->{$_}) } qw{ Comment Description ServerName ShareName };
 
         if ($object->{HorizontalResolution}) {
-            $resolution = $object->{HorizontalResolution};
-            $resolution .= "x" . $object->{VerticalResolution}
+            $printer->{RESOLUTION} = $object->{HorizontalResolution};
+            $printer->{RESOLUTION} .= "x" . $object->{VerticalResolution}
                 if $object->{VerticalResolution};
         }
 
-        $object->{Serial} = _getUSBPrinterSerial($object->{PortName})
-            if $object->{PortName} && $object->{PortName} =~ /USB/;
+        if ($object->{PortName} && $object->{PortName} =~ /USB/) {
+            $printer->{SERIAL} = _getUSBPrinterSerial($object->{PortName});
+        } elsif ($object->{Serial}) {
+            $printer->{SERIAL} = $object->{Serial};
+        }
 
-        $inventory->addEntry(
-            section => 'PRINTERS',
-            entry   => {
-                NAME           => $object->{Name},
-                COMMENT        => $object->{Comment},
-                DESCRIPTION    => $object->{Description},
-                DRIVER         => $object->{DriverName},
-                PORT           => $object->{PortName},
-                RESOLUTION     => $resolution,
-                NETWORK        => defined($object->{Network}) && $object->{Network} =~ /^1|true$/ ? 1 : 0,
-                SHARED         => defined($object->{Shared}) && $object->{Shared} =~ /^1|true$/ ? 1 : 0,
-                STATUS         => $status[$object->{PrinterStatus} // 0],
-                ERRSTATUS      => $errStatus,
-                SERVERNAME     => $object->{ServerName},
-                SHARENAME      => $object->{ShareName},
-                PRINTPROCESSOR => $object->{PrintProcessor},
-                SERIAL         => $object->{Serial}
-            }
-        );
+        if ($object->{ExtendedDetectedErrorState}) {
+            $printer->{ERRSTATUS} = $errStatus[$object->{ExtendedDetectedErrorState}];
+        }
 
+        $seen{$object->{PortName}} = $printer;
     }
+
+    my @printers = sort { lc($a->{NAME}) cmp lc($b->{NAME}) } values(%seen);
+
+    return @printers;
 }
 
 sub _getUSBPrinterSerial {

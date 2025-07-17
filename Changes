@@ -14,6 +14,7 @@ netdiscovery/netinventory:
 * fix #960: Add Juniper device MibSupport to merge virtual ports with physical
   parent to better handle connections
 * fix #967: Add support for OmniOS and update Soclaris CPU inventory for OmniOS
+* windows: Report only one printer when they have same portname
 
 packaging:
 * Update Windows packaging to use:
