@@ -97,9 +97,6 @@ sub run {
                 $port->{$_} = 0 unless $port->{$_};
                 $port->{$_} += $merge->{$_} if $merge->{$_};
             } qw( IFINERRORS IFINOCTETS IFOUTERRORS IFOUTOCTETS );
-map {
-    warn "$_: $merge->{$_} vs $port->{$_}\n" if $merge->{$_} && $port->{$_} && $merge->{$_} ne $port->{$_};
-} grep { $_ !~ /^IFINERRORS|IFINOCTETS|IFOUTERRORS|IFOUTOCTETS|IFNUMBER$/ } keys(%$merge);
         }
     }
 }
