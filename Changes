@@ -17,6 +17,7 @@ netdiscovery/netinventory:
 * windows: Report only one printer when they have same portname
 * fix #929: Support reporting Windows OS architecture as Arm64
 * Fix smbios command output parsing on Solaris
+* fix #971: Support smbios parsing to enhance memory inventory on Solaris
 
 packaging:
 * Update Windows packaging to use:
