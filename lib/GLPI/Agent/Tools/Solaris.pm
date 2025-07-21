@@ -445,23 +445,24 @@ sub getSmbios {
             }
         } elsif ($line =~ /^ \s* ([^:]+) (?: \s \( [^:]+ \))?: \s* (.+)? $/x) {
             $key = $1;
-            $current->{$key} = $2;
+            $current->{$key} = trimWhitespace($2);
         } elsif ($line =~ /^  (.+)$/) {
+            my $value = trimWhitespace($1);
             if ($key) {
                 if (ref($current->{$key}) eq 'ARRAY') {
-                    push @{$current->{$key}}, $1;
+                    push @{$current->{$key}}, $value;
                 } elsif (defined($current->{$key})) {
-                    $current->{$key} = [ $current->{$key}, $1 ];
+                    $current->{$key} = [ $current->{$key}, $value ];
                 } else {
-                    $current->{$key} = $1;
+                    $current->{$key} = $value;
                 }
             } else {
                 if (ref($current) eq 'ARRAY') {
-                    push @{$current}, $1;
+                    push @{$current}, $value;
                 } elsif (defined($current)) {
-                    $current = [ $current, $1 ];
+                    $current = [ $current, $value ];
                 } else {
-                    $current = $1;
+                    $current = $value;
                 }
             }
         }
