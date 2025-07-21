@@ -399,16 +399,71 @@ sub getSmbios {
     my @lines = getAllLines(%params)
         or return;
 
-    my ($infos, $current);
-    foreach my $line (@lines) {
-        if ($line =~ /^ \d+ \s+ \d+ \s+ (\S+)/x) {
-            $current = $1;
-            next;
-        }
+    # Force to register last parsed element
+    push @lines, "ID    SIZE TYPE";
 
-        if ($line =~ /^ \s* ([^:]+) : \s* (.+) $/x) {
-            $infos->{$current}->{$1} = $2;
-            next;
+    my ($infos, $current, $key, $section);
+    while (@lines) {
+        my $line = shift @lines;
+
+        if ($line =~ /^ ID \s+ SIZE \s+ TYPE/x) {
+            if ($section) {
+                if (ref($infos->{$section}) eq 'ARRAY') {
+                    push @{$infos->{$section}}, $current;
+                } elsif (ref($infos->{$section}) eq 'HASH') {
+                    my $arrayref = [ $infos->{$section}, $current ];
+                    $infos->{$section} = $arrayref;
+                } else {
+                    $infos->{$section} = $current;
+                }
+            }
+            undef $current;
+            undef $section;
+            undef $key;
+        } elsif ($line =~ /^(\t|\s{4})\S/) {
+            # Skip flags details
+        } elsif ($line =~ /^ \d+ \s+ \d+ \s+ (\S+)/x) {
+            $section = $1;
+        } elsif ($line =~ /^\s+(?:offset:)?\s+0 1 2 3  4 5 6 7  8 9 a b  c d e f\s+0123456789abcdef$/) {
+            while (@lines && $lines[0] =~ /^\s+\d+:\s+([0-9a-f ]+)\s\|?\s/) {
+                my $hexdump = $1;
+                $hexdump =~ s/ //g;
+                if ($key) {
+                    if (defined($current->{$key})) {
+                        $current->{$key} .= $hexdump;
+                    } else {
+                        $current->{$key} = "0x".$hexdump;
+                    }
+                } else {
+                    if (defined($current)) {
+                        $current .= $hexdump;
+                    } else {
+                        $current = "0x".$hexdump;
+                    }
+                }
+                shift @lines;
+            }
+        } elsif ($line =~ /^ \s* ([^:]+) (?: \s \( [^:]+ \))?: \s* (.+)? $/x) {
+            $key = $1;
+            $current->{$key} = $2;
+        } elsif ($line =~ /^  (.+)$/) {
+            if ($key) {
+                if (ref($current->{$key}) eq 'ARRAY') {
+                    push @{$current->{$key}}, $1;
+                } elsif (defined($current->{$key})) {
+                    $current->{$key} = [ $current->{$key}, $1 ];
+                } else {
+                    $current->{$key} = $1;
+                }
+            } else {
+                if (ref($current) eq 'ARRAY') {
+                    push @{$current}, $1;
+                } elsif (defined($current)) {
+                    $current = [ $current, $1 ];
+                } else {
+                    $current = $1;
+                }
+            }
         }
     }
 
