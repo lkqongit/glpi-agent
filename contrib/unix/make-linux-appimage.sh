@@ -238,7 +238,7 @@ AppImage:
   update-information: None
   sign-key: None
   arch: $ARCH
-  comp: xz
+  comp: zstd
 
 APPIMAGEBUILDER_YAML
 
@@ -286,6 +286,12 @@ fi
 if ! type appimage-builder >/dev/null 2>&1; then
     echo "appimage-builder command not installed" >&2
     exit 1
+fi
+
+# Fix for Github build
+FILE2FIX=/opt/pipx/venvs/appimage-builder/lib/python3.12/site-packages/appimagebuilder/modules/prime/appimage_primer.py
+if [ -e "$FILE2FIX" ]; then
+    sed -ri -e 's/AppImage\/AppImageKit/AppImage\/type2-runtime/' "$FILE2FIX"
 fi
 
 appimage-builder --appdir build/AppDir --recipe build/AppImageBuilder.yml
