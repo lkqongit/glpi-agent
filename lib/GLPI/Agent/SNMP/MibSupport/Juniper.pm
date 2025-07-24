@@ -73,7 +73,8 @@ sub run {
         my %ports;
         my %index;
         my $ports = $device->{PORTS}->{PORT};
-        foreach my $index (keys(%{$ports})) {
+        my @portnames = sortedPorts($ports);
+        foreach my $index (@portnames) {
             next if empty($ports->{$index}->{IFNAME});
             $index{$ports->{$index}->{IFNAME}} = $index;
             $ports{$ports->{$index}->{IFNAME}} = $ports->{$index};
@@ -81,7 +82,7 @@ sub run {
 
         # Search virtualport on which physical port should be merged to handle
         # connections as expected in GLPI
-        foreach my $name (keys(%ports)) {
+        foreach my $name (@portnames) {
             my $port = $ports{$name};
             next unless $port->{IFTYPE} && isInteger($port->{IFTYPE}) && int($port->{IFTYPE}) == 53;
             my ($physical) = $name =~ /^(.+)\.\d+$/

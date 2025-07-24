@@ -18,6 +18,7 @@ our @EXPORT = qw(
     getCanonicalDate
     isInteger
     getRegexpOidMatch
+    sortedPorts
 );
 
 sub getCanonicalSerialNumber {
@@ -206,6 +207,23 @@ sub getCanonicalDate {
     }
 
     return;
+}
+
+sub sortedPorts {
+    my ($ports) = @_;
+    return unless ref($ports) eq "HASH";
+    return ( sort { _numifyPort($a) <=> _numifyPort($b) } keys %{$ports} );
+}
+
+sub _numifyPort {
+    my ($num) = @_;
+    return int($num) if $num =~ /^\d+$/;
+    return 0 unless $num =~ /^[0-9.]+$/;
+    # Here we have digits separated by dots and maybe more than one like seen on Sophos devices
+    my @digits = split(/\./, $num);
+    $num = shift @digits;
+    # Manage to have a real number even when more than one dot are found
+    return int($num.".".join("", map { sprintf("%03d", $_) } @digits));
 }
 
 1;

@@ -533,26 +533,13 @@ sub getDeviceFullInfo {
     my $ports = $device->{PORTS}->{PORT};
     if ($ports && %$ports) {
         $device->{PORTS}->{PORT} = [
-            map { $ports->{$_} }
-            sort { _numify($a) <=> _numify($b) }
-            keys %{$ports}
+            map { $ports->{$_} } sortedPorts($ports)
         ];
     } else {
         delete $device->{PORTS};
     }
 
     return $device->getInventory();
-}
-
-sub _numify {
-    my ($num) = @_;
-    return int($num) if $num =~ /^\d+$/;
-    return 0 unless $num =~ /^[0-9.]+$/;
-    # Here we have digits separated by dots and maybe more than one like seen on Sophos devices
-    my @digits = split(/\./, $num);
-    $num = shift @digits;
-    # Manage to have a real number even when more than one dot are found
-    return $num.".".join("", map { sprintf("%03d", $_) } @digits);
 }
 
 sub _setGenericProperties {
