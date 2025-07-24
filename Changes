@@ -5,6 +5,11 @@ Revision history for GLPI agent
 inventory:
 * PR #931: Added DrWeb & Karpersky Endpoint for Linux antivirus support on linux
 * fix #963: Software inventory with scan-profiles option fixed for Azure AD users
+* fix #967: Add support for OmniOS and update Soclaris CPU inventory for OmniOS
+* windows: Report only one printer when they have same portname
+* fix #929: Support reporting Windows OS architecture as Arm64
+* Fix smbios command output parsing on Solaris
+* fix #971: Support smbios parsing to enhance memory inventory on Solaris
 
 netdiscovery/netinventory:
 * fix #922: Add Radware Alteon Load Balancer support
@@ -13,11 +18,6 @@ netdiscovery/netinventory:
 * fix #962: Fix Extreme Networks devices VLAN inventory
 * fix #960: Add Juniper device MibSupport to merge virtual ports with physical
   parent to better handle connections
-* fix #967: Add support for OmniOS and update Soclaris CPU inventory for OmniOS
-* windows: Report only one printer when they have same portname
-* fix #929: Support reporting Windows OS architecture as Arm64
-* Fix smbios command output parsing on Solaris
-* fix #971: Support smbios parsing to enhance memory inventory on Solaris
 
 packaging:
 * Update Windows packaging to use:
