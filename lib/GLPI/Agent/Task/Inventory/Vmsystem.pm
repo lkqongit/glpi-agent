@@ -234,6 +234,11 @@ sub _getType {
         }
     }
 
+    # Docker
+    if (has_file('/.dockerinit') || has_file('/.dockerenv')) {
+        return 'Docker';
+    }
+
     # OpenVZ
     if (canRead('/proc/self/status')) {
         my @selfstatus = getAllLines(
@@ -290,12 +295,6 @@ sub _getType {
     my $BIOSSERIAL = $inventory->getBios('BIOSSERIAL');
     if ($BIOSSERIAL) {
         return 'VMware'      if $BIOSSERIAL =~ /VMware/i;
-    }
-
-    # Docker
-
-    if (has_file('/.dockerinit') || has_file('/.dockerenv')) {
-        return 'Docker';
     }
 
     # Solaris zones

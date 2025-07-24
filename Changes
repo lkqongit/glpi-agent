@@ -10,6 +10,7 @@ inventory:
 * fix #929: Support reporting Windows OS architecture as Arm64
 * Fix smbios command output parsing on Solaris
 * fix #971: Support smbios parsing to enhance memory inventory on Solaris
+* fix #979: Detect if running in Docker container before hardware virtualmachine
 
 netdiscovery/netinventory:
 * fix #922: Add Radware Alteon Load Balancer support
