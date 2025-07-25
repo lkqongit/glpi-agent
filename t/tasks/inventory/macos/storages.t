@@ -10,6 +10,8 @@ use Test::More;
 use Test::NoWarnings;
 use English;
 
+use Data::Dumper;
+
 use GLPI::Test::Inventory;
 use GLPI::Agent::Task::Inventory::MacOS::Storages;
 use GLPI::Agent::XML;
@@ -63,7 +65,8 @@ my %testsSerialATA = (
             TYPE         => 'Disk drive',
             DESCRIPTION  => 'VBOX HARDDISK'
         }
-    ]
+    ],
+    'macbook-SPSerialATADataType.xml' => []
 );
 
 my %testsDiscBurning = (
@@ -78,7 +81,8 @@ my %testsDiscBurning = (
         }
     ],
     'SPDiscBurningDataType2.xml' => [],
-    'SPDiscBurningDataType3.xml' => []
+    'SPDiscBurningDataType3.xml' => [],
+    'macbook-SPDiscBurningDataType.xml' => []
 );
 
 my %testsCardReader = (
@@ -110,7 +114,8 @@ my %testsCardReader = (
             TYPE         => 'SD Card'
         }
     ],
-    'SPCardReaderDataType2.xml' => []
+    'SPCardReaderDataType2.xml' => [],
+    'macbook-SPCardReaderDataType.xml' => []
 );
 
 my %testsUSBStorage = (
@@ -244,7 +249,8 @@ my %testsUSBStorage = (
             DISKSIZE     => 3819.52,
         }
     ],
-    'SPUSBDataType4.xml' => []
+    'SPUSBDataType4.xml' => [],
+    'macbook-SPUSBDataType.xml' => []
 );
 
 my %testsFireWireStorage = (
@@ -257,7 +263,8 @@ my %testsFireWireStorage = (
             TYPE         => 'Disk drive'
         }
     ],
-    'SPFireWireDataType2.xml' => []
+    'SPFireWireDataType2.xml' => [],
+    'macbook-SPFireWireDataType.xml' => []
 );
 
 my $nbTests = scalar (keys %testsSerialATA)
@@ -273,11 +280,19 @@ my $inventory = GLPI::Test::Inventory->new();
 foreach my $test (keys %testsSerialATA) {
     my $file = "resources/macos/system_profiler/$test";
     my @storages = GLPI::Agent::Task::Inventory::MacOS::Storages::_getSerialATAStorages(file => $file);
-    cmp_deeply(
-        [ sort { compare() } @storages ],
-        [ sort { compare() } @{$testsSerialATA{$test}} ],
-        "testsSerialATA $test: parsing"
-    );
+    my $storages = [ sort { compare() } @storages ];
+    if (ref($testsSerialATA{$test}) eq 'ARRAY') {
+        cmp_deeply(
+            $storages,
+            [ sort { compare() } @{$testsSerialATA{$test}} ],
+            "testsSerialATA $test: parsing"
+        );
+    } else {
+        my $dumper = Data::Dumper->new([$storages], [$test])->Useperl(1)->Indent(1)->Quotekeys(0)->Sortkeys(1)->Pad("    ");
+        $dumper->{xpad} = "    ";
+        print STDERR $dumper->Dump();
+        fail "$test: still no result integrated";
+    }
     lives_ok {
         $inventory->addEntry(section => 'STORAGES', entry => $_)
             foreach @storages;
@@ -287,11 +302,19 @@ foreach my $test (keys %testsSerialATA) {
 foreach my $test (keys %testsDiscBurning) {
     my $file = "resources/macos/system_profiler/$test";
     my @storages = GLPI::Agent::Task::Inventory::MacOS::Storages::_getDiscBurningStorages(file => $file);
-    cmp_deeply(
-        [ sort { compare() } @storages ],
-        [ sort { compare() } @{$testsDiscBurning{$test}} ],
-        "testsDiscBurning $test: parsing"
-    );
+    my $storages = [ sort { compare() } @storages ];
+    if (ref($testsDiscBurning{$test}) eq 'ARRAY') {
+        cmp_deeply(
+            $storages,
+            [ sort { compare() } @{$testsDiscBurning{$test}} ],
+            "testsDiscBurning $test: parsing"
+        );
+    } else {
+        my $dumper = Data::Dumper->new([$storages], [$test])->Useperl(1)->Indent(1)->Quotekeys(0)->Sortkeys(1)->Pad("    ");
+        $dumper->{xpad} = "    ";
+        print STDERR $dumper->Dump();
+        fail "$test: still no result integrated";
+    }
     lives_ok {
         $inventory->addEntry(section => 'STORAGES', entry => $_)
             foreach @storages;
@@ -301,11 +324,19 @@ foreach my $test (keys %testsDiscBurning) {
 foreach my $test (keys %testsCardReader) {
     my $file = "resources/macos/system_profiler/$test";
     my @storages = GLPI::Agent::Task::Inventory::MacOS::Storages::_getCardReaderStorages(file => $file);
-    cmp_deeply(
-        [ sort { compare() } @storages ],
-        [ sort { compare() } @{$testsCardReader{$test}} ],
-        "testsDiscBurning $test: parsing"
-    );
+    my $storages = [ sort { compare() } @storages ];
+    if (ref($testsCardReader{$test}) eq 'ARRAY') {
+        cmp_deeply(
+            $storages,
+            [ sort { compare() } @{$testsCardReader{$test}} ],
+            "testsCardReader $test: parsing"
+        );
+    } else {
+        my $dumper = Data::Dumper->new([$storages], [$test])->Useperl(1)->Indent(1)->Quotekeys(0)->Sortkeys(1)->Pad("    ");
+        $dumper->{xpad} = "    ";
+        print STDERR $dumper->Dump();
+        fail "$test: still no result integrated";
+    }
     lives_ok {
         $inventory->addEntry(section => 'STORAGES', entry => $_)
             foreach @storages;
@@ -315,11 +346,19 @@ foreach my $test (keys %testsCardReader) {
 foreach my $test (keys %testsUSBStorage) {
     my $file = "resources/macos/system_profiler/$test";
     my @storages = GLPI::Agent::Task::Inventory::MacOS::Storages::_getUSBStorages(file => $file);
-    cmp_deeply(
-        [ sort { compare() } @storages ],
-        [ sort { compare() } @{$testsUSBStorage{$test}} ],
-        "testsUSBStorage $test: parsing"
-    );
+    my $storages = [ sort { compare() } @storages ];
+    if (ref($testsUSBStorage{$test}) eq 'ARRAY') {
+        cmp_deeply(
+            $storages,
+            [ sort { compare() } @{$testsUSBStorage{$test}} ],
+            "testsUSBStorage $test: parsing"
+        );
+    } else {
+        my $dumper = Data::Dumper->new([$storages], [$test])->Useperl(1)->Indent(1)->Quotekeys(0)->Sortkeys(1)->Pad("    ");
+        $dumper->{xpad} = "    ";
+        print STDERR $dumper->Dump();
+        fail "$test: still no result integrated";
+    }
     lives_ok {
         $inventory->addEntry(section => 'STORAGES', entry => $_)
             foreach @storages;
@@ -329,11 +368,19 @@ foreach my $test (keys %testsUSBStorage) {
 foreach my $test (keys %testsFireWireStorage) {
     my $file = "resources/macos/system_profiler/$test";
     my @storages = GLPI::Agent::Task::Inventory::MacOS::Storages::_getFireWireStorages(file => $file);
-    cmp_deeply(
-        [ sort { compare() } @storages ],
-        [ sort { compare() } @{$testsFireWireStorage{$test}} ],
-        "testsFireWireStorage $test: parsing"
-    );
+    my $storages = [ sort { compare() } @storages ];
+    if (ref($testsFireWireStorage{$test}) eq 'ARRAY') {
+        cmp_deeply(
+            $storages,
+            [ sort { compare() } @{$testsFireWireStorage{$test}} ],
+            "testsFireWireStorage $test: parsing"
+        );
+    } else {
+        my $dumper = Data::Dumper->new([$storages], [$test])->Useperl(1)->Indent(1)->Quotekeys(0)->Sortkeys(1)->Pad("    ");
+        $dumper->{xpad} = "    ";
+        print STDERR $dumper->Dump();
+        fail "$test: still no result integrated";
+    }
     lives_ok {
         $inventory->addEntry(section => 'STORAGES', entry => $_)
             foreach @storages;
