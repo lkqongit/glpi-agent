@@ -5,7 +5,7 @@ Revision history for GLPI agent
 inventory:
 * PR #931: Added DrWeb & Karpersky Endpoint for Linux antivirus support on linux
 * fix #963: Software inventory with scan-profiles option fixed for Azure AD users
-* fix #967: Add support for OmniOS and update Soclaris CPU inventory for OmniOS
+* fix #967: Add support for OmniOS and update Solaris CPU inventory for OmniOS
 * windows: Report only one printer when they have same portname
 * fix #929: Support reporting Windows OS architecture as Arm64
 * Fix smbios command output parsing on Solaris
