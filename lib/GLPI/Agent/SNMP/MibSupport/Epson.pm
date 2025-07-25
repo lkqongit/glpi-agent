@@ -13,6 +13,9 @@ use constant    model   => epson . '.1.2.2.1.1.1.2.1' ;
 use constant    serial  => epson . '.1.2.2.1.1.1.5.1' ;
 use constant    fw_base => epson . '.1.2.2.2.1.1' ;
 
+use constant    maintenance_level => epson . '.1.2.2.28.1.1.2.1.5';
+use constant    maintenance_label => epson . '.1.2.2.28.1.1.5.1.5';
+
 our $mibSupport = [
     {
         name        => "epson-printer",
@@ -53,6 +56,12 @@ sub run {
             };
             $device->addFirmware($firmware);
         }
+    }
+
+    # Add maintenance cartridge level
+    my $maintenance = hex2char($self->get(maintenance_label));
+    if ($maintenance && $maintenance =~ /maintenance/i) {
+        $device->{CARTRIDGES}->{MAINTENANCEKIT} = $self->get(maintenance_level);
     }
 }
 

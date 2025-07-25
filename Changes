@@ -19,6 +19,7 @@ netdiscovery/netinventory:
 * fix #962: Fix Extreme Networks devices VLAN inventory
 * fix #960: Add Juniper device MibSupport to merge virtual ports with physical
   parent to better handle connections
+* fix #989: Support Maintenance Cartridge level inventory on Epson printers
 
 packaging:
 * Update Windows packaging to use:
