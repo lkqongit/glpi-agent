@@ -2,12 +2,12 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <meta content="text/html; charset=UTF-8" http-equiv="content-type" />
-    <title>GLPI-Agent</title>
+    <title>ITASM-Agent</title>
     <link rel="stylesheet" href="site.css" type="text/css" />
 </head>
 <body>
   <div id='background'>
-    <p id='version' class='block'>This is GLPI Agent {$version}</p>
+    <p id='version' class='block'>This is ITASM Agent</p>
     <div id='status'>
       <p>The current status is {$status}</p>{
     $OUT .= $trust && (@server_targets || @local_targets) ? "
